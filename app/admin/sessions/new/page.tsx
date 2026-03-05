@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '../../../../lib/supabase'
+import { checkAchievements } from '../../../../lib/achievements'
 
 export default function LogSession() {
   const [dogs, setDogs] = useState([])
@@ -57,10 +58,16 @@ export default function LogSession() {
         notes
       }])
 
-    if (sessionError) {
+     if (sessionError) {
       setError(sessionError.message)
       setLoading(false)
       return
+    }
+
+    // Check achievements after session is logged
+    const newAchievements = await checkAchievements(dogId)
+    if (newAchievements.length > 0) {
+      console.log('New achievements unlocked:', newAchievements.map(a => a.label))
     }
 
     setSuccess(true)
