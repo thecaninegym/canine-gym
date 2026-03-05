@@ -3,17 +3,16 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 
 export default function ClientDashboard() {
-  const [dogs, setDogs] = useState([])
-  const [sessions, setSessions] = useState([])
+  const [dogs, setDogs] = useState<any[]>([])
+  const [sessions, setSessions] = useState<any[]>([])
+  const [achievements, setAchievements] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const [selectedDog, setSelectedDog] = useState(null)
-  const [user, setUser] = useState(null)
+  const [selectedDog, setSelectedDog] = useState<any>(null)
 
   useEffect(() => {
     const init = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { window.location.href = '/'; return }
-      setUser(user)
 
       const { data: ownerData } = await supabase
         .from('owners')
@@ -33,13 +32,14 @@ export default function ClientDashboard() {
       if (dogsData && dogsData.length > 0) {
         setSelectedDog(dogsData[0])
         fetchSessions(dogsData[0].id)
+        fetchAchievements(dogsData[0].id)
       }
       setLoading(false)
     }
     init()
   }, [])
 
-  const fetchSessions = async (dogId) => {
+  const fetchSessions = async (dogId: string) => {
     const { data } = await supabase
       .from('sessions')
       .select('*')
@@ -49,9 +49,19 @@ export default function ClientDashboard() {
     setSessions(data || [])
   }
 
-  const handleDogSelect = (dog) => {
+  const fetchAchievements = async (dogId: string) => {
+    const { data } = await supabase
+      .from('dog_achievements')
+      .select('*')
+      .eq('dog_id', dogId)
+      .order('earned_at', { ascending: false })
+    setAchievements(data || [])
+  }
+
+  const handleDogSelect = (dog: any) => {
     setSelectedDog(dog)
     fetchSessions(dog.id)
+    fetchAchievements(dog.id)
   }
 
   const handleLogout = async () => {
@@ -62,6 +72,22 @@ export default function ClientDashboard() {
   const totalSessions = sessions.length
   const totalMiles = sessions.reduce((sum, s) => sum + (s.distance_miles || 0), 0).toFixed(2)
   const totalCalories = sessions.reduce((sum, s) => sum + (s.calories_burned || 0), 0)
+
+  const achievementLabels: Record<string, string> = {
+    first_stride: '🐾 First Stride',
+    finding_their_pace: '🏃 Finding Their Pace',
+    ten_and_counting: '🔟 Ten and Counting',
+    century_club: '💯 Century Club',
+    marathon_pup: '🏅 Marathon Pup',
+    calorie_crusher: '🔥 Calorie Crusher',
+    speed_demon: '⚡ Speed Demon',
+    personal_best_miles: '🎯 Personal Best',
+    on_a_roll: '🔄 On A Roll',
+    hat_trick: '🎩 Hat Trick',
+    hot_streak: '🌶️ Hot Streak',
+    unstoppable: '💪 Unstoppable',
+    comeback_kid: '🔙 Comeback Kid'
+  }
 
   if (loading) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#003087' }}>
@@ -79,14 +105,12 @@ export default function ClientDashboard() {
       </nav>
 
       <div style={{ padding: '32px', maxWidth: '1000px', margin: '0 auto' }}>
-
         {dogs.length === 0 ? (
           <div style={{ backgroundColor: 'white', padding: '40px', borderRadius: '12px', textAlign: 'center' }}>
             <p style={{ color: '#666', fontSize: '18px' }}>No dogs found for your account. Contact The Canine Gym to get set up!</p>
           </div>
         ) : (
           <>
-            {/* Dog selector */}
             {dogs.length > 1 && (
               <div style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
                 {dogs.map(dog => (
@@ -102,13 +126,11 @@ export default function ClientDashboard() {
 
             {selectedDog && (
               <>
-                {/* Dog header */}
                 <div style={{ backgroundColor: '#003087', color: 'white', padding: '24px', borderRadius: '12px', marginBottom: '24px' }}>
                   <h2 style={{ margin: '0 0 4px 0', fontSize: '28px' }}>🐾 {selectedDog.name}</h2>
                   <p style={{ margin: 0, opacity: 0.8 }}>{selectedDog.leaderboard_settings?.city} · The Canine Gym</p>
                 </div>
 
-                {/* Stats cards */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', marginBottom: '24px' }}>
                   {[
                     { label: 'Total Sessions', value: totalSessions, icon: '🏃' },
@@ -123,7 +145,21 @@ export default function ClientDashboard() {
                   ))}
                 </div>
 
-                {/* Session history */}
+                {achievements.length > 0 && (
+                  <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', overflow: 'hidden', marginBottom: '24px' }}>
+                    <div style={{ padding: '20px 24px', borderBottom: '1px solid #eee' }}>
+                      <h3 style={{ margin: 0, color: '#003087' }}>🏆 Achievements ({achievements.length})</h3>
+                    </div>
+                    <div style={{ padding: '20px 24px', display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+                      {achievements.map(achievement => (
+                        <div key={achievement.id} style={{ backgroundColor: '#FF6B35', color: 'white', padding: '8px 16px', borderRadius: '20px', fontSize: '14px', fontWeight: 'bold' }}>
+                          {achievementLabels[achievement.achievement_key] || achievement.achievement_key}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', overflow: 'hidden' }}>
                   <div style={{ padding: '20px 24px', borderBottom: '1px solid #eee' }}>
                     <h3 style={{ margin: 0, color: '#003087' }}>Recent Sessions</h3>
