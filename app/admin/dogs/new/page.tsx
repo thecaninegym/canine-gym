@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../../../../lib/supabase'
 
 export default function AddDog() {
- const [owners, setOwners] = useState<any[]>([])
+  const [owners, setOwners] = useState<any[]>([])
   const [ownerId, setOwnerId] = useState('')
   const [name, setName] = useState('')
   const [breed, setBreed] = useState('')
@@ -12,7 +12,7 @@ export default function AddDog() {
   const [city, setCity] = useState('')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
-  const [error, setError] = useState(null)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchOwners = async () => {
@@ -22,7 +22,7 @@ export default function AddDog() {
     fetchOwners()
   }, [])
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
