@@ -24,7 +24,7 @@ export default function LogSession() {
     const fetchData = async () => {
       const { data: dogsData } = await supabase
         .from('dogs')
-        .select('*, owners(name), leaderboard_settings(city)')
+        .select('*, owner_id, owners(name), leaderboard_settings(city)')
         .order('name')
       setDogs(dogsData || [])
 
@@ -66,9 +66,34 @@ export default function LogSession() {
 
     // Check achievements after session is logged
     const newAchievements = await checkAchievements(dogId)
-    if (newAchievements.length > 0) {
-      console.log('New achievements unlocked:', newAchievements.map(a => a.label))
+
+    // Get owner email for session report
+    const selectedDogData = dogs.find(d => d.id === dogId)
+    const { data: ownerData } = await supabase
+      .from('owners')
+      .select('name, email')
+      .eq('id', selectedDogData?.owner_id)
+      .single()
+
+    // Send session report email
+    if (ownerData?.email) {
+      await fetch('/api/send-session-report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ownerEmail: ownerData.email,
+          ownerName: ownerData.name,
+          dogName: selectedDogData?.name,
+          sessionDate: new Date(sessionDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }),
+          duration,
+          miles: null,
+          calories: null,
+          notes,
+          achievementsUnlocked: newAchievements.map(a => a.label)
+        })
+      })
     }
+
 
     setSuccess(true)
     setDeviceSlug('')
