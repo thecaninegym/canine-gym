@@ -99,9 +99,12 @@ export default function ClientDashboard() {
     <div style={{ minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
       <nav style={{ backgroundColor: '#003087', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h1 style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>🐾 The Canine Gym</h1>
-        <button onClick={handleLogout} style={{ backgroundColor: '#FF6B35', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>
-          Logout
-        </button>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <a href="/leaderboard" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>🏆 Leaderboard</a>
+          <button onClick={handleLogout} style={{ backgroundColor: '#FF6B35', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>
+            Logout
+          </button>
+        </div>
       </nav>
 
       <div style={{ padding: '32px', maxWidth: '1000px', margin: '0 auto' }}>
