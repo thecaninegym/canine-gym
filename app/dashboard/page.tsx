@@ -101,9 +101,7 @@ export default function ClientDashboard() {
         <h1 style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>🐾 The Canine Gym</h1>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
           <a href="/leaderboard" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>🏆 Leaderboard</a>
-          <button onClick={handleLogout} style={{ backgroundColor: '#FF6B35', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>
-            Logout
-          </button>
+          <button onClick={handleLogout} style={{ backgroundColor: '#FF6B35', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>Logout</button>
         </div>
       </nav>
 
@@ -118,9 +116,7 @@ export default function ClientDashboard() {
               <div style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
                 {dogs.map(dog => (
                   <button key={dog.id} onClick={() => handleDogSelect(dog)}
-                    style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 'bold', fontSize: '16px',
-                      backgroundColor: selectedDog?.id === dog.id ? '#003087' : 'white',
-                      color: selectedDog?.id === dog.id ? 'white' : '#003087' }}>
+                    style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 'bold', fontSize: '16px', backgroundColor: selectedDog?.id === dog.id ? '#003087' : 'white', color: selectedDog?.id === dog.id ? 'white' : '#003087' }}>
                     🐾 {dog.name}
                   </button>
                 ))}
@@ -129,9 +125,12 @@ export default function ClientDashboard() {
 
             {selectedDog && (
               <>
-                <div style={{ backgroundColor: '#003087', color: 'white', padding: '24px', borderRadius: '12px', marginBottom: '24px' }}>
-                  <h2 style={{ margin: '0 0 4px 0', fontSize: '28px' }}>🐾 {selectedDog.name}</h2>
-                  <p style={{ margin: 0, opacity: 0.8 }}>{selectedDog.leaderboard_settings?.city} · The Canine Gym</p>
+                <div style={{ backgroundColor: '#003087', color: 'white', padding: '24px', borderRadius: '12px', marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <h2 style={{ margin: '0 0 4px 0', fontSize: '28px' }}>🐾 {selectedDog.name}</h2>
+                    <p style={{ margin: 0, opacity: 0.8 }}>{selectedDog.leaderboard_settings?.city} · The Canine Gym</p>
+                  </div>
+                  <a href={`/api/session-card?dog=${encodeURIComponent(selectedDog.name)}&sessions=${totalSessions}&miles=${totalMiles}&calories=${totalCalories}&city=${encodeURIComponent(selectedDog.leaderboard_settings?.city || '')}`} target="_blank" style={{ backgroundColor: '#FF6B35', color: 'white', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>📸 Share</a>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', marginBottom: '24px' }}>
