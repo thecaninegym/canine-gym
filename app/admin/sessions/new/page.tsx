@@ -43,7 +43,7 @@ export default function LogSession() {
 
     const start = new Date(`${sessionDate}T${startTime}`)
     const end = new Date(`${sessionDate}T${endTime}`)
-    const duration = Math.round((end - start) / 60000)
+    const duration = Math.round((end.getTime() - start.getTime()) / 60000)
 
     const { error: sessionError } = await supabase
       .from('sessions')
