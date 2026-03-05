@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../../../../lib/supabase'
 
 export default function AddDog() {
-  const [owners, setOwners] = useState([])
+ const [owners, setOwners] = useState<any[]>([])
   const [ownerId, setOwnerId] = useState('')
   const [name, setName] = useState('')
   const [breed, setBreed] = useState('')
