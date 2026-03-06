@@ -41,7 +41,8 @@ function CancelForm() {
             .eq('owner_id', ownerId)
             .eq('status', 'active')
             .single()
-          setIsMember(!!membership)
+          const dogCovered = membership && Array.isArray((membership as any).dog_ids) && (membership as any).dog_ids.includes(data.dog_id)
+          setIsMember(!!dogCovered)
         }
       }
       setLoading(false)

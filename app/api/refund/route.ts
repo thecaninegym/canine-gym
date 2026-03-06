@@ -20,7 +20,7 @@ export async function POST(request: Request) {
 
   if (!booking) return NextResponse.json({ error: 'Booking not found' }, { status: 404 })
 
-  // Check if owner has active membership
+  // Check if THIS specific dog is covered by an active membership
   const ownerId = booking.dogs?.owners?.id
   const { data: membership } = await supabase
     .from('memberships')
@@ -28,6 +28,8 @@ export async function POST(request: Request) {
     .eq('owner_id', ownerId)
     .eq('status', 'active')
     .single()
+
+  const dogIsCovered = !!(membership && membership.dog_ids && membership.dog_ids.includes(booking.dog_id))
 
   const bookingDateTime = new Date(booking.booking_date + 'T' + String(booking.slot_hour).padStart(2, '0') + ':00:00')
   const hoursUntil = (bookingDateTime.getTime() - Date.now()) / (1000 * 60 * 60)
@@ -37,24 +39,21 @@ export async function POST(request: Request) {
   let refundAmount = 0
 
   if (dogIsSick) {
-    // Always full refund if dog is sick (a la carte only — membership just gets session back)
-    if (!membership && booking.payment_intent_id) {
+    if (!dogIsCovered && booking.payment_intent_id) {
       const refund = await stripe.refunds.create({
         payment_intent: booking.payment_intent_id,
-        amount: booking.amount_paid // full refund
+        amount: booking.amount_paid
       })
       refundAmount = booking.amount_paid
       refundStatus = refund.status === 'succeeded' ? 'full_refund' : 'refund_failed'
-    } else if (membership) {
-      // Give the session back
+    } else if (dogIsCovered) {
       await supabase.from('memberships')
         .update({ sessions_remaining: membership.sessions_remaining + 1 })
         .eq('id', membership.id)
       refundStatus = 'session_restored'
     }
   } else if (isLate) {
-    if (!membership && booking.payment_intent_id) {
-      // A la carte late cancel — 50% refund
+    if (!dogIsCovered && booking.payment_intent_id) {
       const halfAmount = Math.floor(booking.amount_paid / 2)
       const refund = await stripe.refunds.create({
         payment_intent: booking.payment_intent_id,
@@ -62,22 +61,18 @@ export async function POST(request: Request) {
       })
       refundAmount = halfAmount
       refundStatus = refund.status === 'succeeded' ? 'partial_refund' : 'refund_failed'
-    } else if (membership) {
-      // Membership late cancel — forfeit session, no action needed
+    } else if (dogIsCovered) {
       refundStatus = 'session_forfeited'
     }
   } else {
-    // Cancelled with plenty of notice
-    if (!membership && booking.payment_intent_id) {
-      // Full refund
+    if (!dogIsCovered && booking.payment_intent_id) {
       const refund = await stripe.refunds.create({
         payment_intent: booking.payment_intent_id,
         amount: booking.amount_paid
       })
       refundAmount = booking.amount_paid
       refundStatus = refund.status === 'succeeded' ? 'full_refund' : 'refund_failed'
-    } else if (membership) {
-      // Give the session back
+    } else if (dogIsCovered) {
       await supabase.from('memberships')
         .update({ sessions_remaining: membership.sessions_remaining + 1 })
         .eq('id', membership.id)
@@ -85,7 +80,6 @@ export async function POST(request: Request) {
     }
   }
 
-  // Update the booking
   await supabase.from('bookings').update({
     status: 'cancelled',
     cancelled_at: new Date().toISOString(),
