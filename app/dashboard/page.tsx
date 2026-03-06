@@ -130,7 +130,7 @@ export default function ClientDashboard() {
       </nav>
 
       <div style={{ padding: '32px', maxWidth: '1000px', margin: '0 auto' }}>
-        {dogs.length === 0 ? (
+        {!hasAddress || !hasDogs || !hasWaiver ? (
         <div style={{ maxWidth: '600px', margin: '0 auto' }}>
             <div style={{ backgroundColor: 'white', padding: '48px 40px', borderRadius: '12px', textAlign: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', marginBottom: '16px' }}>
               <div style={{ fontSize: '64px', marginBottom: '16px' }}>🐾</div>
