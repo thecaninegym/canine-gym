@@ -83,8 +83,6 @@ export default function Membership() {
           .eq('owner_id', ownerData.id)
           .eq('status', 'active')
           .single()
-        console.log('Membership data:', membershipData)
-        console.log('Membership error:', membershipError)
         setMembership(membershipData)
       }
       setLoading(false)
