@@ -216,7 +216,7 @@ export default function AdminSchedule() {
                     <div style={{ display: 'flex', gap: '8px', flexDirection: 'column', marginLeft: '16px' }}>
                       {booking.status === 'confirmed' && (
                         <>
-                          <a href={`/admin/sessions/new?dog=${booking.dogs?.id}`}
+                          <a href={`/admin/sessions/new?dog=${booking.dogs?.id}&booking=${booking.id}&hour=${booking.slot_hour}&date=${booking.booking_date}`}
                             style={{ padding: '8px 16px', backgroundColor: '#FF6B35', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px', textDecoration: 'none', textAlign: 'center' }}>
                             📋 Log Session
                           </a>

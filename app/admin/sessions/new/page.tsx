@@ -7,6 +7,7 @@ export default function LogSession() {
   const [dogs, setDogs] = useState([])
   const [devices, setDevices] = useState([])
   const [dogId, setDogId] = useState('')
+  const [bookingId, setBookingId] = useState('')
   const [deviceSlug, setDeviceSlug] = useState('')
   const [sessionDate, setSessionDate] = useState(new Date().toISOString().split('T')[0])
   const [startTime, setStartTime] = useState('')
@@ -15,11 +16,25 @@ export default function LogSession() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState(null)
+  const [timeFromBooking, setTimeFromBooking] = useState(false)
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const dogParam = params.get('dog')
+    const bookingParam = params.get('booking')
+    const hourParam = params.get('hour')
+    const dateParam = params.get('date')
+
     if (dogParam) setDogId(dogParam)
+    if (bookingParam) setBookingId(bookingParam)
+    if (dateParam) setSessionDate(dateParam)
+
+    if (hourParam) {
+      const h = parseInt(hourParam)
+      setStartTime(`${String(h).padStart(2, '0')}:00`)
+      setEndTime(`${String(h).padStart(2, '0')}:30`)
+      setTimeFromBooking(true)
+    }
 
     const fetchData = async () => {
       const { data: dogsData } = await supabase
@@ -58,20 +73,22 @@ export default function LogSession() {
         notes
       }])
 
-     if (sessionError) {
+    if (sessionError) {
       setError(sessionError.message)
       setLoading(false)
       return
     }
 
-        // Auto-complete any confirmed booking for this dog on this date
-    await supabase
-      .from('bookings')
-      .update({ status: 'completed' })
-      .eq('dog_id', dogId)
-      .eq('booking_date', sessionDate)
-      .eq('status', 'confirmed')
-      
+    // Auto-complete the booking
+    if (bookingId) {
+      await supabase.from('bookings').update({ status: 'completed' }).eq('id', bookingId)
+    } else {
+      await supabase.from('bookings').update({ status: 'completed' })
+        .eq('dog_id', dogId)
+        .eq('booking_date', sessionDate)
+        .eq('status', 'confirmed')
+    }
+
     // Check achievements after session is logged
     const newAchievements = await checkAchievements(dogId)
 
@@ -102,16 +119,22 @@ export default function LogSession() {
       })
     }
 
-
     setSuccess(true)
     setDeviceSlug('')
-    setStartTime('')
-    setEndTime('')
     setNotes('')
     setLoading(false)
   }
 
   const selectedDog = dogs.find(d => d.id === dogId)
+
+  const formatTimeDisplay = (time: string) => {
+    if (!time) return ''
+    const [h, m] = time.split(':')
+    const hour = parseInt(h)
+    const ampm = hour >= 12 ? 'PM' : 'AM'
+    const display = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour
+    return `${display}:${m} ${ampm}`
+  }
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
@@ -125,7 +148,7 @@ export default function LogSession() {
           <div style={{ backgroundColor: '#d4edda', color: '#155724', padding: '12px', borderRadius: '6px', marginBottom: '16px' }}>
             Session logged successfully! ✅
             <br />
-            <a href="/admin/dogs" style={{ color: '#155724', fontWeight: 'bold' }}>← Back to all dogs</a>
+            <a href="/admin/schedule" style={{ color: '#155724', fontWeight: 'bold' }}>← Back to Schedule</a>
           </div>
         )}
         {selectedDog && (
@@ -162,18 +185,33 @@ export default function LogSession() {
               <input type="date" value={sessionDate} onChange={(e) => setSessionDate(e.target.value)} required
                 style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000000' }} />
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
-              <div>
-                <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>Start Time</label>
-                <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} required
-                  style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000000' }} />
+
+            {timeFromBooking ? (
+              <div style={{ backgroundColor: '#f0f4ff', border: '1px solid #003087', padding: '14px 16px', borderRadius: '8px', marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div>
+                  <p style={{ margin: '0 0 2px 0', fontWeight: 'bold', color: '#003087', fontSize: '14px' }}>⏰ Session Time</p>
+                  <p style={{ margin: 0, color: '#333', fontSize: '16px', fontWeight: 'bold' }}>{formatTimeDisplay(startTime)} – {formatTimeDisplay(endTime)}</p>
+                </div>
+                <button type="button" onClick={() => setTimeFromBooking(false)}
+                  style={{ background: 'none', border: 'none', color: '#999', fontSize: '12px', cursor: 'pointer', textDecoration: 'underline' }}>
+                  Edit
+                </button>
               </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>End Time</label>
-                <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} required
-                  style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000000' }} />
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>Start Time</label>
+                  <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} required
+                    style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000000' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>End Time</label>
+                  <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} required
+                    style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000000' }} />
+                </div>
               </div>
-            </div>
+            )}
+
             <div style={{ marginBottom: '24px' }}>
               <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>Notes</label>
               <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3}
