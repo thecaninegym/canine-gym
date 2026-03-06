@@ -48,6 +48,18 @@ export default function EditOwner() {
       .update({ name, email, phone, address, city, zip })
       .eq('id', id)
 
+      // Sync city to all dogs' leaderboard_settings
+    const { data: dogData } = await supabase
+      .from('dogs')
+      .select('id')
+      .eq('owner_id', id)
+
+    if (dogData && dogData.length > 0) {
+      await supabase
+        .from('leaderboard_settings')
+        .update({ city })
+        .in('dog_id', dogData.map((d: any) => d.id))
+    }
     if (error) {
       setError(error.message)
     } else {
