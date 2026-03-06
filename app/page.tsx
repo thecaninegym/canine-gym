@@ -64,7 +64,7 @@ export default function LoginPage() {
     const fullName = `${firstName} ${lastName}`.trim()
     await supabase.from('owners').insert([{ name: fullName, email, phone }])
 
-    // Send welcome email
+       // Send welcome email to new client
     await fetch('/api/send-email', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -72,6 +72,23 @@ export default function LoginPage() {
         type: 'welcome',
         to: email,
         data: { ownerName: firstName, dogName: 'your dog' }
+      })
+    })
+
+    // Send admin notification
+    await fetch('/api/send-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'admin_notification',
+        to: 'dev@thecaninegym.com',
+        data: {
+          action: '🎉 New Client Signed Up',
+          dogName: 'Not yet added',
+          ownerName: `${firstName} ${lastName}`,
+          date: new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }),
+          time: email
+        }
       })
     })
 
