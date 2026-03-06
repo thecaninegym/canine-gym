@@ -12,6 +12,7 @@ export default function AdminSchedule() {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
   const [view, setView] = useState<'list' | 'calendar' | 'map'>('list')
   const [mapMode, setMapMode] = useState<'day' | 'week'>('day')
+  const [travelTime, setTravelTime] = useState<{ totalMinutes: number, legs: any[] } | null>(null)
 
   // Get current week Mon-Sun
   const getWeekDates = () => {
@@ -37,7 +38,7 @@ export default function AdminSchedule() {
     fetchWeekBookings()
   }, [selectedDate])
 
-  const fetchBookings = async () => {
+const fetchBookings = async () => {
     setLoading(true)
     const { data } = await supabase
       .from('bookings')
@@ -46,6 +47,27 @@ export default function AdminSchedule() {
       .order('slot_hour')
     setBookings(data || [])
     setLoading(false)
+    if (data) fetchTravelTime(data)
+  }
+
+  const fetchTravelTime = async (bookingList: any[]) => {
+    const uniqueStops = [...new Map(bookingList
+      .filter(b => b.status === 'confirmed' && b.dogs?.owners?.address)
+      .map(b => [`${b.slot_hour}-${b.dogs.owners.address}`, b]))
+      .values()]
+      .sort((a, b) => a.slot_hour - b.slot_hour)
+
+    if (uniqueStops.length < 2) { setTravelTime(null); return }
+
+    const addresses = uniqueStops.map(b => `${b.dogs.owners.address}, ${b.dogs.owners.city}, IN`)
+
+    const res = await fetch('/api/travel-time', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ addresses })
+    })
+    const data = await res.json()
+    setTravelTime(data)
   }
 
   const fetchWeekBookings = async () => {
@@ -314,7 +336,14 @@ export default function AdminSchedule() {
                     {/* Stop list */}
                     <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', marginBottom: '16px', overflow: 'hidden' }}>
                       <div style={{ padding: '16px 20px', borderBottom: '1px solid #eee' }}>
-                        <h3 style={{ margin: 0, color: '#003087' }}>Today's Stops ({[...new Set(bookings.filter(b => b.status === 'confirmed' && b.dogs?.owners?.address).map(b => `${b.slot_hour}-${b.dogs.owners.address}`))].length})</h3>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                          <h3 style={{ margin: 0, color: '#003087' }}>Today's Stops ({[...new Set(bookings.filter(b => b.status === 'confirmed' && b.dogs?.owners?.address).map(b => `${b.slot_hour}-${b.dogs.owners.address}`))].length})</h3>
+                          {travelTime && travelTime.totalMinutes > 0 && (
+                            <span style={{ backgroundColor: '#f0f4ff', color: '#003087', padding: '4px 12px', borderRadius: '20px', fontSize: '13px', fontWeight: 'bold' }}>
+                              🚗 {travelTime.totalMinutes} min total driving
+                            </span>
+                          )}
+                        </div>
                       </div>
                       {(() => {
                         const confirmed = bookings.filter(b => b.status === 'confirmed' && b.dogs?.owners?.address)
