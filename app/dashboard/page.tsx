@@ -130,7 +130,10 @@ export default function ClientDashboard() {
                     <h2 style={{ margin: '0 0 4px 0', fontSize: '28px' }}>🐾 {selectedDog.name}</h2>
                     <p style={{ margin: 0, opacity: 0.8 }}>{selectedDog.leaderboard_settings?.city} · The Canine Gym</p>
                   </div>
-                  <a href={`/api/session-card?dog=${encodeURIComponent(selectedDog.name)}&sessions=${totalSessions}&miles=${totalMiles}&calories=${totalCalories}&city=${encodeURIComponent(selectedDog.leaderboard_settings?.city || '')}`} target="_blank" style={{ backgroundColor: '#FF6B35', color: 'white', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>📸 Share</a>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <a href="/book" style={{ backgroundColor: 'white', color: '#003087', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>📅 Book</a>
+                    <a href={`/api/session-card?dog=${encodeURIComponent(selectedDog.name)}&sessions=${totalSessions}&miles=${totalMiles}&calories=${totalCalories}&city=${encodeURIComponent(selectedDog.leaderboard_settings?.city || '')}`} target="_blank" style={{ backgroundColor: '#FF6B35', color: 'white', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>📸 Share</a>
+                  </div>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', marginBottom: '24px' }}>

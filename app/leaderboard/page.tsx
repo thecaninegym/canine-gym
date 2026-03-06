@@ -8,7 +8,7 @@ const CATEGORIES = [
   { key: 'calories', label: 'Most Calories', field: 'total_calories' },
 ]
 
-const CITIES = ['All Cities', 'Carmel', 'Fishers', 'Zionsville', 'Westfield', 'Noblesville', 'Fortville', 'McCordsville', 'Lawrence']
+const CITIES = ['All Cities', 'Carmel', 'Zionsville', 'Fishers', 'Geist', 'Westfield', 'Noblesville']
 
 export default function Leaderboard() {
   const [leaderboard, setLeaderboard] = useState<any[]>([])

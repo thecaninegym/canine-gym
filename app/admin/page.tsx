@@ -35,6 +35,8 @@ export default function AdminDashboard() {
             { label: 'Add Dog', href: '/admin/dogs/new', color: '#003087' },
             { label: 'Log Session', href: '/admin/sessions/new', color: '#FF6B35' },
             { label: 'View All Dogs', href: '/admin/dogs', color: '#003087' },
+            { label: 'View Owners', href: '/admin/owners', color: '#003087' },
+            { label: '📅 Schedule', href: '/admin/schedule', color: '#003087' },
           ].map((item) => (
             <a key={item.label} href={item.href} style={{ backgroundColor: item.color, color: 'white', padding: '24px', borderRadius: '12px', textDecoration: 'none', fontWeight: 'bold', fontSize: '18px', display: 'block', textAlign: 'center' }}>
               {item.label}

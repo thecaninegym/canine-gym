@@ -101,7 +101,7 @@ export default function AddDog() {
               <select value={city} onChange={(e) => setCity(e.target.value)} required
                 style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000000' }}>
                 <option value="">Select a city...</option>
-                {['Carmel', 'Fishers', 'Zionsville', 'Westfield', 'Noblesville', 'Fortville', 'McCordsville', 'Lawrence'].map(c => (
+                {['Carmel', 'Zionsville', 'Fishers', 'Geist', 'Westfield', 'Noblesville'].map(c => (
                   <option key={c} value={c}>{c}</option>
                 ))}
               </select>
