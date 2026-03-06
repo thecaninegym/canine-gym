@@ -321,9 +321,7 @@ export default function AdminSchedule() {
                         const grouped: Record<number, any[]> = {}
                         confirmed.forEach(b => {
                           if (!grouped[b.slot_hour]) grouped[b.slot_hour] = []
-                          // Only add if address not already in this slot
-                          const alreadyHasAddress = grouped[b.slot_hour].some(x => x.dogs?.owners?.address === b.dogs?.owners?.address)
-                          if (!alreadyHasAddress) grouped[b.slot_hour].push(b)
+                          grouped[b.slot_hour].push(b)
                         })
                         return Object.entries(grouped).map(([hour, slotBookings]) => (
                           <div key={hour}>
