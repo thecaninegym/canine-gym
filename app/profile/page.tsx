@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
+import { PawPrint, ArrowLeft, User, CheckCircle } from 'lucide-react'
 
 export default function Profile() {
   const [name, setName] = useState('')
@@ -18,13 +19,7 @@ export default function Profile() {
     const init = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { window.location.href = '/'; return }
-
-      const { data: ownerData } = await supabase
-        .from('owners')
-        .select('*')
-        .eq('email', user.email)
-        .single()
-
+      const { data: ownerData } = await supabase.from('owners').select('*').eq('email', user.email).single()
       if (ownerData) {
         setOwnerId(ownerData.id)
         setName(ownerData.name || '')
@@ -42,30 +37,12 @@ export default function Profile() {
     e.preventDefault()
     setSaving(true)
     setError(null)
-
-    const { error } = await supabase
-      .from('owners')
-      .update({ name, phone, address, city, zip })
-      .eq('id', ownerId)
-
-          // Sync city to all dogs' leaderboard_settings
-    const { data: dogData } = await supabase
-      .from('dogs')
-      .select('id')
-      .eq('owner_id', ownerId)
-
+    const { error } = await supabase.from('owners').update({ name, phone, address, city, zip }).eq('id', ownerId)
+    const { data: dogData } = await supabase.from('dogs').select('id').eq('owner_id', ownerId)
     if (dogData && dogData.length > 0) {
-      await supabase
-        .from('leaderboard_settings')
-        .update({ city })
-        .in('dog_id', dogData.map((d: any) => d.id))
+      await supabase.from('leaderboard_settings').update({ city }).in('dog_id', dogData.map((d: any) => d.id))
     }
-    if (error) {
-      setError(error.message)
-    } else {
-      setSuccess(true)
-      setTimeout(() => setSuccess(false), 3000)
-    }
+    if (error) { setError(error.message) } else { setSuccess(true); setTimeout(() => setSuccess(false), 3000) }
     setSaving(false)
   }
 
@@ -78,32 +55,42 @@ export default function Profile() {
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
       <nav style={{ backgroundColor: '#003087', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1 style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>🐾 The Canine Gym</h1>
-        <a href="/dashboard" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>← Back to Dashboard</a>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <PawPrint size={24} color="white" />
+          <h1 style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>The Canine Gym</h1>
+        </div>
+        <a href="/dashboard" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <ArrowLeft size={16} /> Back to Dashboard
+        </a>
       </nav>
 
       <div style={{ padding: '32px', maxWidth: '600px', margin: '0 auto' }}>
-        <h2 style={{ color: '#003087', marginBottom: '24px' }}>My Profile</h2>
-        {success && <div style={{ backgroundColor: '#d4edda', color: '#155724', padding: '12px', borderRadius: '6px', marginBottom: '16px' }}>Saved successfully!</div>}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
+          <User size={28} color="#003087" />
+          <h2 style={{ color: '#003087', margin: 0 }}>My Profile</h2>
+        </div>
+
+        {success && (
+          <div style={{ backgroundColor: '#d4edda', color: '#155724', padding: '12px', borderRadius: '6px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <CheckCircle size={18} color="#155724" /> Saved successfully!
+          </div>
+        )}
+
         <div style={{ backgroundColor: 'white', padding: '32px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
           <form onSubmit={handleSubmit}>
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>Full Name</label>
-              <input type="text" value={name} onChange={(e) => setName(e.target.value)} required
-                style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000' }} />
-            </div>
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>Phone</label>
-              <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)}
-                style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000' }} />
-            </div>
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>Street Address</label>
-              <input type="text" value={address} onChange={(e) => setAddress(e.target.value)}
-                placeholder="123 Main St"
-                style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000' }} />
-            </div>
-            <div style={{ marginBottom: '16px' }}>
+            {[
+              { label: 'Full Name', value: name, onChange: setName, type: 'text', required: true },
+              { label: 'Phone', value: phone, onChange: setPhone, type: 'tel', required: false },
+              { label: 'Street Address', value: address, onChange: setAddress, type: 'text', placeholder: '123 Main St', required: false },
+              { label: 'Zip Code', value: zip, onChange: setZip, type: 'text', placeholder: '46032', required: false },
+            ].map(({ label, value, onChange, type, placeholder, required }) => (
+              <div key={label} style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>{label}</label>
+                <input type={type} value={value} onChange={(e) => onChange(e.target.value)} required={required} placeholder={placeholder}
+                  style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000' }} />
+              </div>
+            ))}
+            <div style={{ marginBottom: '24px' }}>
               <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>City</label>
               <select value={city} onChange={(e) => setCity(e.target.value)}
                 style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000' }}>
@@ -112,12 +99,6 @@ export default function Profile() {
                   <option key={c} value={c}>{c}</option>
                 ))}
               </select>
-            </div>
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>Zip Code</label>
-              <input type="text" value={zip} onChange={(e) => setZip(e.target.value)}
-                placeholder="46032"
-                style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000' }} />
             </div>
             {error && <p style={{ color: 'red', marginBottom: '16px', fontSize: '14px' }}>{error}</p>}
             <button type="submit" disabled={saving}
