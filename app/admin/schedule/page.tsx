@@ -356,9 +356,9 @@ export default function AdminSchedule() {
                         return (
                           <div style={{ padding: '32px', textAlign: 'center' }}>
                             <div style={{ fontSize: '48px', marginBottom: '16px' }}>🗺️</div>
-                            <h3 style={{ color: '#003087', margin: '0 0 8px 0' }}>{confirmedBookings.length} stops today</h3>
+                            <h3 style={{ color: '#003087', margin: '0 0 8px 0' }}>{[...new Set(confirmedBookings.map(b => `${b.slot_hour}-${b.dogs.owners.address}`))].length} stops today</h3>
                             <p style={{ color: '#666', marginBottom: '24px', fontSize: '14px' }}>
-                              {confirmedBookings.map(b => `${b.dogs.owners.address}, ${b.dogs.owners.city}`).join(' → ')}
+                              {[...new Map(confirmedBookings.map(b => [`${b.slot_hour}-${b.dogs.owners.address}`, b])).values()].map(b => `${b.dogs.owners.address}, ${b.dogs.owners.city}`).join(' → ')}
                             </p>
                             <a href={`https://www.google.com/maps/dir/${routeUrl}`} target="_blank"
                               style={{ display: 'inline-block', backgroundColor: '#FF6B35', color: 'white', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px' }}>
