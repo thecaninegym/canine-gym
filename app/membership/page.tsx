@@ -77,12 +77,14 @@ export default function Membership() {
         setDogs(dogsData || [])
         if (dogsData && dogsData.length >= 2) setDogCount(2)
 
-        const { data: membershipData } = await supabase
+        const { data: membershipData, error: membershipError } = await supabase
           .from('memberships')
           .select('*')
           .eq('owner_id', ownerData.id)
           .eq('status', 'active')
           .single()
+        console.log('Membership data:', membershipData)
+        console.log('Membership error:', membershipError)
         setMembership(membershipData)
       }
       setLoading(false)
