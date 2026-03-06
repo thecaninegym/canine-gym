@@ -125,8 +125,13 @@ export default function ClientDashboard() {
 
       <div style={{ padding: '32px', maxWidth: '1000px', margin: '0 auto' }}>
         {dogs.length === 0 ? (
-          <div style={{ backgroundColor: 'white', padding: '40px', borderRadius: '12px', textAlign: 'center' }}>
-            <p style={{ color: '#666', fontSize: '18px' }}>No dogs found for your account. Contact The Canine Gym to get set up!</p>
+                    <div style={{ backgroundColor: 'white', padding: '48px 40px', borderRadius: '12px', textAlign: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+            <div style={{ fontSize: '64px', marginBottom: '16px' }}>🐾</div>
+            <h2 style={{ color: '#003087', margin: '0 0 12px 0' }}>Welcome to The Canine Gym!</h2>
+            <p style={{ color: '#666', fontSize: '16px', marginBottom: '24px', lineHeight: '1.6' }}>Let's get your dog set up. Add your dog's details to start tracking sessions, earning achievements, and competing on the leaderboard.</p>
+            <a href="/dogs" style={{ display: 'inline-block', backgroundColor: '#FF6B35', color: 'white', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px' }}>
+              🐾 Add My Dog →
+            </a>
           </div>
         ) : (
           <>
