@@ -171,6 +171,53 @@ export async function POST(request: Request) {
     const subscription = event.data.object as Stripe.Subscription
     await supabase.from('memberships').update({ status: 'cancelled' })
       .eq('stripe_subscription_id', subscription.id)
+
+    // Fetch membership + owner for emails
+    const { data: cancelledMembership } = await supabase
+      .from('memberships')
+      .select('*, owners(name, email)')
+      .eq('stripe_subscription_id', subscription.id)
+      .single()
+
+    if (cancelledMembership) {
+      const periodEnd = new Date(cancelledMembership.current_period_end).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+      const planName = cancelledMembership.plan.charAt(0).toUpperCase() + cancelledMembership.plan.slice(1)
+
+      // Email client
+      if (cancelledMembership.owners?.email) {
+        await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/send-email`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'membership_cancelled_client',
+            to: cancelledMembership.owners.email,
+            data: {
+              ownerName: cancelledMembership.owners.name,
+              planName,
+              periodEnd,
+              sessionsRemaining: cancelledMembership.sessions_remaining
+            }
+          })
+        })
+      }
+
+      // Email admin
+      await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/send-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'membership_cancelled_admin',
+          to: 'dev@thecaninegym.com',
+          data: {
+            ownerName: cancelledMembership.owners?.name,
+            ownerEmail: cancelledMembership.owners?.email,
+            planName,
+            periodEnd,
+            sessionsRemaining: cancelledMembership.sessions_remaining
+          }
+        })
+      })
+    }
   }
 
   if (event.type === 'invoice.payment_failed') {

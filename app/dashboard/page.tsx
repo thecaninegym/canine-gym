@@ -24,7 +24,16 @@ export default function ClientDashboard() {
       if (!ownerData) { setLoading(false); return }
       setHasAddress(!!(ownerData.address && ownerData.city))
       setHasWaiver(!!(ownerData.waiver_signed))
-      const { data: membershipData } = await supabase.from('memberships').select('*').eq('owner_id', ownerData.id).eq('status', 'active').single()
+      // Fetch active OR recently cancelled (still within period) membership
+      const { data: membershipData } = await supabase
+        .from('memberships')
+        .select('*')
+        .eq('owner_id', ownerData.id)
+        .in('status', ['active', 'cancelled'])
+        .gte('current_period_end', new Date().toISOString())
+        .order('current_period_end', { ascending: false })
+        .limit(1)
+        .single()
       setMembership(membershipData)
       const { data: dogsData } = await supabase.from('dogs').select('*, leaderboard_settings(city, visibility)').eq('owner_id', ownerData.id).order('name')
       setDogs(dogsData || [])
@@ -253,22 +262,28 @@ export default function ClientDashboard() {
                 </div>
 
                 {membership && (
-                  <div style={{ backgroundColor: '#003087', color: 'white', padding: '16px 24px', borderRadius: '12px', marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ backgroundColor: membership.status === 'cancelled' ? '#6c757d' : '#003087', color: 'white', padding: '16px 24px', borderRadius: '12px', marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
                       <p style={{ margin: '0 0 2px 0', fontSize: '13px', opacity: 0.7, textTransform: 'uppercase', fontWeight: 'bold' }}>
                         {membership.plan.charAt(0).toUpperCase() + membership.plan.slice(1)} Membership
+                        {membership.status === 'cancelled' && ' — Cancelled'}
                       </p>
                       <p style={{ margin: 0, fontSize: '16px' }}>
                         <strong>{membership.sessions_remaining}</strong> of {membership.sessions_per_month} sessions remaining this month
                       </p>
+                      {membership.status === 'cancelled' && (
+                        <p style={{ margin: '4px 0 0 0', fontSize: '13px', opacity: 0.9 }}>
+                          Access continues until {new Date(membership.current_period_end).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                        </p>
+                      )}
                       {membership.dog_ids && membership.dog_ids.length > 0 && (
                         <p style={{ margin: '4px 0 0 0', fontSize: '13px', opacity: 0.8 }}>
-                          Covers: {dogs.filter(d => membership.dog_ids.includes(d.id)).map((d: any) => d.name).join(', ')}
+                          Covers: {dogs.filter(d => (membership.dog_ids as string[]).includes(d.id)).map((d: any) => d.name).join(', ')}
                         </p>
                       )}
                     </div>
                     <a href="/membership" style={{ backgroundColor: 'rgba(255,255,255,0.2)', color: 'white', padding: '8px 16px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <CreditCard size={14} /> Manage
+                      <CreditCard size={14} /> {membership.status === 'cancelled' ? 'Resubscribe' : 'Manage'}
                     </a>
                   </div>
                 )}

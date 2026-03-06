@@ -190,6 +190,63 @@ export async function POST(request: Request) {
       </div>
     `
   }
+
+  if (type === 'membership_cancelled_client') {
+    subject = `Your Canine Gym membership has been cancelled`
+    html = `
+      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
+        <div style="background:#003087;padding:24px;border-radius:12px 12px 0 0;">
+          <h1 style="color:white;margin:0;font-size:24px;">🐾 The Canine Gym</h1>
+          <p style="color:rgba(255,255,255,0.8);margin:4px 0 0 0;">Membership Cancellation</p>
+        </div>
+        <div style="background:white;padding:32px;border:1px solid #eee;">
+          <h2 style="color:#003087;">Hi ${data.ownerName}, your membership has been cancelled.</h2>
+          <p style="color:#555;line-height:1.6;">We're sorry to see you go! Here's a summary of your cancellation:</p>
+          <div style="background:#f5f5f5;padding:20px;border-radius:8px;margin:24px 0;">
+            <p style="margin:0 0 8px 0;color:#333;">📋 <strong>${data.planName} Plan</strong> — Cancelled</p>
+            <p style="margin:0 0 8px 0;color:#333;">📅 Access continues until <strong>${data.periodEnd}</strong></p>
+            <p style="margin:0;color:#333;">🐾 <strong>${data.sessionsRemaining}</strong> sessions remaining this month</p>
+          </div>
+          <div style="background:#fff3e0;border:1px solid #FF6B35;padding:16px;border-radius:8px;margin-bottom:24px;">
+            <p style="margin:0;color:#FF6B35;font-size:14px;">You can still book and use your remaining sessions until <strong>${data.periodEnd}</strong>. After that date your membership will fully expire.</p>
+          </div>
+          <a href="https://app.thecaninegym.com/dashboard" style="display:block;background:#FF6B35;color:white;text-align:center;padding:14px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px;margin-bottom:12px;">
+            View My Dashboard →
+          </a>
+          <a href="https://app.thecaninegym.com/membership" style="display:block;background:#003087;color:white;text-align:center;padding:14px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px;">
+            Resubscribe →
+          </a>
+        </div>
+        <div style="background:#f5f5f5;padding:16px;border-radius:0 0 12px 12px;text-align:center;">
+          <p style="color:#999;font-size:12px;margin:0;">The Canine Gym · Hamilton County, IN · thecaninegym.com</p>
+        </div>
+      </div>
+    `
+  }
+
+  if (type === 'membership_cancelled_admin') {
+    subject = `Membership cancelled: ${data.ownerName} — ${data.planName}`
+    html = `
+      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
+        <div style="background:#003087;padding:24px;border-radius:12px 12px 0 0;">
+          <h1 style="color:white;margin:0;font-size:24px;">🐾 The Canine Gym — Admin</h1>
+        </div>
+        <div style="background:white;padding:32px;border:1px solid #eee;">
+          <h2 style="color:#dc3545;">Membership Cancelled</h2>
+          <div style="background:#f5f5f5;padding:20px;border-radius:8px;">
+            <p style="margin:0 0 8px 0;color:#333;">👤 <strong>${data.ownerName}</strong></p>
+            <p style="margin:0 0 8px 0;color:#333;">✉️ ${data.ownerEmail}</p>
+            <p style="margin:0 0 8px 0;color:#333;">📋 <strong>${data.planName} Plan</strong></p>
+            <p style="margin:0 0 8px 0;color:#333;">📅 Access until <strong>${data.periodEnd}</strong></p>
+            <p style="margin:0;color:#333;">🐾 <strong>${data.sessionsRemaining}</strong> sessions remaining</p>
+          </div>
+          <a href="https://app.thecaninegym.com/admin/memberships" style="display:block;background:#003087;color:white;text-align:center;padding:14px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px;margin-top:24px;">
+            View Memberships →
+          </a>
+        </div>
+      </div>
+    `
+  }
   
   try {
     await resend.emails.send({
