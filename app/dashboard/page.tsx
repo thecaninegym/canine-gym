@@ -13,6 +13,7 @@ export default function ClientDashboard() {
   const [hasAddress, setHasAddress] = useState(false)
   const [hasDogs, setHasDogs] = useState(false)
   const [hasWaiver, setHasWaiver] = useState(false)
+  const [membership, setMembership] = useState<any>(null)
 
   useEffect(() => {
     const init = async () => {
@@ -28,6 +29,15 @@ export default function ClientDashboard() {
       if (!ownerData) { setLoading(false); return }
       setHasAddress(!!(ownerData.address && ownerData.city))
       setHasWaiver(!!(ownerData.waiver_signed))
+
+      // Fetch membership
+      const { data: membershipData } = await supabase
+        .from('memberships')
+        .select('*')
+        .eq('owner_id', ownerData.id)
+        .eq('status', 'active')
+        .single()
+      setMembership(membershipData)
 
       const { data: dogsData } = await supabase
         .from('dogs')
@@ -125,7 +135,9 @@ export default function ClientDashboard() {
           <a href="/leaderboard" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>🏆 Leaderboard</a>
           <a href="/dogs" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>🐾 My Dogs</a>
           <a href="/profile" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>👤 Profile</a>
-          <a href="/membership" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>💳 Membership</a>
+          <a href="/membership" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>
+          💳 Membership{membership ? ` (${membership.sessions_remaining} left)` : ''}
+        </a>
           <button onClick={handleLogout} style={{ backgroundColor: '#FF6B35', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>Logout</button>
         </div>
       </nav>
@@ -241,7 +253,21 @@ export default function ClientDashboard() {
                     <a href={`/api/session-card?dog=${encodeURIComponent(selectedDog.name)}&sessions=${totalSessions}&miles=${totalMiles}&calories=${totalCalories}&city=${encodeURIComponent(selectedDog.leaderboard_settings?.city || '')}`} target="_blank" style={{ backgroundColor: '#FF6B35', color: 'white', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>📸 Share</a>
                   </div>
                 </div>
-
+        {membership && (
+          <div style={{ backgroundColor: '#003087', color: 'white', padding: '16px 24px', borderRadius: '12px', marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <p style={{ margin: '0 0 2px 0', fontSize: '13px', opacity: 0.7, textTransform: 'uppercase', fontWeight: 'bold' }}>
+                {membership.plan.charAt(0).toUpperCase() + membership.plan.slice(1)} Membership
+              </p>
+              <p style={{ margin: 0, fontSize: '16px' }}>
+                <strong>{membership.sessions_remaining}</strong> of {membership.sessions_per_month} sessions remaining this month
+              </p>
+            </div>
+            <a href="/membership" style={{ backgroundColor: 'rgba(255,255,255,0.2)', color: 'white', padding: '8px 16px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px', flexShrink: 0 }}>
+              Manage →
+            </a>
+          </div>
+        )}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', marginBottom: '24px' }}>
                   {[
                     { label: 'Total Sessions', value: totalSessions, icon: '🏃' },
