@@ -9,6 +9,7 @@ export default function ClientDashboard() {
   const [upcomingBookings, setUpcomingBookings] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedDog, setSelectedDog] = useState<any>(null)
+  const [selectedAchievement, setSelectedAchievement] = useState<any>(null)
 
   useEffect(() => {
     const init = async () => {
@@ -88,21 +89,21 @@ export default function ClientDashboard() {
   const totalMiles = sessions.reduce((sum, s) => sum + (s.distance_miles || 0), 0).toFixed(2)
   const totalCalories = sessions.reduce((sum, s) => sum + (s.calories_burned || 0), 0)
 
-  const achievementLabels: Record<string, string> = {
-    first_stride: '🐾 First Stride',
-    finding_their_pace: '🏃 Finding Their Pace',
-    ten_and_counting: '🔟 Ten and Counting',
-    century_club: '💯 Century Club',
-    marathon_pup: '🏅 Marathon Pup',
-    calorie_crusher: '🔥 Calorie Crusher',
-    speed_demon: '⚡ Speed Demon',
-    personal_best_miles: '🎯 Personal Best',
-    on_a_roll: '🔄 On A Roll',
-    hat_trick: '🎩 Hat Trick',
-    hot_streak: '🌶️ Hot Streak',
-    unstoppable: '💪 Unstoppable',
-    comeback_kid: '🔙 Comeback Kid'
-  }
+  const allAchievements = [
+    { key: 'first_stride', label: '🐾 First Stride', description: 'Complete your first session' },
+    { key: 'finding_their_pace', label: '🏃 Finding Their Pace', description: 'Complete 5 sessions' },
+    { key: 'ten_and_counting', label: '🔟 Ten and Counting', description: 'Complete 10 sessions' },
+    { key: 'century_club', label: '💯 Century Club', description: 'Complete 100 sessions' },
+    { key: 'marathon_pup', label: '🏅 Marathon Pup', description: 'Run 26.2 total miles' },
+    { key: 'calorie_crusher', label: '🔥 Calorie Crusher', description: 'Burn 1,000 total calories' },
+    { key: 'speed_demon', label: '⚡ Speed Demon', description: 'Hit 90%+ peak intensity in a session' },
+    { key: 'personal_best_miles', label: '🎯 Personal Best', description: 'Beat your previous distance record' },
+    { key: 'on_a_roll', label: '🔄 On A Roll', description: 'Book sessions 2 weeks in a row' },
+    { key: 'hat_trick', label: '🎩 Hat Trick', description: 'Book sessions 3 weeks in a row' },
+    { key: 'hot_streak', label: '🌶️ Hot Streak', description: 'Book sessions 4 weeks in a row' },
+    { key: 'unstoppable', label: '💪 Unstoppable', description: 'Book sessions 12 weeks in a row' },
+    { key: 'comeback_kid', label: '🔙 Comeback Kid', description: 'Return after a 2+ week absence' },
+  ]
 
   if (loading) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#003087' }}>
@@ -204,17 +205,45 @@ export default function ClientDashboard() {
                   </div>
                 )}
 
-                {achievements.length > 0 && (
-                  <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', overflow: 'hidden', marginBottom: '24px' }}>
-                    <div style={{ padding: '20px 24px', borderBottom: '1px solid #eee' }}>
-                      <h3 style={{ margin: 0, color: '#003087' }}>🏆 Achievements ({achievements.length})</h3>
-                    </div>
-                    <div style={{ padding: '20px 24px', display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
-                      {achievements.map(achievement => (
-                        <div key={achievement.id} style={{ backgroundColor: '#FF6B35', color: 'white', padding: '8px 16px', borderRadius: '20px', fontSize: '14px', fontWeight: 'bold' }}>
-                          {achievementLabels[achievement.achievement_key] || achievement.achievement_key}
+                <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', overflow: 'hidden', marginBottom: '24px' }}>
+                  <div style={{ padding: '20px 24px', borderBottom: '1px solid #eee' }}>
+                    <h3 style={{ margin: 0, color: '#003087' }}>🏆 Achievements ({achievements.length}/{allAchievements.length})</h3>
+                  </div>
+                  <div style={{ padding: '20px 24px', display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+                    {allAchievements.map(a => {
+                      const earned = achievements.find(e => e.achievement_key === a.key)
+                      return (
+                        <div key={a.key} onClick={() => setSelectedAchievement({ ...a, earned })}
+                          style={{ backgroundColor: earned ? '#FF6B35' : '#e0e0e0', color: earned ? 'white' : '#999', padding: '8px 16px', borderRadius: '20px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', transition: 'opacity 0.2s' }}>
+                          {a.label}
                         </div>
-                      ))}
+                      )
+                    })}
+                  </div>
+                </div>
+
+                {/* Achievement modal */}
+                {selectedAchievement && (
+                  <div onClick={() => setSelectedAchievement(null)}
+                    style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+                    <div onClick={(e) => e.stopPropagation()}
+                      style={{ backgroundColor: 'white', borderRadius: '16px', padding: '32px', maxWidth: '360px', width: '90%', textAlign: 'center', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
+                      <div style={{ fontSize: '48px', marginBottom: '12px' }}>{selectedAchievement.label.split(' ')[0]}</div>
+                      <h3 style={{ color: '#003087', margin: '0 0 8px 0', fontSize: '20px' }}>{selectedAchievement.label.split(' ').slice(1).join(' ')}</h3>
+                      <p style={{ color: '#666', margin: '0 0 20px 0', fontSize: '15px' }}>{selectedAchievement.description}</p>
+                      {selectedAchievement.earned ? (
+                        <div style={{ backgroundColor: '#d4edda', color: '#155724', padding: '10px 16px', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold' }}>
+                          ✅ Earned on {new Date(selectedAchievement.earned.earned_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                        </div>
+                      ) : (
+                        <div style={{ backgroundColor: '#f0f0f0', color: '#999', padding: '10px 16px', borderRadius: '8px', fontSize: '14px' }}>
+                          🔒 Not yet earned
+                        </div>
+                      )}
+                      <button onClick={() => setSelectedAchievement(null)}
+                        style={{ marginTop: '16px', padding: '10px 24px', backgroundColor: '#003087', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '15px' }}>
+                        Close
+                      </button>
                     </div>
                   </div>
                 )}
