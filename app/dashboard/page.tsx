@@ -6,6 +6,7 @@ export default function ClientDashboard() {
   const [dogs, setDogs] = useState<any[]>([])
   const [sessions, setSessions] = useState<any[]>([])
   const [achievements, setAchievements] = useState<any[]>([])
+  const [upcomingBookings, setUpcomingBookings] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedDog, setSelectedDog] = useState<any>(null)
 
@@ -33,6 +34,7 @@ export default function ClientDashboard() {
         setSelectedDog(dogsData[0])
         fetchSessions(dogsData[0].id)
         fetchAchievements(dogsData[0].id)
+        fetchUpcomingBookings(dogsData[0].id)
       }
       setLoading(false)
     }
@@ -58,10 +60,23 @@ export default function ClientDashboard() {
     setAchievements(data || [])
   }
 
+  const fetchUpcomingBookings = async (dogId: string) => {
+    const today = new Date().toISOString().split('T')[0]
+    const { data } = await supabase
+      .from('bookings')
+      .select('*')
+      .eq('dog_id', dogId)
+      .eq('status', 'confirmed')
+      .gte('booking_date', today)
+      .order('booking_date')
+    setUpcomingBookings(data || [])
+  }
+
   const handleDogSelect = (dog: any) => {
     setSelectedDog(dog)
     fetchSessions(dog.id)
     fetchAchievements(dog.id)
+    fetchUpcomingBookings(dog.id)
   }
 
   const handleLogout = async () => {
@@ -150,6 +165,36 @@ export default function ClientDashboard() {
                   ))}
                 </div>
 
+{upcomingBookings.length > 0 && (
+                  <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', overflow: 'hidden', marginBottom: '24px' }}>
+                    <div style={{ padding: '20px 24px', borderBottom: '1px solid #eee' }}>
+                      <h3 style={{ margin: 0, color: '#003087' }}>📅 Upcoming Sessions</h3>
+                    </div>
+                    {upcomingBookings.map((booking, i) => {
+                      const bookingDate = new Date(booking.booking_date + 'T12:00:00')
+                      const hoursUntil = (new Date(booking.booking_date + 'T' + String(booking.slot_hour).padStart(2, '0') + ':00:00').getTime() - Date.now()) / (1000 * 60 * 60)
+                      const canCancelFree = hoursUntil >= 48
+                      const ampm = booking.slot_hour >= 12 ? 'PM' : 'AM'
+                      const hour = booking.slot_hour > 12 ? booking.slot_hour - 12 : booking.slot_hour === 0 ? 12 : booking.slot_hour
+                      return (
+                        <div key={booking.id} style={{ padding: '16px 24px', borderBottom: i < upcomingBookings.length - 1 ? '1px solid #eee' : 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div>
+                            <p style={{ margin: '0 0 4px 0', fontWeight: 'bold', color: '#333' }}>
+                              {bookingDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                            </p>
+                            <p style={{ margin: 0, fontSize: '14px', color: '#666' }}>{hour}:00 {ampm} – {hour}:30 {ampm}</p>
+                            {!canCancelFree && <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: '#FF6B35' }}>⚠️ Less than 48hrs — cancellation fee may apply</p>}
+                          </div>
+                          <a href={`/cancel?booking=${booking.id}`}
+                            style={{ backgroundColor: '#f5f5f5', color: '#dc3545', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px', border: '1px solid #dc3545' }}>
+                            Cancel
+                          </a>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+                
                 {achievements.length > 0 && (
                   <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', overflow: 'hidden', marginBottom: '24px' }}>
                     <div style={{ padding: '20px 24px', borderBottom: '1px solid #eee' }}>
