@@ -132,7 +132,7 @@ export default function BookSession() {
       status: 'confirmed'
     }))
 
-    // Check membership and deduct session if applicable
+        // Check membership and deduct session if applicable
     const { data: membershipData } = await supabase
       .from('memberships')
       .select('*')
@@ -140,22 +140,43 @@ export default function BookSession() {
       .eq('status', 'active')
       .single()
 
-    if (membershipData) {
-      const coveredDogs = membershipData.dog_ids || []
-      const bookedCoveredDogs = selectedDogIds.filter((id: string) => coveredDogs.includes(id))
+    const coveredDogs = membershipData?.dog_ids || []
+    const bookedCoveredDogs = selectedDogIds.filter((id: string) => coveredDogs.includes(id))
+    const uncoveredDogs = selectedDogIds.filter((id: string) => !coveredDogs.includes(id))
 
-      if (bookedCoveredDogs.length > 0) {
-        if (membershipData.sessions_remaining <= 0) {
-          setError('You have no sessions remaining on your membership this month. Please purchase a la carte sessions from the Membership page.')
-          setBooking(false)
-          return
-        }
-        // Deduct one session per covered dog booked
-        await supabase
-          .from('memberships')
-          .update({ sessions_remaining: membershipData.sessions_remaining - bookedCoveredDogs.length })
-          .eq('id', membershipData.id)
+    // If any dogs are not covered by membership, redirect to a la carte payment
+    if (uncoveredDogs.length > 0) {
+      const res = await fetch('/api/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ownerId,
+          ownerEmail: (await supabase.auth.getUser()).data.user?.email,
+          type: 'alacarte',
+          dogCount: uncoveredDogs.length,
+          dogIds: uncoveredDogs,
+          bookingDate: selectedDate.dateStr,
+          slotHour: selectedSlot
+        })
+      })
+      const data = await res.json()
+      if (data.url) {
+        window.location.href = data.url
+        return
       }
+    }
+
+    // Deduct sessions for covered dogs
+    if (bookedCoveredDogs.length > 0) {
+      if (membershipData.sessions_remaining <= 0) {
+        setError('You have no sessions remaining on your membership this month.')
+        setBooking(false)
+        return
+      }
+      await supabase
+        .from('memberships')
+        .update({ sessions_remaining: membershipData.sessions_remaining - bookedCoveredDogs.length })
+        .eq('id', membershipData.id)
     }
 
     const { error: bookingError } = await supabase

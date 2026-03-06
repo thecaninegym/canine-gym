@@ -65,6 +65,31 @@ export async function POST(request: Request) {
         type: 'alacarte',
         status: 'succeeded'
       })
+
+      // Confirm the pending booking
+      const pendingBookingId = metadata.pending_booking_id
+      if (pendingBookingId) {
+        const { data: pending } = await supabase
+          .from('pending_bookings')
+          .select('*')
+          .eq('id', pendingBookingId)
+          .single()
+
+        if (pending) {
+          // Create bookings for each dog
+          const dogIds = pending.dog_ids || []
+          for (const dogId of dogIds) {
+            await supabase.from('bookings').insert({
+              dog_id: dogId,
+              booking_date: pending.booking_date,
+              slot_hour: pending.slot_hour,
+              status: 'confirmed'
+            })
+          }
+          // Delete pending booking
+          await supabase.from('pending_bookings').delete().eq('id', pendingBookingId)
+        }
+      }
     }
   }
 
