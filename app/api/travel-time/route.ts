@@ -16,6 +16,10 @@ export async function POST(request: Request) {
     const res = await fetch(url)
     const data = await res.json()
 
+    if (data.status !== 'OK') {
+      return NextResponse.json({ totalMinutes: 0, legs: [] })
+    }
+
     let totalMinutes = 0
     const legs: { from: string; to: string; minutes: number; text: string }[] = []
 
