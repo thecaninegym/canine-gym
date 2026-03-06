@@ -116,6 +116,8 @@ export default function ClientDashboard() {
         <h1 style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>🐾 The Canine Gym</h1>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
           <a href="/leaderboard" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>🏆 Leaderboard</a>
+          <a href="/dogs" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>🐾 My Dogs</a>
+          <a href="/profile" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>👤 Profile</a>
           <button onClick={handleLogout} style={{ backgroundColor: '#FF6B35', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>Logout</button>
         </div>
       </nav>
@@ -194,7 +196,7 @@ export default function ClientDashboard() {
                     })}
                   </div>
                 )}
-                
+
                 {achievements.length > 0 && (
                   <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', overflow: 'hidden', marginBottom: '24px' }}>
                     <div style={{ padding: '20px 24px', borderBottom: '1px solid #eee' }}>
