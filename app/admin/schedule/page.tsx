@@ -352,7 +352,8 @@ export default function AdminSchedule() {
                     <div style={{ borderRadius: '12px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', backgroundColor: 'white' }}>
                       {(() => {
                         const confirmedBookings = bookings.filter(b => b.status === 'confirmed' && b.dogs?.owners?.address)
-                        const routeUrl = confirmedBookings.map(b => encodeURIComponent(`${b.dogs.owners.address}, ${b.dogs.owners.city}, IN`)).join('/')
+                        const uniqueStops = [...new Map(confirmedBookings.map(b => [`${b.slot_hour}-${b.dogs.owners.address}`, b])).values()]
+                        const routeUrl = uniqueStops.map(b => encodeURIComponent(`${b.dogs.owners.address}, ${b.dogs.owners.city}, IN`)).join('/')
                         return (
                           <div style={{ padding: '32px', textAlign: 'center' }}>
                             <div style={{ fontSize: '48px', marginBottom: '16px' }}>🗺️</div>
