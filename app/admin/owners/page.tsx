@@ -10,7 +10,7 @@ export default function AllOwners() {
     const fetchOwners = async () => {
       const { data } = await supabase
         .from('owners')
-        .select('*, dogs(name)')
+        .select('*, dogs(name), waiver_signed, waiver_signed_at')
         .order('name')
       setOwners(data || [])
       setLoading(false)
@@ -40,6 +40,12 @@ export default function AllOwners() {
                   <p style={{ color: '#666', margin: '0 0 4px 0', fontSize: '14px' }}>📞 {owner.phone} · ✉️ {owner.email}</p>
                   {owner.address && <p style={{ color: '#666', margin: '0 0 4px 0', fontSize: '14px' }}>📍 {owner.address}</p>}
                   <p style={{ color: '#999', margin: 0, fontSize: '13px' }}>🐾 {owner.dogs?.map((d: any) => d.name).join(', ') || 'No dogs yet'}</p>
+                                    <p style={{ margin: '4px 0 0 0', fontSize: '13px' }}>
+                    {owner.waiver_signed
+                      ? <span style={{ color: '#28a745', fontWeight: 'bold' }}>✅ Waiver signed {new Date(owner.waiver_signed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                      : <span style={{ color: '#dc3545', fontWeight: 'bold' }}>⚠️ Waiver not signed</span>
+                    }
+                  </p>
                 </div>
                 <a href={`/admin/owners/${owner.id}/edit`} style={{ backgroundColor: '#003087', color: 'white', padding: '10px 20px', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>Edit</a>
               </div>
