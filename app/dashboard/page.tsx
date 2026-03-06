@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
-import { Trophy, PawPrint, User, CreditCard, LogOut, Calendar, Flame, MapPin, Share2, Lock, CheckCircle, ChevronRight, X, Activity, Navigation } from 'lucide-react'
+import { Trophy, PawPrint, User, CreditCard, LogOut, Calendar, Flame, Share2, Lock, CheckCircle, ChevronRight, X, Activity, Navigation, Medal, Zap, Target, RefreshCw, Award, TrendingUp, Dumbbell, RotateCcw, Hash, Star } from 'lucide-react'
 
 export default function ClientDashboard() {
   const [dogs, setDogs] = useState<any[]>([])
@@ -20,31 +20,13 @@ export default function ClientDashboard() {
     const init = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { window.location.href = '/'; return }
-
-      const { data: ownerData } = await supabase
-        .from('owners')
-        .select('*')
-        .eq('email', user.email)
-        .single()
-
+      const { data: ownerData } = await supabase.from('owners').select('*').eq('email', user.email).single()
       if (!ownerData) { setLoading(false); return }
       setHasAddress(!!(ownerData.address && ownerData.city))
       setHasWaiver(!!(ownerData.waiver_signed))
-
-      const { data: membershipData } = await supabase
-        .from('memberships')
-        .select('*')
-        .eq('owner_id', ownerData.id)
-        .eq('status', 'active')
-        .single()
+      const { data: membershipData } = await supabase.from('memberships').select('*').eq('owner_id', ownerData.id).eq('status', 'active').single()
       setMembership(membershipData)
-
-      const { data: dogsData } = await supabase
-        .from('dogs')
-        .select('*, leaderboard_settings(city, visibility)')
-        .eq('owner_id', ownerData.id)
-        .order('name')
-
+      const { data: dogsData } = await supabase.from('dogs').select('*, leaderboard_settings(city, visibility)').eq('owner_id', ownerData.id).order('name')
       setDogs(dogsData || [])
       setHasDogs((dogsData || []).length > 0)
       if (dogsData && dogsData.length > 0) {
@@ -91,20 +73,40 @@ export default function ClientDashboard() {
   const totalCalories = sessions.reduce((sum, s) => sum + (s.calories_burned || 0), 0)
 
   const allAchievements = [
-    { key: 'first_stride', label: 'First Stride', emoji: '🐾', description: 'Complete your first session' },
-    { key: 'finding_their_pace', label: 'Finding Their Pace', emoji: '🏃', description: 'Complete 5 sessions' },
-    { key: 'ten_and_counting', label: 'Ten and Counting', emoji: '🔟', description: 'Complete 10 sessions' },
-    { key: 'century_club', label: 'Century Club', emoji: '💯', description: 'Complete 100 sessions' },
-    { key: 'marathon_pup', label: 'Marathon Pup', emoji: '🏅', description: 'Run 26.2 total miles' },
-    { key: 'calorie_crusher', label: 'Calorie Crusher', emoji: '🔥', description: 'Burn 1,000 total calories' },
-    { key: 'speed_demon', label: 'Speed Demon', emoji: '⚡', description: 'Hit 90%+ peak intensity in a session' },
-    { key: 'personal_best_miles', label: 'Personal Best', emoji: '🎯', description: 'Beat your previous distance record' },
-    { key: 'on_a_roll', label: 'On A Roll', emoji: '🔄', description: 'Book sessions 2 weeks in a row' },
-    { key: 'hat_trick', label: 'Hat Trick', emoji: '🎩', description: 'Book sessions 3 weeks in a row' },
-    { key: 'hot_streak', label: 'Hot Streak', emoji: '🌶️', description: 'Book sessions 4 weeks in a row' },
-    { key: 'unstoppable', label: 'Unstoppable', emoji: '💪', description: 'Book sessions 12 weeks in a row' },
-    { key: 'comeback_kid', label: 'Comeback Kid', emoji: '🔙', description: 'Return after a 2+ week absence' },
+    { key: 'first_stride', label: 'First Stride', icon: <PawPrint size={14} />, description: 'Complete your first session' },
+    { key: 'finding_their_pace', label: 'Finding Their Pace', icon: <Activity size={14} />, description: 'Complete 5 sessions' },
+    { key: 'ten_and_counting', label: 'Ten and Counting', icon: <Hash size={14} />, description: 'Complete 10 sessions' },
+    { key: 'century_club', label: 'Century Club', icon: <Star size={14} />, description: 'Complete 100 sessions' },
+    { key: 'marathon_pup', label: 'Marathon Pup', icon: <Medal size={14} />, description: 'Run 26.2 total miles' },
+    { key: 'calorie_crusher', label: 'Calorie Crusher', icon: <Flame size={14} />, description: 'Burn 1,000 total calories' },
+    { key: 'speed_demon', label: 'Speed Demon', icon: <Zap size={14} />, description: 'Hit 90%+ peak intensity in a session' },
+    { key: 'personal_best_miles', label: 'Personal Best', icon: <Target size={14} />, description: 'Beat your previous distance record' },
+    { key: 'on_a_roll', label: 'On A Roll', icon: <RefreshCw size={14} />, description: 'Book sessions 2 weeks in a row' },
+    { key: 'hat_trick', label: 'Hat Trick', icon: <Award size={14} />, description: 'Book sessions 3 weeks in a row' },
+    { key: 'hot_streak', label: 'Hot Streak', icon: <TrendingUp size={14} />, description: 'Book sessions 4 weeks in a row' },
+    { key: 'unstoppable', label: 'Unstoppable', icon: <Dumbbell size={14} />, description: 'Book sessions 12 weeks in a row' },
+    { key: 'comeback_kid', label: 'Comeback Kid', icon: <RotateCcw size={14} />, description: 'Return after a 2+ week absence' },
   ]
+
+  const getAchievementIconLarge = (key: string) => {
+    const iconProps = { size: 40 }
+    switch(key) {
+      case 'first_stride': return <PawPrint {...iconProps} />
+      case 'finding_their_pace': return <Activity {...iconProps} />
+      case 'ten_and_counting': return <Hash {...iconProps} />
+      case 'century_club': return <Star {...iconProps} />
+      case 'marathon_pup': return <Medal {...iconProps} />
+      case 'calorie_crusher': return <Flame {...iconProps} />
+      case 'speed_demon': return <Zap {...iconProps} />
+      case 'personal_best_miles': return <Target {...iconProps} />
+      case 'on_a_roll': return <RefreshCw {...iconProps} />
+      case 'hat_trick': return <Award {...iconProps} />
+      case 'hot_streak': return <TrendingUp {...iconProps} />
+      case 'unstoppable': return <Dumbbell {...iconProps} />
+      case 'comeback_kid': return <RotateCcw {...iconProps} />
+      default: return <Trophy {...iconProps} />
+    }
+  }
 
   if (loading) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#003087' }}>
@@ -146,7 +148,6 @@ export default function ClientDashboard() {
               <h2 style={{ color: '#003087', margin: '0 0 12px 0' }}>Welcome to The Canine Gym!</h2>
               <p style={{ color: '#666', fontSize: '16px', marginBottom: '32px', lineHeight: '1.6' }}>The run comes to you. Complete these steps to book your first session.</p>
               <div style={{ display: 'grid', gap: '16px', textAlign: 'left', marginBottom: '32px' }}>
-
                 {hasAddress ? (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '16px', backgroundColor: '#d4edda', padding: '20px', borderRadius: '12px', border: '2px solid #28a745' }}>
                     <CheckCircle size={36} color="#28a745" style={{ flexShrink: 0 }} />
@@ -165,7 +166,6 @@ export default function ClientDashboard() {
                     <ChevronRight size={24} color="#FF6B35" style={{ marginLeft: 'auto', flexShrink: 0 }} />
                   </a>
                 )}
-
                 {hasDogs ? (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '16px', backgroundColor: '#d4edda', padding: '20px', borderRadius: '12px', border: '2px solid #28a745' }}>
                     <CheckCircle size={36} color="#28a745" style={{ flexShrink: 0 }} />
@@ -184,7 +184,6 @@ export default function ClientDashboard() {
                     <ChevronRight size={24} color="#003087" style={{ marginLeft: 'auto', flexShrink: 0 }} />
                   </a>
                 )}
-
                 {hasWaiver ? (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '16px', backgroundColor: '#d4edda', padding: '20px', borderRadius: '12px', border: '2px solid #28a745' }}>
                     <CheckCircle size={36} color="#28a745" style={{ flexShrink: 0 }} />
@@ -204,7 +203,6 @@ export default function ClientDashboard() {
                   </a>
                 )}
               </div>
-
               {hasAddress && hasDogs && hasWaiver ? (
                 <a href="/book" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', backgroundColor: '#FF6B35', color: 'white', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px' }}>
                   <Calendar size={18} /> Book Your First Session
@@ -331,7 +329,7 @@ export default function ClientDashboard() {
                       return (
                         <div key={a.key} onClick={() => setSelectedAchievement({ ...a, earned })}
                           style={{ backgroundColor: earned ? '#FF6B35' : '#e0e0e0', color: earned ? 'white' : '#999', padding: '8px 16px', borderRadius: '20px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <span>{a.emoji}</span> {a.label}
+                          {a.icon} {a.label}
                         </div>
                       )
                     })}
@@ -343,7 +341,9 @@ export default function ClientDashboard() {
                     style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
                     <div onClick={(e) => e.stopPropagation()}
                       style={{ backgroundColor: 'white', borderRadius: '16px', padding: '32px', maxWidth: '360px', width: '90%', textAlign: 'center', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
-                      <div style={{ fontSize: '48px', marginBottom: '12px' }}>{selectedAchievement.emoji}</div>
+                      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '12px', color: selectedAchievement.earned ? '#FF6B35' : '#ccc' }}>
+                        {getAchievementIconLarge(selectedAchievement.key)}
+                      </div>
                       <h3 style={{ color: '#003087', margin: '0 0 8px 0', fontSize: '20px' }}>{selectedAchievement.label}</h3>
                       <p style={{ color: '#666', margin: '0 0 20px 0', fontSize: '15px' }}>{selectedAchievement.description}</p>
                       {selectedAchievement.earned ? (
