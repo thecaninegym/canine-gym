@@ -132,6 +132,27 @@ export default function BookSession() {
       status: 'confirmed'
     }))
 
+        // Check membership and deduct session if applicable
+    const { data: membershipData } = await supabase
+      .from('memberships')
+      .select('*')
+      .eq('owner_id', ownerId)
+      .eq('status', 'active')
+      .single()
+
+    if (membershipData) {
+      if (membershipData.sessions_remaining <= 0) {
+        setError('You have no sessions remaining on your membership this month. Please purchase a la carte sessions from the Membership page.')
+        setBooking(false)
+        return
+      }
+      // Deduct session
+      await supabase
+        .from('memberships')
+        .update({ sessions_remaining: membershipData.sessions_remaining - 1 })
+        .eq('id', membershipData.id)
+    }
+    
     const { error: bookingError } = await supabase
       .from('bookings')
       .insert(bookingInserts)
