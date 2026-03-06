@@ -262,6 +262,11 @@ export default function ClientDashboard() {
               <p style={{ margin: 0, fontSize: '16px' }}>
                 <strong>{membership.sessions_remaining}</strong> of {membership.sessions_per_month} sessions remaining this month
               </p>
+              {membership.dog_ids && membership.dog_ids.length > 0 && (
+                <p style={{ margin: '4px 0 0 0', fontSize: '13px', opacity: 0.8 }}>
+                  🐾 Covers: {dogs.filter(d => membership.dog_ids.includes(d.id)).map((d: any) => d.name).join(', ')}
+                </p>
+              )}
             </div>
             <a href="/membership" style={{ backgroundColor: 'rgba(255,255,255,0.2)', color: 'white', padding: '8px 16px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px', flexShrink: 0 }}>
               Manage →

@@ -132,7 +132,7 @@ export default function BookSession() {
       status: 'confirmed'
     }))
 
-        // Check membership and deduct session if applicable
+    // Check membership and deduct session if applicable
     const { data: membershipData } = await supabase
       .from('memberships')
       .select('*')
@@ -141,18 +141,23 @@ export default function BookSession() {
       .single()
 
     if (membershipData) {
-      if (membershipData.sessions_remaining <= 0) {
-        setError('You have no sessions remaining on your membership this month. Please purchase a la carte sessions from the Membership page.')
-        setBooking(false)
-        return
+      const coveredDogs = membershipData.dog_ids || []
+      const bookedCoveredDogs = selectedDogIds.filter((id: string) => coveredDogs.includes(id))
+
+      if (bookedCoveredDogs.length > 0) {
+        if (membershipData.sessions_remaining <= 0) {
+          setError('You have no sessions remaining on your membership this month. Please purchase a la carte sessions from the Membership page.')
+          setBooking(false)
+          return
+        }
+        // Deduct one session per covered dog booked
+        await supabase
+          .from('memberships')
+          .update({ sessions_remaining: membershipData.sessions_remaining - bookedCoveredDogs.length })
+          .eq('id', membershipData.id)
       }
-      // Deduct session
-      await supabase
-        .from('memberships')
-        .update({ sessions_remaining: membershipData.sessions_remaining - 1 })
-        .eq('id', membershipData.id)
     }
-    
+
     const { error: bookingError } = await supabase
       .from('bookings')
       .insert(bookingInserts)
