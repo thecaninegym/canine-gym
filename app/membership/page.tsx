@@ -17,8 +17,9 @@ export default function Membership() {
   const [loading, setLoading] = useState(true)
   const [checkoutLoading, setCheckoutLoading] = useState('')
   const [dogCount, setDogCount] = useState(1)
-  const [success, setSuccess] = useState(false)
+const [success, setSuccess] = useState(false)
   const [cancelled, setCancelled] = useState(false)
+  const [cancelSuccess, setCancelSuccess] = useState(false)
   const [selectedDogIds, setSelectedDogIds] = useState<string[]>([])
 
   useEffect(() => {
@@ -70,7 +71,10 @@ export default function Membership() {
       body: JSON.stringify({ subscriptionId: membership.stripe_subscription_id })
     })
     const data = await res.json()
-    if (data.success) setMembership({ ...membership, status: 'cancelled' })
+if (data.success) {
+      setMembership({ ...membership, status: 'cancelled' })
+      setCancelSuccess(true)
+    }
   }
 
   const formatDate = (dateStr: string) => new Date(dateStr).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
@@ -101,6 +105,12 @@ export default function Membership() {
           </div>
         )}
 
+        {cancelSuccess && (
+          <div style={{ backgroundColor: '#fff3cd', color: '#856404', padding: '16px', borderRadius: '12px', marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontWeight: 'bold' }}>
+            <XCircle size={20} color="#856404" /> Your membership has been cancelled. You still have access until the end of your billing period.
+          </div>
+        )}
+        
         {cancelled && (
           <div style={{ backgroundColor: '#fff3cd', color: '#856404', padding: '16px', borderRadius: '12px', marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
             <AlertCircle size={20} color="#856404" /> Payment cancelled. No charge was made.
