@@ -83,7 +83,9 @@ export async function POST(request: Request) {
               dog_id: dogId,
               booking_date: pending.booking_date,
               slot_hour: pending.slot_hour,
-              status: 'confirmed'
+              status: 'confirmed',
+              payment_intent_id: session.payment_intent as string,
+              amount_paid: session.amount_total
             })
           }
           // Delete pending booking
