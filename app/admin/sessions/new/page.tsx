@@ -64,6 +64,14 @@ export default function LogSession() {
       return
     }
 
+        // Auto-complete any confirmed booking for this dog on this date
+    await supabase
+      .from('bookings')
+      .update({ status: 'completed' })
+      .eq('dog_id', dogId)
+      .eq('booking_date', sessionDate)
+      .eq('status', 'confirmed')
+      
     // Check achievements after session is logged
     const newAchievements = await checkAchievements(dogId)
 
