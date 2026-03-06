@@ -2,10 +2,11 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../../../lib/supabase'
 import { checkAchievements } from '../../../../lib/achievements'
+import { PawPrint, ArrowLeft, ClipboardList, CheckCircle, Clock } from 'lucide-react'
 
 export default function LogSession() {
-  const [dogs, setDogs] = useState([])
-  const [devices, setDevices] = useState([])
+  const [dogs, setDogs] = useState<any[]>([])
+  const [devices, setDevices] = useState<any[]>([])
   const [dogId, setDogId] = useState('')
   const [bookingId, setBookingId] = useState('')
   const [deviceSlug, setDeviceSlug] = useState('')
@@ -15,7 +16,7 @@ export default function LogSession() {
   const [notes, setNotes] = useState('')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
-  const [error, setError] = useState(null)
+  const [error, setError] = useState<string | null>(null)
   const [timeFromBooking, setTimeFromBooking] = useState(false)
 
   useEffect(() => {
@@ -24,101 +25,48 @@ export default function LogSession() {
     const bookingParam = params.get('booking')
     const hourParam = params.get('hour')
     const dateParam = params.get('date')
-
     if (dogParam) setDogId(dogParam)
     if (bookingParam) setBookingId(bookingParam)
     if (dateParam) setSessionDate(dateParam)
-
     if (hourParam) {
       const h = parseInt(hourParam)
       setStartTime(`${String(h).padStart(2, '0')}:00`)
       setEndTime(`${String(h).padStart(2, '0')}:30`)
       setTimeFromBooking(true)
     }
-
     const fetchData = async () => {
-      const { data: dogsData } = await supabase
-        .from('dogs')
-        .select('*, owner_id, owners(name), leaderboard_settings(city)')
-        .order('name')
+      const { data: dogsData } = await supabase.from('dogs').select('*, owner_id, owners(name), leaderboard_settings(city)').order('name')
       setDogs(dogsData || [])
-
-      const { data: devicesData } = await supabase
-        .from('devices')
-        .select('*')
-        .order('device_name')
+      const { data: devicesData } = await supabase.from('devices').select('*').order('device_name')
       setDevices(devicesData || [])
     }
     fetchData()
   }, [])
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
-
     const start = new Date(`${sessionDate}T${startTime}`)
     const end = new Date(`${sessionDate}T${endTime}`)
     const duration = Math.round((end.getTime() - start.getTime()) / 60000)
-
-    const { error: sessionError } = await supabase
-      .from('sessions')
-      .insert([{
-        dog_id: dogId,
-        fitbark_device_slug: deviceSlug,
-        session_date: sessionDate,
-        start_time: start.toISOString(),
-        end_time: end.toISOString(),
-        duration_minutes: duration,
-        notes
-      }])
-
-    if (sessionError) {
-      setError(sessionError.message)
-      setLoading(false)
-      return
-    }
-
-    // Auto-complete the booking
+    const { error: sessionError } = await supabase.from('sessions').insert([{ dog_id: dogId, fitbark_device_slug: deviceSlug, session_date: sessionDate, start_time: start.toISOString(), end_time: end.toISOString(), duration_minutes: duration, notes }])
+    if (sessionError) { setError(sessionError.message); setLoading(false); return }
     if (bookingId) {
       await supabase.from('bookings').update({ status: 'completed' }).eq('id', bookingId)
     } else {
-      await supabase.from('bookings').update({ status: 'completed' })
-        .eq('dog_id', dogId)
-        .eq('booking_date', sessionDate)
-        .eq('status', 'confirmed')
+      await supabase.from('bookings').update({ status: 'completed' }).eq('dog_id', dogId).eq('booking_date', sessionDate).eq('status', 'confirmed')
     }
-
-    // Check achievements after session is logged
     const newAchievements = await checkAchievements(dogId)
-
-    // Get owner email for session report
     const selectedDogData = dogs.find(d => d.id === dogId)
-    const { data: ownerData } = await supabase
-      .from('owners')
-      .select('name, email')
-      .eq('id', selectedDogData?.owner_id)
-      .single()
-
-    // Send session report email
+    const { data: ownerData } = await supabase.from('owners').select('name, email').eq('id', selectedDogData?.owner_id).single()
     if (ownerData?.email) {
       await fetch('/api/send-session-report', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ownerEmail: ownerData.email,
-          ownerName: ownerData.name,
-          dogName: selectedDogData?.name,
-          sessionDate: new Date(sessionDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }),
-          duration,
-          miles: null,
-          calories: null,
-          notes,
-          achievementsUnlocked: newAchievements.map(a => a.label)
-        })
+        body: JSON.stringify({ ownerEmail: ownerData.email, ownerName: ownerData.name, dogName: selectedDogData?.name, sessionDate: new Date(sessionDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }), duration, miles: null, calories: null, notes, achievementsUnlocked: newAchievements.map((a: any) => a.label) })
       })
     }
-
     setSuccess(true)
     setDeviceSlug('')
     setNotes('')
@@ -139,22 +87,38 @@ export default function LogSession() {
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
       <nav style={{ backgroundColor: '#003087', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1 style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>🐾 The Canine Gym — Admin</h1>
-        <a href="/admin" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>← Back to Dashboard</a>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <PawPrint size={24} color="white" />
+          <h1 style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>The Canine Gym — Admin</h1>
+        </div>
+        <a href="/admin" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <ArrowLeft size={16} /> Back to Dashboard
+        </a>
       </nav>
       <div style={{ padding: '32px', maxWidth: '600px', margin: '0 auto' }}>
-        <h2 style={{ color: '#003087', marginBottom: '24px' }}>Log Session</h2>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
+          <ClipboardList size={28} color="#003087" />
+          <h2 style={{ color: '#003087', margin: 0 }}>Log Session</h2>
+        </div>
         {success && (
-          <div style={{ backgroundColor: '#d4edda', color: '#155724', padding: '12px', borderRadius: '6px', marginBottom: '16px' }}>
-            Session logged successfully! ✅
-            <br />
-            <a href="/admin/schedule" style={{ color: '#155724', fontWeight: 'bold' }}>← Back to Schedule</a>
+          <div style={{ backgroundColor: '#d4edda', color: '#155724', padding: '12px', borderRadius: '6px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <CheckCircle size={18} color="#155724" /> Session logged successfully!
+            <a href="/admin/schedule" style={{ color: '#155724', fontWeight: 'bold', marginLeft: '8px' }}>← Back to Schedule</a>
           </div>
         )}
         {selectedDog && (
-          <div style={{ backgroundColor: '#003087', color: 'white', padding: '16px', borderRadius: '8px', marginBottom: '24px' }}>
-            <p style={{ margin: 0, fontWeight: 'bold', fontSize: '18px' }}>🐾 {selectedDog.name}</p>
-            <p style={{ margin: '4px 0 0 0', fontSize: '14px', opacity: 0.8 }}>{selectedDog.owners?.name} · {selectedDog.leaderboard_settings?.city}</p>
+          <div style={{ backgroundColor: '#003087', color: 'white', padding: '16px', borderRadius: '8px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+            {selectedDog.photo_url ? (
+              <img src={selectedDog.photo_url} style={{ width: '44px', height: '44px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
+            ) : (
+              <div style={{ width: '44px', height: '44px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <PawPrint size={22} color="white" />
+              </div>
+            )}
+            <div>
+              <p style={{ margin: 0, fontWeight: 'bold', fontSize: '18px' }}>{selectedDog.name}</p>
+              <p style={{ margin: '4px 0 0 0', fontSize: '14px', opacity: 0.8 }}>{selectedDog.owners?.name} · {selectedDog.leaderboard_settings?.city}</p>
+            </div>
           </div>
         )}
         <div style={{ backgroundColor: 'white', padding: '32px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
@@ -162,35 +126,33 @@ export default function LogSession() {
             <div style={{ marginBottom: '16px' }}>
               <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>Dog</label>
               <select value={dogId} onChange={(e) => setDogId(e.target.value)} required
-                style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000000' }}>
+                style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000' }}>
                 <option value="">Select a dog...</option>
-                {dogs.map(dog => (
-                  <option key={dog.id} value={dog.id}>{dog.name} ({dog.owners?.name})</option>
-                ))}
+                {dogs.map(dog => <option key={dog.id} value={dog.id}>{dog.name} ({dog.owners?.name})</option>)}
               </select>
             </div>
             <div style={{ marginBottom: '16px' }}>
               <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>FitBark Device</label>
               <select value={deviceSlug} onChange={(e) => setDeviceSlug(e.target.value)} required
-                style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000000' }}>
+                style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000' }}>
                 <option value="">Select a device...</option>
                 {devices.length === 0 && <option disabled>No devices added yet</option>}
-                {devices.map(device => (
-                  <option key={device.id} value={device.fitbark_slug}>{device.device_name}</option>
-                ))}
+                {devices.map(device => <option key={device.id} value={device.fitbark_slug}>{device.device_name}</option>)}
               </select>
             </div>
             <div style={{ marginBottom: '16px' }}>
               <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>Session Date</label>
               <input type="date" value={sessionDate} onChange={(e) => setSessionDate(e.target.value)} required
-                style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000000' }} />
+                style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000' }} />
             </div>
-
             {timeFromBooking ? (
               <div style={{ backgroundColor: '#f0f4ff', border: '1px solid #003087', padding: '14px 16px', borderRadius: '8px', marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div>
-                  <p style={{ margin: '0 0 2px 0', fontWeight: 'bold', color: '#003087', fontSize: '14px' }}>⏰ Session Time</p>
-                  <p style={{ margin: 0, color: '#333', fontSize: '16px', fontWeight: 'bold' }}>{formatTimeDisplay(startTime)} – {formatTimeDisplay(endTime)}</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <Clock size={18} color="#003087" />
+                  <div>
+                    <p style={{ margin: '0 0 2px 0', fontWeight: 'bold', color: '#003087', fontSize: '14px' }}>Session Time</p>
+                    <p style={{ margin: 0, color: '#333', fontSize: '16px', fontWeight: 'bold' }}>{formatTimeDisplay(startTime)} – {formatTimeDisplay(endTime)}</p>
+                  </div>
                 </div>
                 <button type="button" onClick={() => setTimeFromBooking(false)}
                   style={{ background: 'none', border: 'none', color: '#999', fontSize: '12px', cursor: 'pointer', textDecoration: 'underline' }}>
@@ -202,26 +164,25 @@ export default function LogSession() {
                 <div>
                   <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>Start Time</label>
                   <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} required
-                    style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000000' }} />
+                    style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000' }} />
                 </div>
                 <div>
                   <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>End Time</label>
                   <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} required
-                    style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000000' }} />
+                    style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000' }} />
                 </div>
               </div>
             )}
-
             <div style={{ marginBottom: '24px' }}>
               <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>Notes</label>
               <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3}
                 placeholder="How did the session go? Any observations?"
-                style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000000', resize: 'vertical' }} />
+                style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000', resize: 'vertical' }} />
             </div>
             {error && <p style={{ color: 'red', marginBottom: '16px', fontSize: '14px' }}>{error}</p>}
             <button type="submit" disabled={loading}
-              style={{ width: '100%', padding: '12px', backgroundColor: '#FF6B35', color: 'white', border: 'none', borderRadius: '6px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>
-              {loading ? 'Saving...' : '✅ Log Session'}
+              style={{ width: '100%', padding: '12px', backgroundColor: '#FF6B35', color: 'white', border: 'none', borderRadius: '6px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+              <ClipboardList size={18} /> {loading ? 'Saving...' : 'Log Session'}
             </button>
           </form>
         </div>

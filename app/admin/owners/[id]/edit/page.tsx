@@ -2,11 +2,11 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { supabase } from '../../../../../lib/supabase'
+import { PawPrint, ArrowLeft, CheckCircle } from 'lucide-react'
 
 export default function EditOwner() {
   const params = useParams()
   const id = params.id as string
-
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
@@ -20,19 +20,8 @@ export default function EditOwner() {
 
   useEffect(() => {
     const fetchOwner = async () => {
-      const { data } = await supabase
-        .from('owners')
-        .select('*')
-        .eq('id', id)
-        .single()
-      if (data) {
-        setName(data.name || '')
-        setEmail(data.email || '')
-        setPhone(data.phone || '')
-        setAddress(data.address || '')
-        setCity(data.city || '')
-        setZip(data.zip || '')
-      }
+      const { data } = await supabase.from('owners').select('*').eq('id', id).single()
+      if (data) { setName(data.name || ''); setEmail(data.email || ''); setPhone(data.phone || ''); setAddress(data.address || ''); setCity(data.city || ''); setZip(data.zip || '') }
       setLoading(false)
     }
     if (id) fetchOwner()
@@ -42,29 +31,12 @@ export default function EditOwner() {
     e.preventDefault()
     setSaving(true)
     setError(null)
-
-    const { error } = await supabase
-      .from('owners')
-      .update({ name, email, phone, address, city, zip })
-      .eq('id', id)
-
-      // Sync city to all dogs' leaderboard_settings
-    const { data: dogData } = await supabase
-      .from('dogs')
-      .select('id')
-      .eq('owner_id', id)
-
+    const { error } = await supabase.from('owners').update({ name, email, phone, address, city, zip }).eq('id', id)
+    const { data: dogData } = await supabase.from('dogs').select('id').eq('owner_id', id)
     if (dogData && dogData.length > 0) {
-      await supabase
-        .from('leaderboard_settings')
-        .update({ city })
-        .in('dog_id', dogData.map((d: any) => d.id))
+      await supabase.from('leaderboard_settings').update({ city }).in('dog_id', dogData.map((d: any) => d.id))
     }
-    if (error) {
-      setError(error.message)
-    } else {
-      setSuccess(true)
-    }
+    if (error) { setError(error.message) } else { setSuccess(true) }
     setSaving(false)
   }
 
@@ -77,50 +49,43 @@ export default function EditOwner() {
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
       <nav style={{ backgroundColor: '#003087', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1 style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>🐾 The Canine Gym — Admin</h1>
-        <a href="/admin/owners" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>← Back to Owners</a>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <PawPrint size={24} color="white" />
+          <h1 style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>The Canine Gym — Admin</h1>
+        </div>
+        <a href="/admin/owners" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <ArrowLeft size={16} /> Back to Owners
+        </a>
       </nav>
       <div style={{ padding: '32px', maxWidth: '600px', margin: '0 auto' }}>
         <h2 style={{ color: '#003087', marginBottom: '24px' }}>Edit Owner</h2>
-        {success && <div style={{ backgroundColor: '#d4edda', color: '#155724', padding: '12px', borderRadius: '6px', marginBottom: '16px' }}>Saved successfully!</div>}
+        {success && (
+          <div style={{ backgroundColor: '#d4edda', color: '#155724', padding: '12px', borderRadius: '6px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <CheckCircle size={18} color="#155724" /> Saved successfully!
+          </div>
+        )}
         <div style={{ backgroundColor: 'white', padding: '32px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
           <form onSubmit={handleSubmit}>
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>Full Name</label>
-              <input type="text" value={name} onChange={(e) => setName(e.target.value)} required
-                style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000' }} />
-            </div>
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>Email</label>
-              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required
-                style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000' }} />
-            </div>
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>Phone</label>
-              <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)}
-                style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000' }} />
-            </div>
-            <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>Street Address</label>
-              <input type="text" value={address} onChange={(e) => setAddress(e.target.value)}
-                placeholder="123 Main St"
-                style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000' }} />
-            </div>
-            <div style={{ marginBottom: '16px' }}>
+            {[
+              { label: 'Full Name', value: name, onChange: setName, type: 'text', required: true },
+              { label: 'Email', value: email, onChange: setEmail, type: 'email', required: true },
+              { label: 'Phone', value: phone, onChange: setPhone, type: 'tel' },
+              { label: 'Street Address', value: address, onChange: setAddress, type: 'text', placeholder: '123 Main St' },
+              { label: 'Zip Code', value: zip, onChange: setZip, type: 'text', placeholder: '46032' },
+            ].map(({ label, value, onChange, type, required, placeholder }) => (
+              <div key={label} style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>{label}</label>
+                <input type={type} value={value} onChange={(e) => onChange(e.target.value)} required={required} placeholder={placeholder}
+                  style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000' }} />
+              </div>
+            ))}
+            <div style={{ marginBottom: '24px' }}>
               <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>City</label>
               <select value={city} onChange={(e) => setCity(e.target.value)}
                 style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000' }}>
                 <option value="">Select a city...</option>
-                {['Carmel', 'Zionsville', 'Fishers', 'Geist', 'Westfield', 'Noblesville'].map(c => (
-                  <option key={c} value={c}>{c}</option>
-                ))}
+                {['Carmel', 'Zionsville', 'Fishers', 'Geist', 'Westfield', 'Noblesville'].map(c => <option key={c} value={c}>{c}</option>)}
               </select>
-            </div>
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>Zip Code</label>
-              <input type="text" value={zip} onChange={(e) => setZip(e.target.value)}
-                placeholder="46032"
-                style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000' }} />
             </div>
             {error && <p style={{ color: 'red', marginBottom: '16px', fontSize: '14px' }}>{error}</p>}
             <button type="submit" disabled={saving}
