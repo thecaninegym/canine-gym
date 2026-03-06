@@ -329,7 +329,8 @@ export default function AdminSchedule() {
                             <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', flexShrink: 0 }}>🐾</div>
                           )}
                           <div style={{ flex: 1 }}>
-                            <p style={{ margin: '0 0 2px 0', fontWeight: 'bold', color: '#333' }}>{booking.dogs?.name} — {formatHour(booking.slot_hour)}</p>
+                            <p style={{ margin: '0 0 2px 0', fontSize: '12px', fontWeight: 'bold', color: '#FF6B35', textTransform: 'uppercase' }}>{formatHour(booking.slot_hour)}</p>
+                            <p style={{ margin: '0 0 2px 0', fontWeight: 'bold', color: '#333' }}>{booking.dogs?.name}</p>
                             <p style={{ margin: 0, fontSize: '13px', color: '#666' }}>{booking.dogs?.owners?.address}, {booking.dogs?.owners?.city}</p>
                           </div>
                           <a href={`https://maps.google.com/?q=${encodeURIComponent(`${booking.dogs.owners.address}, ${booking.dogs.owners.city}, IN`)}`} target="_blank"
@@ -339,11 +340,24 @@ export default function AdminSchedule() {
                     </div>
 
                     {/* Map embed */}
-                    <div style={{ borderRadius: '12px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', height: '450px' }}>
-                      <iframe
-                        width="100%" height="100%" frameBorder="0" style={{ border: 0 }}
-                        src={`https://maps.google.com/maps?q=${encodeURIComponent(bookings.filter(b => b.status === 'confirmed' && b.dogs?.owners?.address)[0]?.dogs?.owners?.address + ', ' + bookings.filter(b => b.status === 'confirmed' && b.dogs?.owners?.address)[0]?.dogs?.owners?.city + ', IN')}&output=embed`}
-                      />
+                    <div style={{ borderRadius: '12px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', backgroundColor: 'white' }}>
+                      {(() => {
+                        const confirmedBookings = bookings.filter(b => b.status === 'confirmed' && b.dogs?.owners?.address)
+                        const routeUrl = confirmedBookings.map(b => encodeURIComponent(`${b.dogs.owners.address}, ${b.dogs.owners.city}, IN`)).join('/')
+                        return (
+                          <div style={{ padding: '32px', textAlign: 'center' }}>
+                            <div style={{ fontSize: '48px', marginBottom: '16px' }}>🗺️</div>
+                            <h3 style={{ color: '#003087', margin: '0 0 8px 0' }}>{confirmedBookings.length} stops today</h3>
+                            <p style={{ color: '#666', marginBottom: '24px', fontSize: '14px' }}>
+                              {confirmedBookings.map(b => `${b.dogs.owners.address}, ${b.dogs.owners.city}`).join(' → ')}
+                            </p>
+                            <a href={`https://www.google.com/maps/dir/${routeUrl}`} target="_blank"
+                              style={{ display: 'inline-block', backgroundColor: '#FF6B35', color: 'white', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px' }}>
+                              🗺️ Open Full Route in Google Maps →
+                            </a>
+                          </div>
+                        )
+                      })()}
                     </div>
                   </>
                 )}
