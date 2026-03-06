@@ -314,14 +314,16 @@ export default function AdminSchedule() {
                     {/* Stop list */}
                     <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', marginBottom: '16px', overflow: 'hidden' }}>
                       <div style={{ padding: '16px 20px', borderBottom: '1px solid #eee' }}>
-                        <h3 style={{ margin: 0, color: '#003087' }}>Today's Stops ({bookings.filter(b => b.status === 'confirmed' && b.dogs?.owners?.address).length})</h3>
+                        <h3 style={{ margin: 0, color: '#003087' }}>Today's Stops ({[...new Set(bookings.filter(b => b.status === 'confirmed' && b.dogs?.owners?.address).map(b => `${b.slot_hour}-${b.dogs.owners.address}`))].length})</h3>
                       </div>
                       {(() => {
                         const confirmed = bookings.filter(b => b.status === 'confirmed' && b.dogs?.owners?.address)
                         const grouped: Record<number, any[]> = {}
                         confirmed.forEach(b => {
                           if (!grouped[b.slot_hour]) grouped[b.slot_hour] = []
-                          grouped[b.slot_hour].push(b)
+                          // Only add if address not already in this slot
+                          const alreadyHasAddress = grouped[b.slot_hour].some(x => x.dogs?.owners?.address === b.dogs?.owners?.address)
+                          if (!alreadyHasAddress) grouped[b.slot_hour].push(b)
                         })
                         return Object.entries(grouped).map(([hour, slotBookings]) => (
                           <div key={hour}>
