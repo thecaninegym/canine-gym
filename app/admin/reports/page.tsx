@@ -106,7 +106,7 @@ export default function AdminReports() {
     .slice(0, 5)
     .map(o => ({
       name: o.name,
-      months: Math.floor((today.getTime() - new Date(o.created_at).getTime()) / (1000 * 60 * 60 * 24 * 30))
+      months: Math.max(0, Math.floor((today.getTime() - new Date(o.created_at).getTime()) / (1000 * 60 * 60 * 24 * 30)))
     }))
 
   const formatPeriodLabel = () => {
