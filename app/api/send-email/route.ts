@@ -121,6 +121,76 @@ export async function POST(request: Request) {
     `
   }
 
+  if (type === 'receipt_alacarte') {
+    subject = `Your receipt from The Canine Gym — ${data.date}`
+    html = `
+      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
+        <div style="background:#003087;padding:24px;border-radius:12px 12px 0 0;">
+          <h1 style="color:white;margin:0;font-size:24px;">🐾 The Canine Gym</h1>
+          <p style="color:rgba(255,255,255,0.8);margin:4px 0 0 0;">Payment Receipt</p>
+        </div>
+        <div style="background:white;padding:32px;border:1px solid #eee;">
+          <h2 style="color:#003087;">Payment Confirmed, ${data.ownerName}!</h2>
+          <p style="color:#555;">Thanks for booking — here's your receipt.</p>
+          <div style="background:#f5f5f5;padding:20px;border-radius:8px;margin:24px 0;">
+            <p style="margin:0 0 12px 0;color:#333;font-size:15px;font-weight:bold;border-bottom:1px solid #ddd;padding-bottom:12px;">Receipt Summary</p>
+            <p style="margin:0 0 8px 0;color:#333;">🐾 <strong>${data.dogName}</strong></p>
+            <p style="margin:0 0 8px 0;color:#333;">📅 <strong>${data.date}</strong></p>
+            <p style="margin:0 0 8px 0;color:#333;">⏰ <strong>${data.time}</strong></p>
+            <p style="margin:0 0 8px 0;color:#333;">📋 <strong>A la Carte Session</strong></p>
+            <div style="border-top:1px solid #ddd;margin-top:12px;padding-top:12px;">
+              <p style="margin:0;color:#003087;font-size:18px;font-weight:bold;">Total Paid: ${data.amount}</p>
+            </div>
+          </div>
+          <div style="background:#fff3e0;border:1px solid #FF6B35;padding:16px;border-radius:8px;margin-bottom:24px;">
+            <p style="margin:0;color:#FF6B35;font-size:14px;"><strong>Cancellation Policy:</strong> Cancel at least 48 hours in advance for a full refund. Late cancellations receive a 50% refund. No fee if your dog is sick.</p>
+          </div>
+          <a href="https://app.thecaninegym.com/dashboard" style="display:block;background:#FF6B35;color:white;text-align:center;padding:14px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px;">
+            View My Dashboard →
+          </a>
+        </div>
+        <div style="background:#f5f5f5;padding:16px;border-radius:0 0 12px 12px;text-align:center;">
+          <p style="color:#999;font-size:12px;margin:0;">The Canine Gym · Hamilton County, IN · thecaninegym.com</p>
+        </div>
+      </div>
+    `
+  }
+
+  if (type === 'receipt_membership') {
+    subject = `Membership confirmed — The Canine Gym`
+    html = `
+      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
+        <div style="background:#003087;padding:24px;border-radius:12px 12px 0 0;">
+          <h1 style="color:white;margin:0;font-size:24px;">🐾 The Canine Gym</h1>
+          <p style="color:rgba(255,255,255,0.8);margin:4px 0 0 0;">Membership Receipt</p>
+        </div>
+        <div style="background:white;padding:32px;border:1px solid #eee;">
+          <h2 style="color:#003087;">You're a member, ${data.ownerName}!</h2>
+          <p style="color:#555;">Your membership is now active. Here's your receipt.</p>
+          <div style="background:#f5f5f5;padding:20px;border-radius:8px;margin:24px 0;">
+            <p style="margin:0 0 12px 0;color:#333;font-size:15px;font-weight:bold;border-bottom:1px solid #ddd;padding-bottom:12px;">Membership Summary</p>
+            <p style="margin:0 0 8px 0;color:#333;">📋 <strong>${data.planName} Plan</strong></p>
+            <p style="margin:0 0 8px 0;color:#333;">🐾 <strong>Covers: ${data.dogNames}</strong></p>
+            <p style="margin:0 0 8px 0;color:#333;">📅 <strong>${data.sessionsPerMonth} sessions per month</strong></p>
+            <p style="margin:0 0 8px 0;color:#333;">🔄 <strong>Renews monthly</strong></p>
+            <div style="border-top:1px solid #ddd;margin-top:12px;padding-top:12px;">
+              <p style="margin:0;color:#003087;font-size:18px;font-weight:bold;">Total Paid: ${data.amount}</p>
+            </div>
+          </div>
+          <a href="https://app.thecaninegym.com/membership" style="display:block;background:#FF6B35;color:white;text-align:center;padding:14px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px;margin-bottom:12px;">
+            Manage Membership →
+          </a>
+          <a href="https://app.thecaninegym.com/book" style="display:block;background:#003087;color:white;text-align:center;padding:14px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px;">
+            Book Your First Session →
+          </a>
+        </div>
+        <div style="background:#f5f5f5;padding:16px;border-radius:0 0 12px 12px;text-align:center;">
+          <p style="color:#999;font-size:12px;margin:0;">The Canine Gym · Hamilton County, IN · thecaninegym.com</p>
+        </div>
+      </div>
+    `
+  }
+  
   try {
     await resend.emails.send({
       from: 'The Canine Gym <info@thecaninegym.com>',

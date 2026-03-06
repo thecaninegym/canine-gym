@@ -55,6 +55,29 @@ export async function POST(request: Request) {
         type: 'membership',
         status: 'succeeded'
       })
+
+      // Send membership receipt
+      const { data: ownerData } = await supabase.from('owners').select('name, email').eq('id', ownerId).single()
+      const { data: dogsData } = await supabase.from('dogs').select('name').in('id', metadata.dog_ids ? metadata.dog_ids.split(',').filter(Boolean) : [])
+      if (ownerData?.email) {
+        const planNames: Record<string, string> = { starter: 'Starter (4 sessions)', standard: 'Standard (8 sessions)', unlimited: 'Unlimited' }
+        await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/send-email`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'receipt_membership',
+            to: ownerData.email,
+            data: {
+              ownerName: ownerData.name,
+              planName: planNames[metadata.plan] || metadata.plan,
+              dogNames: dogsData?.map((d: any) => d.name).join(', ') || 'your dog',
+              sessionsPerMonth: metadata.sessions_per_month,
+              amount: `$${((session.amount_total || 0) / 100).toFixed(2)}`
+            }
+          })
+        })
+      }
+
     }
 
     if (type === 'alacarte') {
@@ -88,11 +111,40 @@ export async function POST(request: Request) {
               amount_paid: session.amount_total
             })
           }
-          // Delete pending booking
+// Delete pending booking
           await supabase.from('pending_bookings').delete().eq('id', pendingBookingId)
+
+          // Send a la carte receipt
+          const { data: ownerData } = await supabase.from('owners').select('name, email').eq('id', ownerId).single()
+          if (ownerData?.email) {
+            const h = pending.slot_hour
+            const ampm = h >= 12 ? 'PM' : 'AM'
+            const hour = h > 12 ? h - 12 : h === 0 ? 12 : h
+            const bookingDate = new Date(pending.booking_date + 'T12:00:00')
+            const dogNames = await Promise.all((pending.dog_ids || []).map(async (id: string) => {
+              const { data } = await supabase.from('dogs').select('name').eq('id', id).single()
+              return data?.name || ''
+            }))
+            await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/send-email`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                type: 'receipt_alacarte',
+                to: ownerData.email,
+                data: {
+                  ownerName: ownerData.name,
+                  dogName: dogNames.filter(Boolean).join(' & '),
+                  date: bookingDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }),
+                  time: `${hour}:00 ${ampm} – ${hour}:30 ${ampm}`,
+                  amount: `$${((session.amount_total || 0) / 100).toFixed(2)}`
+                }
+              })
+            })
+          }
         }
       }
     }
+
   }
 
   if (event.type === 'invoice.payment_succeeded') {
