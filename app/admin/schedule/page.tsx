@@ -1,9 +1,23 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '../../../lib/supabase'
+import { PawPrint, ArrowLeft, Calendar, Map, List, ChevronLeft, ChevronRight, Clock, Phone, Mail, MapPin, Car, ClipboardList, CheckCircle, AlertTriangle, XCircle, Navigation } from 'lucide-react'
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 const HOURS = Array.from({ length: 13 }, (_, i) => i + 6)
+
+function getUniqueStops(bookingList: any[]) {
+  const seen: Record<string, boolean> = {}
+  const result: any[] = []
+  bookingList
+    .filter((b: any) => b.status === 'confirmed' && b.dogs?.owners?.address)
+    .sort((a: any, b: any) => a.slot_hour - b.slot_hour)
+    .forEach((b: any) => {
+      const key = `${b.slot_hour}-${b.dogs?.owners?.address}`
+      if (!seen[key]) { seen[key] = true; result.push(b) }
+    })
+  return result
+}
 
 export default function AdminSchedule() {
   const [bookings, setBookings] = useState<any[]>([])
@@ -29,25 +43,13 @@ export default function AdminSchedule() {
 
   const weekDates = getWeekDates()
 
-  useEffect(() => {
-    fetchBookings()
-  }, [selectedDate])
-
-  useEffect(() => {
-    fetchWeekBookings()
-  }, [selectedDate])
+  useEffect(() => { fetchBookings() }, [selectedDate])
+  useEffect(() => { fetchWeekBookings() }, [selectedDate])
 
   const fetchTravelTime = async (bookingList: any[]) => {
-    const uniqueStops = [...new Map(bookingList
-      .filter(b => b.status === 'confirmed' && b.dogs?.owners?.address)
-      .map(b => [`${b.slot_hour}-${b.dogs.owners.address}`, b]))
-      .values()]
-      .sort((a, b) => a.slot_hour - b.slot_hour)
-
+    const uniqueStops = getUniqueStops(bookingList)
     if (uniqueStops.length < 2) { setTravelTime(null); return }
-
-    const addresses = uniqueStops.map(b => `${b.dogs.owners.address}, ${b.dogs.owners.city}, IN`)
-
+    const addresses = uniqueStops.map((b: any) => `${b.dogs.owners.address}, ${b.dogs.owners.city}, IN`)
     const res = await fetch('/api/travel-time', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -81,20 +83,17 @@ export default function AdminSchedule() {
 
   const handleCancel = async (bookingId: string) => {
     await supabase.from('bookings').update({ status: 'cancelled', cancelled_at: new Date().toISOString() }).eq('id', bookingId)
-    fetchBookings()
-    fetchWeekBookings()
+    fetchBookings(); fetchWeekBookings()
   }
 
   const handleNoShow = async (bookingId: string) => {
     await supabase.from('bookings').update({ status: 'no_show' }).eq('id', bookingId)
-    fetchBookings()
-    fetchWeekBookings()
+    fetchBookings(); fetchWeekBookings()
   }
 
   const handleComplete = async (bookingId: string) => {
     await supabase.from('bookings').update({ status: 'completed' }).eq('id', bookingId)
-    fetchBookings()
-    fetchWeekBookings()
+    fetchBookings(); fetchWeekBookings()
   }
 
   const formatHour = (h: number) => {
@@ -124,35 +123,40 @@ export default function AdminSchedule() {
     dates.push(d.toISOString().split('T')[0])
   }
 
-  const buildRouteUrl = (bookingList: any[]) => {
-    const uniqueStops = [...new Map(bookingList
-      .filter(b => b.status === 'confirmed' && b.dogs?.owners?.address)
-      .map(b => [`${b.slot_hour}-${b.dogs.owners.address}`, b]))
-      .values()]
-    return uniqueStops.map(b => encodeURIComponent(`${b.dogs.owners.address}, ${b.dogs.owners.city}, IN`)).join('/')
-  }
+  const viewButtons = [
+    { key: 'list', label: 'List', icon: <List size={15} /> },
+    { key: 'calendar', label: 'Week', icon: <Calendar size={15} /> },
+    { key: 'map', label: 'Map', icon: <Map size={15} /> },
+  ]
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
       <nav style={{ backgroundColor: '#003087', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1 style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>🐾 The Canine Gym — Admin</h1>
-        <a href="/admin" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>← Back to Dashboard</a>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <PawPrint size={24} color="white" />
+          <h1 style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>The Canine Gym — Admin</h1>
+        </div>
+        <a href="/admin" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <ArrowLeft size={16} /> Back to Dashboard
+        </a>
       </nav>
 
       <div style={{ padding: '32px', maxWidth: '1100px', margin: '0 auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-          <h2 style={{ color: '#003087', margin: 0 }}>📅 Schedule</h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <Calendar size={28} color="#003087" />
+            <h2 style={{ color: '#003087', margin: 0 }}>Schedule</h2>
+          </div>
           <div style={{ display: 'flex', backgroundColor: '#f0f0f0', borderRadius: '8px', padding: '4px', gap: '4px' }}>
-            {(['list', 'calendar', 'map'] as const).map(v => (
-              <button key={v} onClick={() => setView(v)}
-                style={{ padding: '8px 18px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px', backgroundColor: view === v ? '#003087' : 'transparent', color: view === v ? 'white' : '#666' }}>
-                {v === 'list' ? '☰ List' : v === 'calendar' ? '📅 Week' : '🗺️ Map'}
+            {viewButtons.map(({ key, label, icon }) => (
+              <button key={key} onClick={() => setView(key as any)}
+                style={{ padding: '8px 18px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: view === key ? '#003087' : 'transparent', color: view === key ? 'white' : '#666' }}>
+                {icon} {label}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Date selector */}
         {(view === 'list' || view === 'map') && (
           <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', overflowX: 'auto', paddingBottom: '8px' }}>
             {dates.map(dateStr => {
@@ -171,11 +175,12 @@ export default function AdminSchedule() {
           </div>
         )}
 
-        {/* ======= LIST VIEW ======= */}
+        {/* LIST VIEW */}
         {view === 'list' && (
           loading ? <p style={{ color: '#666' }}>Loading...</p> :
           bookings.length === 0 ? (
             <div style={{ backgroundColor: 'white', padding: '40px', borderRadius: '12px', textAlign: 'center' }}>
+              <Calendar size={48} color="#ddd" style={{ marginBottom: '12px' }} />
               <p style={{ color: '#666', fontSize: '18px', margin: 0 }}>No bookings for this day.</p>
             </div>
           ) : (
@@ -185,15 +190,20 @@ export default function AdminSchedule() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <div style={{ flex: 1 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                        <span style={{ fontSize: '20px', fontWeight: 'bold', color: '#003087' }}>{formatHour(booking.slot_hour)}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <Clock size={18} color="#003087" />
+                          <span style={{ fontSize: '20px', fontWeight: 'bold', color: '#003087' }}>{formatHour(booking.slot_hour)}</span>
+                        </div>
                         <span style={{ backgroundColor: getStatusColor(booking.status), color: 'white', padding: '3px 10px', borderRadius: '12px', fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase' }}>{booking.status}</span>
-                        {booking.cancellation_fee && <span style={{ backgroundColor: '#dc3545', color: 'white', padding: '3px 10px', borderRadius: '12px', fontSize: '12px', fontWeight: 'bold' }}>💰 FEE</span>}
+                        {booking.cancellation_fee && <span style={{ backgroundColor: '#dc3545', color: 'white', padding: '3px 10px', borderRadius: '12px', fontSize: '12px', fontWeight: 'bold' }}>FEE</span>}
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
                         {booking.dogs?.photo_url ? (
                           <img src={booking.dogs.photo_url} alt={booking.dogs.name} style={{ width: '52px', height: '52px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
                         ) : (
-                          <div style={{ width: '52px', height: '52px', borderRadius: '50%', backgroundColor: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px', flexShrink: 0 }}>🐾</div>
+                          <div style={{ width: '52px', height: '52px', borderRadius: '50%', backgroundColor: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <PawPrint size={24} color="#ccc" />
+                          </div>
                         )}
                         <div>
                           <p style={{ margin: '0 0 2px 0', fontSize: '20px', fontWeight: 'bold', color: '#333' }}>{booking.dogs?.name}</p>
@@ -202,12 +212,16 @@ export default function AdminSchedule() {
                       </div>
                       <div style={{ backgroundColor: '#f5f5f5', padding: '12px', borderRadius: '8px' }}>
                         <p style={{ margin: '0 0 4px 0', fontSize: '14px', fontWeight: 'bold', color: '#333' }}>{booking.dogs?.owners?.name}</p>
-                        <p style={{ margin: '0 0 4px 0', fontSize: '14px', color: '#666' }}>📞 {booking.dogs?.owners?.phone}</p>
-                        <p style={{ margin: '0 0 4px 0', fontSize: '14px', color: '#666' }}>✉️ {booking.dogs?.owners?.email}</p>
+                        <p style={{ margin: '0 0 4px 0', fontSize: '14px', color: '#666', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <Phone size={13} color="#999" /> {booking.dogs?.owners?.phone}
+                        </p>
+                        <p style={{ margin: '0 0 4px 0', fontSize: '14px', color: '#666', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <Mail size={13} color="#999" /> {booking.dogs?.owners?.email}
+                        </p>
                         {booking.dogs?.owners?.address && (
                           <a href={`https://maps.google.com/?q=${encodeURIComponent(`${booking.dogs.owners.address}, ${booking.dogs.owners.city}, IN ${booking.dogs.owners.zip}`)}`} target="_blank"
-                            style={{ fontSize: '14px', color: '#003087', fontWeight: 'bold', textDecoration: 'none' }}>
-                            📍 {booking.dogs.owners.address}, {booking.dogs.owners.city}, IN {booking.dogs.owners.zip}
+                            style={{ fontSize: '14px', color: '#003087', fontWeight: 'bold', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <MapPin size={13} /> {booking.dogs.owners.address}, {booking.dogs.owners.city}, IN {booking.dogs.owners.zip}
                           </a>
                         )}
                       </div>
@@ -217,12 +231,21 @@ export default function AdminSchedule() {
                       {booking.status === 'confirmed' && (
                         <>
                           <a href={`/admin/sessions/new?dog=${booking.dogs?.id}&booking=${booking.id}&hour=${booking.slot_hour}&date=${booking.booking_date}`}
-                            style={{ padding: '8px 16px', backgroundColor: '#FF6B35', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px', textDecoration: 'none', textAlign: 'center' }}>
-                            📋 Log Session
+                            style={{ padding: '8px 16px', backgroundColor: '#FF6B35', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px', textDecoration: 'none', textAlign: 'center', display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
+                            <ClipboardList size={14} /> Log Session
                           </a>
-                          <button onClick={() => handleComplete(booking.id)} style={{ padding: '8px 16px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px' }}>✅ Complete</button>
-                          <button onClick={() => handleNoShow(booking.id)} style={{ padding: '8px 16px', backgroundColor: '#ffc107', color: '#333', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px' }}>⚠️ No Show</button>
-                          <button onClick={() => handleCancel(booking.id)} style={{ padding: '8px 16px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px' }}>✖️ Cancel</button>
+                          <button onClick={() => handleComplete(booking.id)}
+                            style={{ padding: '8px 16px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
+                            <CheckCircle size={14} /> Complete
+                          </button>
+                          <button onClick={() => handleNoShow(booking.id)}
+                            style={{ padding: '8px 16px', backgroundColor: '#ffc107', color: '#333', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
+                            <AlertTriangle size={14} /> No Show
+                          </button>
+                          <button onClick={() => handleCancel(booking.id)}
+                            style={{ padding: '8px 16px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
+                            <XCircle size={14} /> Cancel
+                          </button>
                         </>
                       )}
                     </div>
@@ -233,7 +256,7 @@ export default function AdminSchedule() {
           )
         )}
 
-        {/* ======= CALENDAR WEEK VIEW ======= */}
+        {/* CALENDAR VIEW */}
         {view === 'calendar' && (
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
@@ -241,7 +264,9 @@ export default function AdminSchedule() {
                 const d = new Date(selectedDate + 'T12:00:00')
                 d.setDate(d.getDate() - 7)
                 setSelectedDate(d.toISOString().split('T')[0])
-              }} style={{ padding: '8px 16px', backgroundColor: 'white', border: '1px solid #ddd', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>← Prev Week</button>
+              }} style={{ padding: '8px 16px', backgroundColor: 'white', border: '1px solid #ddd', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <ChevronLeft size={16} /> Prev Week
+              </button>
               <span style={{ fontWeight: 'bold', color: '#003087', fontSize: '16px' }}>
                 {new Date(weekDates[0] + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} — {new Date(weekDates[6] + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
               </span>
@@ -249,7 +274,9 @@ export default function AdminSchedule() {
                 const d = new Date(selectedDate + 'T12:00:00')
                 d.setDate(d.getDate() + 7)
                 setSelectedDate(d.toISOString().split('T')[0])
-              }} style={{ padding: '8px 16px', backgroundColor: 'white', border: '1px solid #ddd', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>Next Week →</button>
+              }} style={{ padding: '8px 16px', backgroundColor: 'white', border: '1px solid #ddd', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                Next Week <ChevronRight size={16} />
+              </button>
             </div>
             <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', overflow: 'auto' }}>
               <div style={{ display: 'grid', gridTemplateColumns: '70px repeat(7, 1fr)', borderBottom: '2px solid #eee' }}>
@@ -277,12 +304,11 @@ export default function AdminSchedule() {
                     return (
                       <div key={dateStr} style={{ borderLeft: '1px solid #eee', padding: '4px', backgroundColor: isToday ? '#fafcff' : 'white' }}>
                         {dayBookings.map(booking => (
-                          <div key={booking.id}
-                            onClick={() => { setSelectedDate(dateStr); setView('list') }}
+                          <div key={booking.id} onClick={() => { setSelectedDate(dateStr); setView('list') }}
                             style={{ backgroundColor: getStatusColor(booking.status), color: 'white', borderRadius: '6px', padding: '4px 8px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '4px' }}>
                             {booking.dogs?.photo_url ? (
                               <img src={booking.dogs.photo_url} style={{ width: '18px', height: '18px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
-                            ) : '🐾'}
+                            ) : <PawPrint size={14} color="white" />}
                             <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{booking.dogs?.name}</span>
                           </div>
                         ))}
@@ -295,101 +321,107 @@ export default function AdminSchedule() {
           </div>
         )}
 
-        {/* ======= MAP VIEW ======= */}
+        {/* MAP VIEW */}
         {view === 'map' && (
           <div>
             <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
-              <button onClick={() => setMapMode('day')}
-                style={{ padding: '10px 24px', borderRadius: '8px', border: '2px solid', cursor: 'pointer', fontWeight: 'bold', borderColor: mapMode === 'day' ? '#003087' : '#ddd', backgroundColor: mapMode === 'day' ? '#003087' : 'white', color: mapMode === 'day' ? 'white' : '#333' }}>
-                Today's Route
-              </button>
-              <button onClick={() => setMapMode('week')}
-                style={{ padding: '10px 24px', borderRadius: '8px', border: '2px solid', cursor: 'pointer', fontWeight: 'bold', borderColor: mapMode === 'week' ? '#003087' : '#ddd', backgroundColor: mapMode === 'week' ? '#003087' : 'white', color: mapMode === 'week' ? 'white' : '#333' }}>
-                Week Overview
-              </button>
+              {[
+                { key: 'day', label: "Today's Route", icon: <Navigation size={16} /> },
+                { key: 'week', label: 'Week Overview', icon: <Map size={16} /> },
+              ].map(({ key, label, icon }) => (
+                <button key={key} onClick={() => setMapMode(key as any)}
+                  style={{ padding: '10px 24px', borderRadius: '8px', border: '2px solid', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px', borderColor: mapMode === key ? '#003087' : '#ddd', backgroundColor: mapMode === key ? '#003087' : 'white', color: mapMode === key ? 'white' : '#333' }}>
+                  {icon} {label}
+                </button>
+              ))}
             </div>
 
             {mapMode === 'day' && (
-              <>
-                {bookings.filter(b => b.status === 'confirmed' && b.dogs?.owners?.address).length === 0 ? (
-                  <div style={{ backgroundColor: 'white', padding: '40px', borderRadius: '12px', textAlign: 'center' }}>
-                    <p style={{ color: '#666', margin: 0 }}>No confirmed bookings with addresses for this day.</p>
-                  </div>
-                ) : (
-                  <>
-                    <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', marginBottom: '16px', overflow: 'hidden' }}>
-                      <div style={{ padding: '16px 20px', borderBottom: '1px solid #eee' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                          <h3 style={{ margin: 0, color: '#003087' }}>
-                            Today's Stops ({[...new Set(bookings.filter(b => b.status === 'confirmed' && b.dogs?.owners?.address).map(b => `${b.slot_hour}-${b.dogs.owners.address}`))].length})
-                          </h3>
-                          {travelTime && travelTime.totalMinutes > 0 && (
-                            <span style={{ backgroundColor: '#f0f4ff', color: '#003087', padding: '4px 12px', borderRadius: '20px', fontSize: '13px', fontWeight: 'bold' }}>
-                              🚗 {travelTime.totalMinutes} min total driving
-                            </span>
-                          )}
-                        </div>
+              bookings.filter(b => b.status === 'confirmed' && b.dogs?.owners?.address).length === 0 ? (
+                <div style={{ backgroundColor: 'white', padding: '40px', borderRadius: '12px', textAlign: 'center' }}>
+                  <MapPin size={48} color="#ddd" style={{ marginBottom: '12px' }} />
+                  <p style={{ color: '#666', margin: 0 }}>No confirmed bookings with addresses for this day.</p>
+                </div>
+              ) : (
+                <>
+                  <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', marginBottom: '16px', overflow: 'hidden' }}>
+                    <div style={{ padding: '16px 20px', borderBottom: '1px solid #eee' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                        <h3 style={{ margin: 0, color: '#003087' }}>
+                          Today's Stops ({getUniqueStops(bookings).length})
+                        </h3>
+                        {travelTime && travelTime.totalMinutes > 0 && (
+                          <span style={{ backgroundColor: '#f0f4ff', color: '#003087', padding: '4px 12px', borderRadius: '20px', fontSize: '13px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <Car size={14} /> {travelTime.totalMinutes} min total driving
+                          </span>
+                        )}
                       </div>
-                      {(() => {
-                        const confirmed = bookings.filter(b => b.status === 'confirmed' && b.dogs?.owners?.address)
-                        const grouped: Record<number, any[]> = {}
-                        confirmed.forEach(b => {
-                          if (!grouped[b.slot_hour]) grouped[b.slot_hour] = []
-                          grouped[b.slot_hour].push(b)
-                        })
-                        return Object.entries(grouped).map(([hour, slotBookings]) => (
-                          <div key={hour}>
-                            <div style={{ padding: '10px 20px', backgroundColor: '#f0f4ff', borderBottom: '1px solid #eee' }}>
-                              <span style={{ fontWeight: 'bold', color: '#FF6B35', fontSize: '14px', textTransform: 'uppercase' }}>{formatHour(Number(hour))}</span>
-                            </div>
-                            {slotBookings.map(booking => (
-                              <div key={booking.id} style={{ padding: '14px 20px', borderBottom: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                                {booking.dogs?.photo_url ? (
-                                  <img src={booking.dogs.photo_url} style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
-                                ) : (
-                                  <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', flexShrink: 0 }}>🐾</div>
-                                )}
-                                <div style={{ flex: 1 }}>
-                                  <p style={{ margin: '0 0 2px 0', fontWeight: 'bold', color: '#333' }}>{booking.dogs?.name}</p>
-                                  <p style={{ margin: 0, fontSize: '13px', color: '#666' }}>{booking.dogs?.owners?.address}, {booking.dogs?.owners?.city}</p>
+                    </div>
+                    {(() => {
+                      const confirmed = bookings.filter(b => b.status === 'confirmed' && b.dogs?.owners?.address)
+                      const grouped: Record<number, any[]> = {}
+                      confirmed.forEach(b => {
+                        if (!grouped[b.slot_hour]) grouped[b.slot_hour] = []
+                        grouped[b.slot_hour].push(b)
+                      })
+                      return Object.entries(grouped).map(([hour, slotBookings]) => (
+                        <div key={hour}>
+                          <div style={{ padding: '10px 20px', backgroundColor: '#f0f4ff', borderBottom: '1px solid #eee', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <Clock size={14} color="#FF6B35" />
+                            <span style={{ fontWeight: 'bold', color: '#FF6B35', fontSize: '14px' }}>{formatHour(Number(hour))}</span>
+                          </div>
+                          {slotBookings.map(booking => (
+                            <div key={booking.id} style={{ padding: '14px 20px', borderBottom: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                              {booking.dogs?.photo_url ? (
+                                <img src={booking.dogs.photo_url} style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
+                              ) : (
+                                <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                  <PawPrint size={20} color="#ccc" />
                                 </div>
-                                <a href={`https://maps.google.com/?q=${encodeURIComponent(`${booking.dogs.owners.address}, ${booking.dogs.owners.city}, IN`)}`} target="_blank"
-                                  style={{ fontSize: '13px', color: '#003087', fontWeight: 'bold', textDecoration: 'none' }}>Directions →</a>
+                              )}
+                              <div style={{ flex: 1 }}>
+                                <p style={{ margin: '0 0 2px 0', fontWeight: 'bold', color: '#333' }}>{booking.dogs?.name}</p>
+                                <p style={{ margin: 0, fontSize: '13px', color: '#666', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                  <MapPin size={12} color="#999" /> {booking.dogs?.owners?.address}, {booking.dogs?.owners?.city}
+                                </p>
                               </div>
-                            ))}
-                          </div>
-                        ))
-                      })()}
-                    </div>
-
-                    <div style={{ borderRadius: '12px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', backgroundColor: 'white' }}>
-                      {(() => {
-                        const confirmedBookings = bookings.filter(b => b.status === 'confirmed' && b.dogs?.owners?.address)
-                        const uniqueStops = [...new Map(confirmedBookings.map(b => [`${b.slot_hour}-${b.dogs.owners.address}`, b])).values()]
-                        const routeUrl = uniqueStops.map(b => encodeURIComponent(`${b.dogs.owners.address}, ${b.dogs.owners.city}, IN`)).join('/')
-                        return (
-                          <div style={{ padding: '32px', textAlign: 'center' }}>
-                            <div style={{ fontSize: '48px', marginBottom: '16px' }}>🗺️</div>
-                            <h3 style={{ color: '#003087', margin: '0 0 8px 0' }}>{uniqueStops.length} stops today</h3>
-                            <p style={{ color: '#666', marginBottom: '24px', fontSize: '14px' }}>
-                              {uniqueStops.map(b => `${b.dogs.owners.address}, ${b.dogs.owners.city}`).join(' → ')}
-                            </p>
-                            <a href={`https://www.google.com/maps/dir/${routeUrl}`} target="_blank"
-                              style={{ display: 'inline-block', backgroundColor: '#FF6B35', color: 'white', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px' }}>
-                              🗺️ Open Full Route in Google Maps →
-                            </a>
-                          </div>
-                        )
-                      })()}
-                    </div>
-                  </>
-                )}
-              </>
+                              <a href={`https://maps.google.com/?q=${encodeURIComponent(`${booking.dogs.owners.address}, ${booking.dogs.owners.city}, IN`)}`} target="_blank"
+                                style={{ fontSize: '13px', color: '#003087', fontWeight: 'bold', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                <Navigation size={14} /> Directions
+                              </a>
+                            </div>
+                          ))}
+                        </div>
+                      ))
+                    })()}
+                  </div>
+                  <div style={{ borderRadius: '12px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', backgroundColor: 'white' }}>
+                    {(() => {
+                      const uniqueStops = getUniqueStops(bookings)
+                      const routeUrl = uniqueStops.map(b => encodeURIComponent(`${b.dogs?.owners?.address}, ${b.dogs?.owners?.city}, IN`)).join('/')
+                      return (
+                        <div style={{ padding: '32px', textAlign: 'center' }}>
+                          <Map size={48} color="#003087" style={{ marginBottom: '16px' }} />
+                          <h3 style={{ color: '#003087', margin: '0 0 8px 0' }}>{uniqueStops.length} stops today</h3>
+                          <p style={{ color: '#666', marginBottom: '24px', fontSize: '14px' }}>
+                            {uniqueStops.map(b => `${b.dogs?.owners?.address}, ${b.dogs?.owners?.city}`).join(' → ')}
+                          </p>
+                          <a href={`https://www.google.com/maps/dir/${routeUrl}`} target="_blank"
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', backgroundColor: '#FF6B35', color: 'white', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px' }}>
+                            <Navigation size={18} /> Open Full Route in Google Maps
+                          </a>
+                        </div>
+                      )
+                    })()}
+                  </div>
+                </>
+              )
             )}
 
             {mapMode === 'week' && (
               <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', overflow: 'hidden' }}>
-                <div style={{ padding: '16px 20px', borderBottom: '1px solid #eee' }}>
+                <div style={{ padding: '16px 20px', borderBottom: '1px solid #eee', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Map size={18} color="#003087" />
                   <h3 style={{ margin: 0, color: '#003087' }}>Week's Clients ({weekBookings.filter(b => b.status === 'confirmed' && b.dogs?.owners?.address).length} bookings)</h3>
                 </div>
                 {weekDates.map(dateStr => {
@@ -398,7 +430,8 @@ export default function AdminSchedule() {
                   const d = new Date(dateStr + 'T12:00:00')
                   return (
                     <div key={dateStr}>
-                      <div style={{ padding: '10px 20px', backgroundColor: '#f5f5f5', borderBottom: '1px solid #eee' }}>
+                      <div style={{ padding: '10px 20px', backgroundColor: '#f5f5f5', borderBottom: '1px solid #eee', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Calendar size={14} color="#003087" />
                         <span style={{ fontWeight: 'bold', color: '#003087', fontSize: '14px' }}>{DAYS[d.getDay()]} — {d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
                       </div>
                       {dayB.map(booking => (
@@ -406,14 +439,20 @@ export default function AdminSchedule() {
                           {booking.dogs?.photo_url ? (
                             <img src={booking.dogs.photo_url} style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
                           ) : (
-                            <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>🐾</div>
+                            <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                              <PawPrint size={18} color="#ccc" />
+                            </div>
                           )}
                           <div style={{ flex: 1 }}>
                             <p style={{ margin: '0 0 2px 0', fontWeight: 'bold', color: '#333', fontSize: '14px' }}>{booking.dogs?.name} — {formatHour(booking.slot_hour)}</p>
-                            <p style={{ margin: 0, fontSize: '13px', color: '#666' }}>{booking.dogs?.owners?.address}, {booking.dogs?.owners?.city}</p>
+                            <p style={{ margin: 0, fontSize: '13px', color: '#666', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <MapPin size={12} color="#999" /> {booking.dogs?.owners?.address}, {booking.dogs?.owners?.city}
+                            </p>
                           </div>
                           <a href={`https://maps.google.com/?q=${encodeURIComponent(`${booking.dogs.owners.address}, ${booking.dogs.owners.city}, IN`)}`} target="_blank"
-                            style={{ fontSize: '13px', color: '#003087', fontWeight: 'bold', textDecoration: 'none' }}>Directions →</a>
+                            style={{ fontSize: '13px', color: '#003087', fontWeight: 'bold', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <Navigation size={14} /> Directions
+                          </a>
                         </div>
                       ))}
                     </div>
