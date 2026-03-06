@@ -49,6 +49,7 @@ export default function Membership() {
   const [dogCount, setDogCount] = useState(1)
   const [success, setSuccess] = useState(false)
   const [cancelled, setCancelled] = useState(false)
+  const [selectedDogIds, setSelectedDogIds] = useState<string[]>([])
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -91,13 +92,17 @@ export default function Membership() {
   }, [])
 
   const handleCheckout = async (type: string, plan?: string) => {
+    if (type === 'membership' && selectedDogIds.length === 0) {
+      alert('Please select at least one dog for this membership.')
+      return
+    }
     const key = type === 'alacarte' ? 'alacarte' : `${plan}-${dogCount}`
     setCheckoutLoading(key)
 
     const res = await fetch('/api/create-checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ownerId, ownerEmail, type, plan, dogCount })
+      body: JSON.stringify({ ownerId, ownerEmail, type, plan, dogCount: selectedDogIds.length || dogCount, dogIds: selectedDogIds })
     })
     const data = await res.json()
     if (data.url) window.location.href = data.url
@@ -176,18 +181,29 @@ export default function Membership() {
         <p style={{ color: '#666', marginBottom: '24px' }}>Save per session vs a la carte. Cancel anytime.</p>
 
         {/* Dog count toggle — only show if they have 2+ dogs */}
-        {dogs.length >= 2 && (
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '24px' }}>
-            <button onClick={() => setDogCount(1)}
-              style={{ padding: '10px 24px', borderRadius: '8px', border: '2px solid', cursor: 'pointer', fontWeight: 'bold', borderColor: dogCount === 1 ? '#003087' : '#ddd', backgroundColor: dogCount === 1 ? '#003087' : 'white', color: dogCount === 1 ? 'white' : '#333' }}>
-              1 Dog
-            </button>
-            <button onClick={() => setDogCount(2)}
-              style={{ padding: '10px 24px', borderRadius: '8px', border: '2px solid', cursor: 'pointer', fontWeight: 'bold', borderColor: dogCount === 2 ? '#003087' : '#ddd', backgroundColor: dogCount === 2 ? '#003087' : 'white', color: dogCount === 2 ? 'white' : '#333' }}>
-              2 Dogs
-            </button>
+        <div style={{ marginBottom: '24px' }}>
+          <p style={{ fontWeight: 'bold', color: '#333', marginBottom: '12px' }}>Which dog(s) is this membership for?</p>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            {dogs.map(dog => {
+              const isSelected = selectedDogIds.includes(dog.id)
+              return (
+                <button key={dog.id} onClick={() => {
+                  if (isSelected) {
+                    setSelectedDogIds(selectedDogIds.filter(id => id !== dog.id))
+                    setDogCount(selectedDogIds.length - 1)
+                  } else {
+                    setSelectedDogIds([...selectedDogIds, dog.id])
+                    setDogCount(selectedDogIds.length + 1)
+                  }
+                }}
+                  style={{ padding: '10px 24px', borderRadius: '8px', border: '2px solid', cursor: 'pointer', fontWeight: 'bold', borderColor: isSelected ? '#003087' : '#ddd', backgroundColor: isSelected ? '#003087' : 'white', color: isSelected ? 'white' : '#333' }}>
+                  🐾 {dog.name}
+                </button>
+              )
+            })}
           </div>
-        )}
+          {selectedDogIds.length === 0 && <p style={{ color: '#dc3545', fontSize: '13px', marginTop: '8px' }}>Please select at least one dog</p>}
+        </div>
 
         {/* Membership plans */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '16px', marginBottom: '32px' }}>

@@ -32,12 +32,15 @@ export async function POST(request: Request) {
       const dogCount = parseInt(metadata.dog_count || '1')
       const sessionsPerMonth = parseInt(metadata.sessions_per_month || '0')
 
+      const dogIds = metadata.dog_ids ? metadata.dog_ids.split(',').filter(Boolean) : []
+
       await supabase.from('memberships').upsert({
         owner_id: ownerId,
         stripe_subscription_id: session.subscription as string,
         stripe_customer_id: session.customer as string,
         plan,
         dog_count: dogCount,
+        dog_ids: dogIds,
         sessions_per_month: sessionsPerMonth,
         sessions_remaining: sessionsPerMonth,
         status: 'active',

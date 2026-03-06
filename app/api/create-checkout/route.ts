@@ -4,7 +4,7 @@ import Stripe from 'stripe'
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
 export async function POST(request: Request) {
-  const { ownerId, ownerEmail, type, plan, dogCount } = await request.json()
+  const { ownerId, ownerEmail, type, plan, dogCount, dogIds } = await request.json()
 
   const getPriceId = () => {
     if (type === 'alacarte') {
@@ -29,7 +29,8 @@ export async function POST(request: Request) {
         type,
         plan: plan || '',
         dog_count: String(dogCount || 1),
-        sessions_per_month: String(sessionsPerMonth)
+        sessions_per_month: String(sessionsPerMonth),
+        dog_ids: (dogIds || []).join(',')
       },
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/membership?success=true`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/membership?cancelled=true`,
