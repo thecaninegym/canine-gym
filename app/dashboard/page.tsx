@@ -267,6 +267,7 @@ export default function ClientDashboard() {
                             {session.calories_burned ? ` · ${session.calories_burned} cal` : ''}
                           </p>
                           {session.notes && <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#999', fontStyle: 'italic' }}>{session.notes}</p>}
+                            <p style={{ margin: '6px 0 0 0', fontSize: '12px', color: '#FF6B35', fontWeight: 'bold' }}>View Details →</p>
                         </div>
                         <div style={{ textAlign: 'right' }}>
                           {session.activity_score && (
