@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
+import { PawPrint, ArrowLeft, Trophy, Medal } from 'lucide-react'
 
 const CATEGORIES = [
   { key: 'sessions', label: 'Most Sessions', field: 'session_count' },
@@ -21,20 +22,10 @@ export default function Leaderboard() {
     const init = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       if (user) {
-        const { data: ownerData } = await supabase
-          .from('owners')
-          .select('id')
-          .eq('email', user.email)
-          .single()
+        const { data: ownerData } = await supabase.from('owners').select('id').eq('email', user.email).single()
         if (ownerData) {
-          const { data: dogsData } = await supabase
-            .from('dogs')
-            .select('id')
-            .eq('owner_id', ownerData.id)
-            .limit(1)
-          if (dogsData && dogsData.length > 0) {
-            setCurrentDogId(dogsData[0].id)
-          }
+          const { data: dogsData } = await supabase.from('dogs').select('id').eq('owner_id', ownerData.id).limit(1)
+          if (dogsData && dogsData.length > 0) setCurrentDogId(dogsData[0].id)
         }
       }
       fetchLeaderboard()
@@ -42,31 +33,17 @@ export default function Leaderboard() {
     init()
   }, [])
 
-  useEffect(() => {
-    fetchLeaderboard()
-  }, [category, city])
+  useEffect(() => { fetchLeaderboard() }, [category, city])
 
   const fetchLeaderboard = async () => {
     setLoading(true)
-
-    // Get all dogs with their leaderboard settings
-    let query = supabase
-      .from('leaderboard_settings')
-      .select('*, dogs(id, name, breed, dog_achievements(count))')
-      .neq('visibility', 'private')
-
-    if (city !== 'All Cities') {
-      query = query.eq('city', city)
-    }
-
+    let query = supabase.from('leaderboard_settings').select('*, dogs(id, name, breed, dog_achievements(count))').neq('visibility', 'private')
+    if (city !== 'All Cities') query = query.eq('city', city)
     const { data: settingsData } = await query
-
     if (!settingsData) { setLoading(false); return }
 
-    // Get session stats for each dog
     const now = new Date()
     const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]
-
     const dogIds = settingsData.map(s => s.dog_id)
 
     const { data: sessionData } = await supabase
@@ -75,12 +52,8 @@ export default function Leaderboard() {
       .in('dog_id', dogIds)
       .gte('session_date', firstOfMonth)
 
-    // Aggregate stats per dog
     const statsMap: Record<string, any> = {}
-    dogIds.forEach(id => {
-      statsMap[id] = { session_count: 0, total_miles: 0, total_calories: 0 }
-    })
-
+    dogIds.forEach(id => { statsMap[id] = { session_count: 0, total_miles: 0, total_calories: 0 } })
     sessionData?.forEach(session => {
       if (statsMap[session.dog_id]) {
         statsMap[session.dog_id].session_count++
@@ -89,15 +62,14 @@ export default function Leaderboard() {
       }
     })
 
-    // Build leaderboard entries
     const entries = settingsData.map(setting => {
       const stats = statsMap[setting.dog_id] || {}
       const isAnonymous = setting.visibility === 'anonymous'
       return {
         dog_id: setting.dog_id,
-        display_name: isAnonymous ? `🐾 Mystery Pup` : (setting.display_name || setting.dogs?.name),
-        city: setting.city,
+        display_name: isAnonymous ? 'Mystery Pup' : (setting.display_name || setting.dogs?.name),
         is_anonymous: isAnonymous,
+        city: setting.city,
         session_count: stats.session_count || 0,
         total_miles: parseFloat((stats.total_miles || 0).toFixed(2)),
         total_calories: stats.total_calories || 0,
@@ -105,15 +77,8 @@ export default function Leaderboard() {
       }
     })
 
-    // Sort by selected category
-    const fieldMap: Record<string, string> = {
-      sessions: 'session_count',
-      miles: 'total_miles',
-      calories: 'total_calories'
-    }
-    const sortField = fieldMap[category]
-    entries.sort((a, b) => b[sortField] - a[sortField])
-
+    const fieldMap: Record<string, string> = { sessions: 'session_count', miles: 'total_miles', calories: 'total_calories' }
+    entries.sort((a, b) => b[fieldMap[category]] - a[fieldMap[category]])
     setLeaderboard(entries)
     setLoading(false)
   }
@@ -135,37 +100,39 @@ export default function Leaderboard() {
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
       <nav style={{ backgroundColor: '#003087', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1 style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>🐾 The Canine Gym</h1>
-        <a href="/dashboard" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>← My Dashboard</a>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <PawPrint size={24} color="white" />
+          <h1 style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>The Canine Gym</h1>
+        </div>
+        <a href="/dashboard" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <ArrowLeft size={16} /> My Dashboard
+        </a>
       </nav>
 
       <div style={{ padding: '32px', maxWidth: '800px', margin: '0 auto' }}>
-        <h2 style={{ color: '#003087', marginBottom: '8px' }}>🏆 Leaderboard</h2>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+          <Trophy size={28} color="#003087" />
+          <h2 style={{ color: '#003087', margin: 0 }}>Leaderboard</h2>
+        </div>
         <p style={{ color: '#666', marginBottom: '24px' }}>Monthly rankings — resets on the 1st of each month</p>
 
-        {/* Filters */}
         <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}>
           <div>
             <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#666', marginBottom: '4px' }}>CATEGORY</label>
             <select value={category} onChange={(e) => setCategory(e.target.value)}
               style={{ padding: '8px 12px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '14px', color: '#000', backgroundColor: 'white' }}>
-              {CATEGORIES.map(c => (
-                <option key={c.key} value={c.key}>{c.label}</option>
-              ))}
+              {CATEGORIES.map(c => <option key={c.key} value={c.key}>{c.label}</option>)}
             </select>
           </div>
           <div>
             <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#666', marginBottom: '4px' }}>CITY</label>
             <select value={city} onChange={(e) => setCity(e.target.value)}
               style={{ padding: '8px 12px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '14px', color: '#000', backgroundColor: 'white' }}>
-              {CITIES.map(c => (
-                <option key={c} value={c}>{c}</option>
-              ))}
+              {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
         </div>
 
-        {/* Leaderboard */}
         <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', overflow: 'hidden' }}>
           {loading ? (
             <p style={{ padding: '24px', color: '#666', margin: 0 }}>Loading...</p>
@@ -175,17 +142,13 @@ export default function Leaderboard() {
             leaderboard.map((entry, i) => {
               const isMe = entry.dog_id === currentDogId
               return (
-                <div key={entry.dog_id} style={{
-                  padding: '16px 24px',
-                  borderBottom: i < leaderboard.length - 1 ? '1px solid #eee' : 'none',
-                  display: 'flex', alignItems: 'center', gap: '16px',
-                  backgroundColor: isMe ? '#E8EEF7' : 'white'
-                }}>
+                <div key={entry.dog_id} style={{ padding: '16px 24px', borderBottom: i < leaderboard.length - 1 ? '1px solid #eee' : 'none', display: 'flex', alignItems: 'center', gap: '16px', backgroundColor: isMe ? '#E8EEF7' : 'white' }}>
                   <div style={{ ...getRankStyle(i), width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '16px', flexShrink: 0 }}>
-                    {i + 1}
+                    {i < 3 ? <Medal size={18} /> : i + 1}
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      {entry.is_anonymous && <PawPrint size={16} color="#003087" />}
                       <span style={{ fontWeight: 'bold', color: '#003087', fontSize: '16px' }}>{entry.display_name}</span>
                       {isMe && <span style={{ backgroundColor: '#003087', color: 'white', fontSize: '11px', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>YOU</span>}
                     </div>
@@ -200,8 +163,8 @@ export default function Leaderboard() {
           )}
         </div>
 
-        <p style={{ textAlign: 'center', color: '#999', fontSize: '13px', marginTop: '16px' }}>
-          Privacy settings control how your dog appears. Anonymous dogs show as 🐾 Mystery Pup.
+        <p style={{ textAlign: 'center', color: '#999', fontSize: '13px', marginTop: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+          <PawPrint size={13} color="#ccc" /> Privacy settings control how your dog appears. Anonymous dogs show as Mystery Pup.
         </p>
       </div>
     </div>
