@@ -125,13 +125,31 @@ export default function ClientDashboard() {
 
       <div style={{ padding: '32px', maxWidth: '1000px', margin: '0 auto' }}>
         {dogs.length === 0 ? (
-                    <div style={{ backgroundColor: 'white', padding: '48px 40px', borderRadius: '12px', textAlign: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-            <div style={{ fontSize: '64px', marginBottom: '16px' }}>🐾</div>
-            <h2 style={{ color: '#003087', margin: '0 0 12px 0' }}>Welcome to The Canine Gym!</h2>
-            <p style={{ color: '#666', fontSize: '16px', marginBottom: '24px', lineHeight: '1.6' }}>Let's get your dog set up. Add your dog's details to start tracking sessions, earning achievements, and competing on the leaderboard.</p>
-            <a href="/dogs" style={{ display: 'inline-block', backgroundColor: '#FF6B35', color: 'white', padding: '14px 32px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px' }}>
-              🐾 Add My Dog →
-            </a>
+                  <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+            <div style={{ backgroundColor: 'white', padding: '48px 40px', borderRadius: '12px', textAlign: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', marginBottom: '16px' }}>
+              <div style={{ fontSize: '64px', marginBottom: '16px' }}>🐾</div>
+              <h2 style={{ color: '#003087', margin: '0 0 12px 0' }}>Welcome to The Canine Gym!</h2>
+              <p style={{ color: '#666', fontSize: '16px', marginBottom: '32px', lineHeight: '1.6' }}>The run comes to you. Let's get your profile set up in just two quick steps before your first session.</p>
+              <div style={{ display: 'grid', gap: '16px', textAlign: 'left', marginBottom: '32px' }}>
+                <a href="/profile" style={{ display: 'flex', alignItems: 'center', gap: '16px', backgroundColor: '#f5f5f5', padding: '20px', borderRadius: '12px', textDecoration: 'none', border: '2px solid #FF6B35' }}>
+                  <div style={{ fontSize: '36px', flexShrink: 0 }}>👤</div>
+                  <div>
+                    <p style={{ margin: '0 0 4px 0', fontWeight: 'bold', color: '#003087', fontSize: '16px' }}>Step 1 — Add Your Address</p>
+                    <p style={{ margin: 0, color: '#666', fontSize: '14px' }}>We come to your home — we need your address to find you on session day!</p>
+                  </div>
+                  <div style={{ marginLeft: 'auto', color: '#FF6B35', fontWeight: 'bold', fontSize: '20px', flexShrink: 0 }}>→</div>
+                </a>
+                <a href="/dogs" style={{ display: 'flex', alignItems: 'center', gap: '16px', backgroundColor: '#f5f5f5', padding: '20px', borderRadius: '12px', textDecoration: 'none', border: '2px solid #003087' }}>
+                  <div style={{ fontSize: '36px', flexShrink: 0 }}>🐾</div>
+                  <div>
+                    <p style={{ margin: '0 0 4px 0', fontWeight: 'bold', color: '#003087', fontSize: '16px' }}>Step 2 — Add Your Dog</p>
+                    <p style={{ margin: 0, color: '#666', fontSize: '14px' }}>Add your dog's details to start tracking sessions, earning achievements, and booking sessions.</p>
+                  </div>
+                  <div style={{ marginLeft: 'auto', color: '#003087', fontWeight: 'bold', fontSize: '20px', flexShrink: 0 }}>→</div>
+                </a>
+              </div>
+              <p style={{ color: '#999', fontSize: '13px', margin: 0 }}>Once you've completed both steps, come back here to book your first session!</p>
+            </div>
           </div>
         ) : (
           <>
