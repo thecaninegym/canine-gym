@@ -16,6 +16,7 @@ export default function BookSession() {
   const [booking, setBooking] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [ownerId, setOwnerId] = useState('')
 
   useEffect(() => {
     const init = async () => {
@@ -33,6 +34,7 @@ export default function BookSession() {
       setDogs(ownerData.dogs || [])
       const city = ownerData.dogs?.[0]?.leaderboard_settings?.city || ''
       setOwnerCity(city)
+      setOwnerId(ownerData.id)
 
       // Get available dates for this city (next 30 days)
       const { data: windows } = await supabase
@@ -139,6 +141,43 @@ export default function BookSession() {
       setBooking(false)
       return
     }
+
+    // Get owner details for emails
+    const { data: ownerData } = await supabase
+      .from('owners')
+      .select('name, email')
+      .eq('id', ownerId)
+      .single()
+
+    const selectedDogData = dogs.find(d => d.id === selectedDogIds[0])
+    const ampm = selectedSlot >= 12 ? 'PM' : 'AM'
+    const hour = selectedSlot > 12 ? selectedSlot - 12 : selectedSlot === 0 ? 12 : selectedSlot
+    const timeStr = `${hour}:00 ${ampm} – ${hour}:30 ${ampm}`
+    const dateStr = new Date(selectedDate.dateStr + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
+
+    // Send booking confirmation to client
+    if (ownerData?.email) {
+      await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'booking_confirmation',
+          to: ownerData.email,
+          data: { ownerName: ownerData.name, dogName: selectedDogData?.name, date: dateStr, time: timeStr }
+        })
+      })
+    }
+
+    // Send admin notification
+    await fetch('/api/send-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'admin_notification',
+        to: 'dev@thecaninegym.com',
+        data: { action: '📅 New Booking', dogName: selectedDogData?.name, ownerName: ownerData?.name, date: dateStr, time: timeStr }
+      })
+    })
 
     setSuccess(true)
     setBooking(false)

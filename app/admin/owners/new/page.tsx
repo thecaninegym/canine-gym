@@ -26,6 +26,16 @@ export default function AddOwner() {
       setError(error.message)
       setLoading(false)
     } else {
+      // Send welcome email
+      await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'welcome',
+          to: email,
+          data: { ownerName: name, dogName: 'your dog' }
+        })
+      })
       setSuccess(true)
       setName('')
       setEmail('')

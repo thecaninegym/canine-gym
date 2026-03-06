@@ -61,6 +61,30 @@ function CancelForm() {
       return
     }
 
+    // Send admin notification for cancellation
+    const ampm = booking.slot_hour >= 12 ? 'PM' : 'AM'
+    const hour = booking.slot_hour > 12 ? booking.slot_hour - 12 : booking.slot_hour === 0 ? 12 : booking.slot_hour
+    const timeStr = `${hour}:00 ${ampm} – ${hour}:30 ${ampm}`
+    const dateStr = new Date(booking.booking_date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
+
+    await fetch('/api/send-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'admin_notification',
+        to: 'dev@thecaninegym.com',
+        data: {
+          action: '❌ Booking Cancelled',
+          dogName: booking.dogs?.name,
+          ownerName: booking.dogs?.owners?.name,
+          date: dateStr,
+          time: timeStr,
+          reason: reason,
+          fee: feeApplies
+        }
+      })
+    })
+
     setSuccess(true)
     setCancelling(false)
   }
