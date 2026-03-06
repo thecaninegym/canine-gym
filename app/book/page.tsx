@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
+import { PawPrint, ArrowLeft, Calendar, Clock, CheckCircle, AlertCircle } from 'lucide-react'
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
@@ -36,7 +37,6 @@ export default function BookSession() {
       setOwnerCity(city)
       setOwnerId(ownerData.id)
 
-      // Get available dates for this city (next 30 days)
       const { data: windows } = await supabase
         .from('schedule_windows')
         .select('*')
@@ -53,7 +53,6 @@ export default function BookSession() {
         const date = new Date(today)
         date.setDate(today.getDate() + i)
         const dayOfWeek = date.getDay()
-
         const window = windows.find(w => w.day_of_week === dayOfWeek)
         if (window) {
           dates.push({
@@ -75,20 +74,17 @@ export default function BookSession() {
     setSelectedDate(dateObj)
     setSelectedSlot(null)
 
-    // Get all slots for this window
     const slots = []
     for (let h = dateObj.window.start_hour; h < dateObj.window.end_hour; h++) {
       slots.push(h)
     }
 
-    // Get existing bookings for this date
     const { data: existingBookings } = await supabase
       .from('bookings')
       .select('slot_hour, dog_id')
       .eq('booking_date', dateObj.dateStr)
       .eq('status', 'confirmed')
 
-    // Filter out slots that already have 2 bookings
     const slotCounts: Record<number, number> = {}
     existingBookings?.forEach(b => {
       slotCounts[b.slot_hour] = (slotCounts[b.slot_hour] || 0) + 1
@@ -109,7 +105,6 @@ export default function BookSession() {
     setBooking(true)
     setError(null)
 
-    // Check slot availability again
     const { data: existingBookings } = await supabase
       .from('bookings')
       .select('id')
@@ -124,7 +119,6 @@ export default function BookSession() {
       return
     }
 
-    // Create bookings for each selected dog
     const bookingInserts = selectedDogIds.map(dogId => ({
       dog_id: dogId,
       booking_date: selectedDate.dateStr,
@@ -132,7 +126,6 @@ export default function BookSession() {
       status: 'confirmed'
     }))
 
-        // Check membership and deduct session if applicable
     const { data: membershipData } = await supabase
       .from('memberships')
       .select('*')
@@ -144,7 +137,6 @@ export default function BookSession() {
     const bookedCoveredDogs = selectedDogIds.filter((id: string) => coveredDogs.includes(id))
     const uncoveredDogs = selectedDogIds.filter((id: string) => !coveredDogs.includes(id))
 
-    // If any dogs are not covered by membership, redirect to a la carte payment
     if (uncoveredDogs.length > 0) {
       const res = await fetch('/api/create-checkout', {
         method: 'POST',
@@ -160,13 +152,9 @@ export default function BookSession() {
         })
       })
       const data = await res.json()
-      if (data.url) {
-        window.location.href = data.url
-        return
-      }
+      if (data.url) { window.location.href = data.url; return }
     }
 
-    // Deduct sessions for covered dogs
     if (bookedCoveredDogs.length > 0) {
       if (membershipData.sessions_remaining <= 0) {
         setError('You have no sessions remaining on your membership this month.')
@@ -179,51 +167,28 @@ export default function BookSession() {
         .eq('id', membershipData.id)
     }
 
-    const { error: bookingError } = await supabase
-      .from('bookings')
-      .insert(bookingInserts)
+    const { error: bookingError } = await supabase.from('bookings').insert(bookingInserts)
+    if (bookingError) { setError(bookingError.message); setBooking(false); return }
 
-    if (bookingError) {
-      setError(bookingError.message)
-      setBooking(false)
-      return
-    }
-
-    // Get owner details for emails
-    const { data: ownerData } = await supabase
-      .from('owners')
-      .select('name, email')
-      .eq('id', ownerId)
-      .single()
-
+    const { data: ownerData } = await supabase.from('owners').select('name, email').eq('id', ownerId).single()
     const selectedDogData = dogs.find(d => d.id === selectedDogIds[0])
     const ampm = selectedSlot >= 12 ? 'PM' : 'AM'
     const hour = selectedSlot > 12 ? selectedSlot - 12 : selectedSlot === 0 ? 12 : selectedSlot
     const timeStr = `${hour}:00 ${ampm} – ${hour}:30 ${ampm}`
     const dateStr = new Date(selectedDate.dateStr + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
 
-    // Send booking confirmation to client
     if (ownerData?.email) {
       await fetch('/api/send-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'booking_confirmation',
-          to: ownerData.email,
-          data: { ownerName: ownerData.name, dogName: selectedDogData?.name, date: dateStr, time: timeStr }
-        })
+        body: JSON.stringify({ type: 'booking_confirmation', to: ownerData.email, data: { ownerName: ownerData.name, dogName: selectedDogData?.name, date: dateStr, time: timeStr } })
       })
     }
 
-    // Send admin notification
     await fetch('/api/send-email', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        type: 'admin_notification',
-        to: 'dev@thecaninegym.com',
-        data: { action: '📅 New Booking', dogName: selectedDogData?.name, ownerName: ownerData?.name, date: dateStr, time: timeStr }
-      })
+      body: JSON.stringify({ type: 'admin_notification', to: 'dev@thecaninegym.com', data: { action: 'New Booking', dogName: selectedDogData?.name, ownerName: ownerData?.name, date: dateStr, time: timeStr } })
     })
 
     setSuccess(true)
@@ -245,42 +210,59 @@ export default function BookSession() {
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
       <nav style={{ backgroundColor: '#003087', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1 style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>🐾 The Canine Gym</h1>
-        <a href="/dashboard" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>← Back to Dashboard</a>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <PawPrint size={24} color="white" />
+          <h1 style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>The Canine Gym</h1>
+        </div>
+        <a href="/dashboard" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <ArrowLeft size={16} /> Back to Dashboard
+        </a>
       </nav>
 
       <div style={{ padding: '32px', maxWidth: '700px', margin: '0 auto' }}>
-        <h2 style={{ color: '#003087', marginBottom: '8px' }}>Book a Session</h2>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+          <Calendar size={28} color="#003087" />
+          <h2 style={{ color: '#003087', margin: 0 }}>Book a Session</h2>
+        </div>
         <p style={{ color: '#666', marginBottom: '24px' }}>Showing available times in <strong>{ownerCity}</strong></p>
 
         {success ? (
           <div style={{ backgroundColor: '#d4edda', color: '#155724', padding: '24px', borderRadius: '12px', textAlign: 'center' }}>
-            <h3 style={{ margin: '0 0 8px 0' }}>🎉 Session Booked!</h3>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '12px' }}>
+              <CheckCircle size={48} color="#155724" />
+            </div>
+            <h3 style={{ margin: '0 0 8px 0' }}>Session Booked!</h3>
             <p style={{ margin: '0 0 16px 0' }}>
               {selectedDate?.dayName}, {new Date(selectedDate?.dateStr + 'T12:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric' })} at {formatHour(selectedSlot!)}
             </p>
-            <a href="/dashboard" style={{ backgroundColor: '#003087', color: 'white', padding: '10px 24px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold' }}>Back to Dashboard</a>
+            <a href="/dashboard" style={{ backgroundColor: '#003087', color: 'white', padding: '10px 24px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold' }}>
+              Back to Dashboard
+            </a>
           </div>
         ) : (
           <>
-            {/* Dog selector */}
             {dogs.length > 0 && (
               <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', marginBottom: '24px' }}>
-                <h3 style={{ color: '#003087', margin: '0 0 16px 0' }}>Which dog(s)?</h3>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+                  <PawPrint size={20} color="#003087" />
+                  <h3 style={{ color: '#003087', margin: 0 }}>Which dog(s)?</h3>
+                </div>
                 <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                   {dogs.map(dog => (
                     <button key={dog.id} onClick={() => toggleDog(dog.id)}
-                      style={{ padding: '10px 20px', borderRadius: '8px', border: '2px solid', cursor: 'pointer', fontWeight: 'bold', fontSize: '15px', borderColor: selectedDogIds.includes(dog.id) ? '#003087' : '#ddd', backgroundColor: selectedDogIds.includes(dog.id) ? '#003087' : 'white', color: selectedDogIds.includes(dog.id) ? 'white' : '#333' }}>
-                      🐾 {dog.name}
+                      style={{ padding: '10px 20px', borderRadius: '8px', border: '2px solid', cursor: 'pointer', fontWeight: 'bold', fontSize: '15px', display: 'flex', alignItems: 'center', gap: '8px', borderColor: selectedDogIds.includes(dog.id) ? '#003087' : '#ddd', backgroundColor: selectedDogIds.includes(dog.id) ? '#003087' : 'white', color: selectedDogIds.includes(dog.id) ? 'white' : '#333' }}>
+                      <PawPrint size={16} /> {dog.name}
                     </button>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Date selector */}
             <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', marginBottom: '24px' }}>
-              <h3 style={{ color: '#003087', margin: '0 0 16px 0' }}>Pick a date</h3>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+                <Calendar size={20} color="#003087" />
+                <h3 style={{ color: '#003087', margin: 0 }}>Pick a date</h3>
+              </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '10px' }}>
                 {availableDates.map(dateObj => (
                   <button key={dateObj.dateStr} onClick={() => handleDateSelect(dateObj)}
@@ -292,10 +274,12 @@ export default function BookSession() {
               </div>
             </div>
 
-            {/* Time slot selector */}
             {selectedDate && (
               <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', marginBottom: '24px' }}>
-                <h3 style={{ color: '#003087', margin: '0 0 16px 0' }}>Pick a time</h3>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+                  <Clock size={20} color="#003087" />
+                  <h3 style={{ color: '#003087', margin: 0 }}>Pick a time</h3>
+                </div>
                 {availableSlots.length === 0 ? (
                   <p style={{ color: '#666', margin: 0 }}>No available slots for this date. Please choose another day.</p>
                 ) : (
@@ -311,15 +295,19 @@ export default function BookSession() {
               </div>
             )}
 
-            {/* Book button */}
             {selectedDate && selectedSlot !== null && selectedDogIds.length > 0 && (
               <button onClick={handleBook} disabled={booking}
-                style={{ width: '100%', padding: '16px', backgroundColor: '#FF6B35', color: 'white', border: 'none', borderRadius: '12px', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer' }}>
-                {booking ? 'Booking...' : `✅ Confirm Booking — ${selectedDate.dayName}, ${formatHour(selectedSlot)}`}
+                style={{ width: '100%', padding: '16px', backgroundColor: '#FF6B35', color: 'white', border: 'none', borderRadius: '12px', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+                <CheckCircle size={22} />
+                {booking ? 'Booking...' : `Confirm Booking — ${selectedDate.dayName}, ${formatHour(selectedSlot)}`}
               </button>
             )}
 
-            {error && <p style={{ color: 'red', marginTop: '16px', textAlign: 'center' }}>{error}</p>}
+            {error && (
+              <p style={{ color: '#dc3545', marginTop: '16px', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                <AlertCircle size={16} /> {error}
+              </p>
+            )}
           </>
         )}
       </div>
