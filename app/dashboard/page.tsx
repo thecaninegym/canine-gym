@@ -125,6 +125,7 @@ export default function ClientDashboard() {
           <a href="/leaderboard" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>🏆 Leaderboard</a>
           <a href="/dogs" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>🐾 My Dogs</a>
           <a href="/profile" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>👤 Profile</a>
+          <a href="/membership" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold' }}>💳 Membership</a>
           <button onClick={handleLogout} style={{ backgroundColor: '#FF6B35', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>Logout</button>
         </div>
       </nav>
