@@ -256,7 +256,7 @@ export default function ClientDashboard() {
                     <p style={{ padding: '24px', color: '#666', margin: 0 }}>No sessions yet — book your first session today!</p>
                   ) : (
                     sessions.map((session, i) => (
-                      <div key={session.id} style={{ padding: '16px 24px', borderBottom: i < sessions.length - 1 ? '1px solid #eee' : 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div key={session.id} onClick={() => window.location.href = `/sessions/${session.id}`} style={{ padding: '16px 24px', borderBottom: i < sessions.length - 1 ? '1px solid #eee' : 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }} onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#f9f9f9')} onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'white')}>
                         <div>
                           <p style={{ margin: '0 0 4px 0', fontWeight: 'bold', color: '#333' }}>
                             {new Date(session.session_date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
