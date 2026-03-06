@@ -143,9 +143,16 @@ export default function ClientDashboard() {
             {selectedDog && (
               <>
                 <div style={{ backgroundColor: '#003087', color: 'white', padding: '24px', borderRadius: '12px', marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <h2 style={{ margin: '0 0 4px 0', fontSize: '28px' }}>🐾 {selectedDog.name}</h2>
-                    <p style={{ margin: 0, opacity: 0.8 }}>{selectedDog.leaderboard_settings?.city} · The Canine Gym</p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    {selectedDog.photo_url ? (
+                      <img src={selectedDog.photo_url} alt={selectedDog.name} style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0, border: '3px solid rgba(255,255,255,0.3)' }} />
+                    ) : (
+                      <div style={{ width: '64px', height: '64px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px', flexShrink: 0 }}>🐾</div>
+                    )}
+                    <div>
+                      <h2 style={{ margin: '0 0 4px 0', fontSize: '28px' }}>{selectedDog.name}</h2>
+                      <p style={{ margin: 0, opacity: 0.8 }}>{selectedDog.leaderboard_settings?.city} · The Canine Gym</p>
+                    </div>
                   </div>
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <a href="/book" style={{ backgroundColor: 'white', color: '#003087', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px' }}>📅 Book</a>

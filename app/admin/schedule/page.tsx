@@ -17,7 +17,7 @@ export default function AdminSchedule() {
     setLoading(true)
     const { data } = await supabase
       .from('bookings')
-      .select('*, dogs(id, name, breed, owners(name, email, phone, address, city, zip))')
+      .select('*, dogs(id, name, breed, photo_url, owners(name, email, phone, address, city, zip))')
       .eq('booking_date', selectedDate)
       .order('slot_hour')
     setBookings(data || [])
@@ -114,8 +114,17 @@ export default function AdminSchedule() {
                       <span style={{ backgroundColor: getStatusColor(booking.status), color: 'white', padding: '3px 10px', borderRadius: '12px', fontSize: '12px', fontWeight: 'bold', textTransform: 'uppercase' }}>{booking.status}</span>
                       {booking.cancellation_fee && <span style={{ backgroundColor: '#dc3545', color: 'white', padding: '3px 10px', borderRadius: '12px', fontSize: '12px', fontWeight: 'bold' }}>💰 FEE</span>}
                     </div>
-                    <p style={{ margin: '0 0 4px 0', fontSize: '20px', fontWeight: 'bold', color: '#333' }}>🐾 {booking.dogs?.name}</p>
-                    <p style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#666' }}>{booking.dogs?.breed}</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                      {booking.dogs?.photo_url ? (
+                        <img src={booking.dogs.photo_url} alt={booking.dogs.name} style={{ width: '52px', height: '52px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
+                      ) : (
+                        <div style={{ width: '52px', height: '52px', borderRadius: '50%', backgroundColor: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px', flexShrink: 0 }}>🐾</div>
+                      )}
+                      <div>
+                        <p style={{ margin: '0 0 2px 0', fontSize: '20px', fontWeight: 'bold', color: '#333' }}>{booking.dogs?.name}</p>
+                        <p style={{ margin: 0, fontSize: '14px', color: '#666' }}>{booking.dogs?.breed}</p>
+                      </div>
+                    </div>
                     <div style={{ backgroundColor: '#f5f5f5', padding: '12px', borderRadius: '8px', marginBottom: '8px' }}>
                       <p style={{ margin: '0 0 4px 0', fontSize: '14px', fontWeight: 'bold', color: '#333' }}>{booking.dogs?.owners?.name}</p>
                       <p style={{ margin: '0 0 4px 0', fontSize: '14px', color: '#666' }}>📞 {booking.dogs?.owners?.phone}</p>
