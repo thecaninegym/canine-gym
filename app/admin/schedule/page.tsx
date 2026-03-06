@@ -313,30 +313,39 @@ export default function AdminSchedule() {
                   <>
                     {/* Stop list */}
                     <div style={{ backgroundColor: 'white', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', marginBottom: '16px', overflow: 'hidden' }}>
-                      <div style={{ padding: '16px 20px', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ padding: '16px 20px', borderBottom: '1px solid #eee' }}>
                         <h3 style={{ margin: 0, color: '#003087' }}>Today's Stops ({bookings.filter(b => b.status === 'confirmed' && b.dogs?.owners?.address).length})</h3>
-                        <a href={buildMapUrl(bookings) || '#'} target="_blank"
-                          style={{ backgroundColor: '#FF6B35', color: 'white', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>
-                          🗺️ Open Full Route in Maps
-                        </a>
                       </div>
-                      {bookings.filter(b => b.status === 'confirmed' && b.dogs?.owners?.address).map((booking, i) => (
-                        <div key={booking.id} style={{ padding: '14px 20px', borderBottom: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                          <div style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: '#003087', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '14px', flexShrink: 0 }}>{i + 1}</div>
-                          {booking.dogs?.photo_url ? (
-                            <img src={booking.dogs.photo_url} style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
-                          ) : (
-                            <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', flexShrink: 0 }}>🐾</div>
-                          )}
-                          <div style={{ flex: 1 }}>
-                            <p style={{ margin: '0 0 2px 0', fontSize: '12px', fontWeight: 'bold', color: '#FF6B35', textTransform: 'uppercase' }}>{formatHour(booking.slot_hour)}</p>
-                            <p style={{ margin: '0 0 2px 0', fontWeight: 'bold', color: '#333' }}>{booking.dogs?.name}</p>
-                            <p style={{ margin: 0, fontSize: '13px', color: '#666' }}>{booking.dogs?.owners?.address}, {booking.dogs?.owners?.city}</p>
+                      {(() => {
+                        const confirmed = bookings.filter(b => b.status === 'confirmed' && b.dogs?.owners?.address)
+                        const grouped: Record<number, any[]> = {}
+                        confirmed.forEach(b => {
+                          if (!grouped[b.slot_hour]) grouped[b.slot_hour] = []
+                          grouped[b.slot_hour].push(b)
+                        })
+                        return Object.entries(grouped).map(([hour, slotBookings]) => (
+                          <div key={hour}>
+                            <div style={{ padding: '10px 20px', backgroundColor: '#f0f4ff', borderBottom: '1px solid #eee' }}>
+                              <span style={{ fontWeight: 'bold', color: '#FF6B35', fontSize: '14px', textTransform: 'uppercase' }}>{formatHour(Number(hour))}</span>
+                            </div>
+                            {slotBookings.map(booking => (
+                              <div key={booking.id} style={{ padding: '14px 20px', borderBottom: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                {booking.dogs?.photo_url ? (
+                                  <img src={booking.dogs.photo_url} style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
+                                ) : (
+                                  <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', flexShrink: 0 }}>🐾</div>
+                                )}
+                                <div style={{ flex: 1 }}>
+                                  <p style={{ margin: '0 0 2px 0', fontWeight: 'bold', color: '#333' }}>{booking.dogs?.name}</p>
+                                  <p style={{ margin: 0, fontSize: '13px', color: '#666' }}>{booking.dogs?.owners?.address}, {booking.dogs?.owners?.city}</p>
+                                </div>
+                                <a href={`https://maps.google.com/?q=${encodeURIComponent(`${booking.dogs.owners.address}, ${booking.dogs.owners.city}, IN`)}`} target="_blank"
+                                  style={{ fontSize: '13px', color: '#003087', fontWeight: 'bold', textDecoration: 'none' }}>Directions →</a>
+                              </div>
+                            ))}
                           </div>
-                          <a href={`https://maps.google.com/?q=${encodeURIComponent(`${booking.dogs.owners.address}, ${booking.dogs.owners.city}, IN`)}`} target="_blank"
-                            style={{ fontSize: '13px', color: '#003087', fontWeight: 'bold', textDecoration: 'none' }}>Directions →</a>
-                        </div>
-                      ))}
+                        ))
+                      })()}
                     </div>
 
                     {/* Map embed */}
