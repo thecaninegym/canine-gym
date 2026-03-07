@@ -115,9 +115,18 @@ export default function AdminVaccineReview() {
 
         <div style={{ marginBottom: '16px' }}>
           <p style={{ fontWeight: '700', color: '#333', fontSize: '13px', margin: '0 0 8px 0' }}>Submitted Photo</p>
-          <a href={vaccine.photo_url} target="_blank" rel="noopener noreferrer">
-            <img src={vaccine.photo_url} alt="vaccine record" style={{ maxWidth: '100%', maxHeight: '340px', borderRadius: '8px', border: '1px solid #ddd', objectFit: 'contain', cursor: 'pointer', display: 'block' }} />
-          </a>
+          {vaccine.photo_url?.toLowerCase().includes('.pdf') ? (
+            <a href={vaccine.photo_url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+              <div style={{ width: '100%', maxWidth: '400px', height: '120px', border: '2px solid #003087', borderRadius: '10px', backgroundColor: '#f0f4ff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer' }}>
+                <div style={{ fontSize: '32px' }}>📄</div>
+                <span style={{ color: '#003087', fontWeight: '700', fontSize: '13px' }}>Click to open PDF</span>
+              </div>
+            </a>
+          ) : (
+            <a href={vaccine.photo_url} target="_blank" rel="noopener noreferrer">
+              <img src={vaccine.photo_url} alt="vaccine record" style={{ maxWidth: '100%', maxHeight: '340px', borderRadius: '8px', border: '1px solid #ddd', objectFit: 'contain', cursor: 'pointer', display: 'block' }} />
+            </a>
+          )}
           <p style={{ color: '#999', fontSize: '12px', margin: '4px 0 0 0' }}>Click to open full size</p>
         </div>
 
