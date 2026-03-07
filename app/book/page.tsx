@@ -258,7 +258,7 @@ export default function BookSession() {
               </div>
             )}
 
-            <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', marginBottom: '24px' }}>
+            {selectedDogIds.length > 0 && <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', marginBottom: '24px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
                 <Calendar size={20} color="#003087" />
                 <h3 style={{ color: '#003087', margin: 0 }}>Pick a date</h3>
@@ -272,7 +272,7 @@ export default function BookSession() {
                   </button>
                 ))}
               </div>
-            </div>
+            </div>}
 
             {selectedDate && (
               <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', marginBottom: '24px' }}>
