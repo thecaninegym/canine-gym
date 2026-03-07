@@ -1,12 +1,13 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
-import { PawPrint, ArrowLeft, Calendar, Clock, CheckCircle, AlertCircle } from 'lucide-react'
+import { PawPrint, ArrowLeft, Calendar, Clock, CheckCircle, AlertCircle, Shield, ShieldAlert, ShieldCheck } from 'lucide-react'
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
 export default function BookSession() {
   const [dogs, setDogs] = useState<any[]>([])
+  const [vaccineStatus, setVaccineStatus] = useState<Record<string, string>>({})
   const [selectedDogIds, setSelectedDogIds] = useState<string[]>([])
   const [ownerCity, setOwnerCity] = useState('')
   const [availableDates, setAvailableDates] = useState<any[]>([])
@@ -23,47 +24,28 @@ export default function BookSession() {
     const init = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { window.location.href = '/'; return }
-
-      const { data: ownerData } = await supabase
-        .from('owners')
-        .select('*, dogs(*, leaderboard_settings(city))')
-        .eq('email', user.email)
-        .single()
-
+      const { data: ownerData } = await supabase.from('owners').select('*, dogs(*, leaderboard_settings(city))').eq('email', user.email).single()
       if (!ownerData) { setLoading(false); return }
-
       setDogs(ownerData.dogs || [])
-      const city = ownerData.dogs?.[0]?.leaderboard_settings?.city || ''
-      setOwnerCity(city)
+      setOwnerCity(ownerData.dogs?.[0]?.leaderboard_settings?.city || '')
       setOwnerId(ownerData.id)
-
-      const { data: windows } = await supabase
-        .from('schedule_windows')
-        .select('*')
-        .eq('city', city)
-        .eq('is_active', true)
-
-      if (!windows) { setLoading(false); return }
-
-      const dates = []
-      const today = new Date()
-      today.setHours(0, 0, 0, 0)
-
-      for (let i = 1; i <= 30; i++) {
-        const date = new Date(today)
-        date.setDate(today.getDate() + i)
-        const dayOfWeek = date.getDay()
-        const window = windows.find(w => w.day_of_week === dayOfWeek)
-        if (window) {
-          dates.push({
-            date,
-            dateStr: date.toISOString().split('T')[0],
-            dayName: DAYS[dayOfWeek],
-            window
-          })
-        }
+      if (ownerData.dogs?.length > 0) {
+        const dogIds = ownerData.dogs.map((d: any) => d.id)
+        const { data: vaccineData } = await supabase.from('dog_vaccines').select('dog_id, status').in('dog_id', dogIds).order('uploaded_at', { ascending: false })
+        const statusMap: Record<string, string> = {}
+        for (const v of (vaccineData || [])) { if (!statusMap[v.dog_id]) statusMap[v.dog_id] = v.status }
+        setVaccineStatus(statusMap)
       }
-
+      const { data: windows } = await supabase.from('schedule_windows').select('*').eq('city', ownerData.dogs?.[0]?.leaderboard_settings?.city || '').eq('is_active', true)
+      if (!windows) { setLoading(false); return }
+      const dates = []
+      const today = new Date(); today.setHours(0, 0, 0, 0)
+      for (let i = 1; i <= 30; i++) {
+        const date = new Date(today); date.setDate(today.getDate() + i)
+        const dayOfWeek = date.getDay()
+        const window = windows.find((w: any) => w.day_of_week === dayOfWeek)
+        if (window) dates.push({ date, dateStr: date.toISOString().split('T')[0], dayName: DAYS[dayOfWeek], window })
+      }
       setAvailableDates(dates)
       setLoading(false)
     }
@@ -71,141 +53,65 @@ export default function BookSession() {
   }, [])
 
   const handleDateSelect = async (dateObj: any) => {
-    setSelectedDate(dateObj)
-    setSelectedSlot(null)
-
+    setSelectedDate(dateObj); setSelectedSlot(null)
     const slots = []
-    for (let h = dateObj.window.start_hour; h < dateObj.window.end_hour; h++) {
-      slots.push(h)
-    }
-
-    const { data: existingBookings } = await supabase
-      .from('bookings')
-      .select('slot_hour, dog_id')
-      .eq('booking_date', dateObj.dateStr)
-      .eq('status', 'confirmed')
-
+    for (let h = dateObj.window.start_hour; h < dateObj.window.end_hour; h++) slots.push(h)
+    const { data: existingBookings } = await supabase.from('bookings').select('slot_hour').eq('booking_date', dateObj.dateStr).eq('status', 'confirmed')
     const slotCounts: Record<number, number> = {}
-    existingBookings?.forEach(b => {
-      slotCounts[b.slot_hour] = (slotCounts[b.slot_hour] || 0) + 1
-    })
-
-    const available = slots.filter(h => (slotCounts[h] || 0) < 2)
-    setAvailableSlots(available)
+    existingBookings?.forEach((b: any) => { slotCounts[b.slot_hour] = (slotCounts[b.slot_hour] || 0) + 1 })
+    setAvailableSlots(slots.filter(h => (slotCounts[h] || 0) < 2))
   }
 
   const toggleDog = (dogId: string) => {
-    setSelectedDogIds(prev =>
-      prev.includes(dogId) ? prev.filter(id => id !== dogId) : [...prev, dogId]
-    )
+    if (vaccineStatus[dogId] !== 'approved') return
+    setSelectedDogIds(prev => prev.includes(dogId) ? prev.filter(id => id !== dogId) : [...prev, dogId])
   }
 
   const handleBook = async () => {
     if (!selectedDate || selectedSlot === null || selectedDogIds.length === 0) return
-    setBooking(true)
-    setError(null)
-
-    const { data: existingBookings } = await supabase
-      .from('bookings')
-      .select('id')
-      .eq('booking_date', selectedDate.dateStr)
-      .eq('slot_hour', selectedSlot)
-      .eq('status', 'confirmed')
-
-    const currentCount = existingBookings?.length || 0
-    if (currentCount + selectedDogIds.length > 2) {
-      setError('This slot is no longer available. Please choose another time.')
-      setBooking(false)
-      return
-    }
-
-    const bookingInserts = selectedDogIds.map(dogId => ({
-      dog_id: dogId,
-      booking_date: selectedDate.dateStr,
-      slot_hour: selectedSlot,
-      status: 'confirmed'
-    }))
-
-    const { data: membershipData } = await supabase
-      .from('memberships')
-      .select('*')
-      .eq('owner_id', ownerId)
-      .eq('status', 'active')
-      .single()
-
+    setBooking(true); setError(null)
+    const { data: existingBookings } = await supabase.from('bookings').select('id').eq('booking_date', selectedDate.dateStr).eq('slot_hour', selectedSlot).eq('status', 'confirmed')
+    if ((existingBookings?.length || 0) + selectedDogIds.length > 2) { setError('This slot is no longer available. Please choose another time.'); setBooking(false); return }
+    const { data: membershipData } = await supabase.from('memberships').select('*').eq('owner_id', ownerId).eq('status', 'active').single()
     const coveredDogs = membershipData?.dog_ids || []
     const bookedCoveredDogs = selectedDogIds.filter((id: string) => coveredDogs.includes(id))
     const uncoveredDogs = selectedDogIds.filter((id: string) => !coveredDogs.includes(id))
-
     if (uncoveredDogs.length > 0) {
-      const res = await fetch('/api/create-checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ownerId,
-          ownerEmail: (await supabase.auth.getUser()).data.user?.email,
-          type: 'alacarte',
-          dogCount: uncoveredDogs.length,
-          dogIds: uncoveredDogs,
-          bookingDate: selectedDate.dateStr,
-          slotHour: selectedSlot
-        })
-      })
+      const res = await fetch('/api/create-checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ownerId, ownerEmail: (await supabase.auth.getUser()).data.user?.email, type: 'alacarte', dogCount: uncoveredDogs.length, dogIds: uncoveredDogs, bookingDate: selectedDate.dateStr, slotHour: selectedSlot }) })
       const data = await res.json()
       if (data.url) { window.location.href = data.url; return }
     }
-
     if (bookedCoveredDogs.length > 0) {
-      if (membershipData.sessions_remaining <= 0) {
-        setError('You have no sessions remaining on your membership this month.')
-        setBooking(false)
-        return
-      }
-      await supabase
-        .from('memberships')
-        .update({ sessions_remaining: membershipData.sessions_remaining - bookedCoveredDogs.length })
-        .eq('id', membershipData.id)
+      if (membershipData.sessions_remaining <= 0) { setError('You have no sessions remaining on your membership this month.'); setBooking(false); return }
+      await supabase.from('memberships').update({ sessions_remaining: membershipData.sessions_remaining - bookedCoveredDogs.length }).eq('id', membershipData.id)
     }
-
-    const { error: bookingError } = await supabase.from('bookings').insert(bookingInserts)
+    const { error: bookingError } = await supabase.from('bookings').insert(selectedDogIds.map(dogId => ({ dog_id: dogId, booking_date: selectedDate.dateStr, slot_hour: selectedSlot, status: 'confirmed' })))
     if (bookingError) { setError(bookingError.message); setBooking(false); return }
-
     const { data: ownerData } = await supabase.from('owners').select('name, email').eq('id', ownerId).single()
     const selectedDogData = dogs.find(d => d.id === selectedDogIds[0])
     const ampm = selectedSlot >= 12 ? 'PM' : 'AM'
     const hour = selectedSlot > 12 ? selectedSlot - 12 : selectedSlot === 0 ? 12 : selectedSlot
     const timeStr = `${hour}:00 ${ampm} – ${hour}:30 ${ampm}`
     const dateStr = new Date(selectedDate.dateStr + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
-
-    if (ownerData?.email) {
-      await fetch('/api/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'booking_confirmation', to: ownerData.email, data: { ownerName: ownerData.name, dogName: selectedDogData?.name, date: dateStr, time: timeStr } })
-      })
-    }
-
-    await fetch('/api/send-email', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type: 'admin_notification', to: 'dev@thecaninegym.com', data: { action: 'New Booking', dogName: selectedDogData?.name, ownerName: ownerData?.name, date: dateStr, time: timeStr } })
-    })
-
-    setSuccess(true)
-    setBooking(false)
+    if (ownerData?.email) await fetch('/api/send-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'booking_confirmation', to: ownerData.email, data: { ownerName: ownerData.name, dogName: selectedDogData?.name, date: dateStr, time: timeStr } }) })
+    await fetch('/api/send-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'admin_notification', to: 'dev@thecaninegym.com', data: { action: 'New Booking', dogName: selectedDogData?.name, ownerName: ownerData?.name, date: dateStr, time: timeStr } }) })
+    setSuccess(true); setBooking(false)
   }
 
-  const formatHour = (h: number) => {
-    const ampm = h >= 12 ? 'PM' : 'AM'
-    const hour = h > 12 ? h - 12 : h === 0 ? 12 : h
-    return `${hour}:00 ${ampm} – ${hour}:30 ${ampm}`
+  const formatHour = (h: number) => { const ampm = h >= 12 ? 'PM' : 'AM'; const hour = h > 12 ? h - 12 : h === 0 ? 12 : h; return `${hour}:00 ${ampm} – ${hour}:30 ${ampm}` }
+
+  const getDogVaccineBadge = (dogId: string) => {
+    const s = vaccineStatus[dogId]
+    if (s === 'approved') return null
+    if (s === 'pending') return { color: '#856404', bg: '#fff3cd', icon: <Clock size={11} />, label: 'Pending Review' }
+    if (s === 'rejected') return { color: '#dc3545', bg: '#f8d7da', icon: <ShieldAlert size={11} />, label: 'Vaccines Rejected' }
+    return { color: '#dc3545', bg: '#f8d7da', icon: <Shield size={11} />, label: 'Vaccines Required' }
   }
 
-  if (loading) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#003087' }}>
-      <p style={{ color: 'white', fontSize: '18px' }}>Loading...</p>
-    </div>
-  )
+  const allDogsBlocked = dogs.length > 0 && dogs.every(d => vaccineStatus[d.id] !== 'approved')
+  const allSelectedApproved = selectedDogIds.every(id => vaccineStatus[id] === 'approved')
+
+  if (loading) return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#003087' }}><p style={{ color: 'white', fontSize: '18px' }}>Loading...</p></div>
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
@@ -214,11 +120,8 @@ export default function BookSession() {
           <PawPrint size={24} color="white" />
           <h1 style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>The Canine Gym</h1>
         </div>
-        <a href="/dashboard" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <ArrowLeft size={16} /> Back to Dashboard
-        </a>
+        <a href="/dashboard" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}><ArrowLeft size={16} /> Back to Dashboard</a>
       </nav>
-
       <div style={{ padding: '32px', maxWidth: '700px', margin: '0 auto' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
           <Calendar size={28} color="#003087" />
@@ -226,20 +129,25 @@ export default function BookSession() {
         </div>
         <p style={{ color: '#666', marginBottom: '24px' }}>Showing available times in <strong>{ownerCity}</strong></p>
 
-        {success ? (
-          <div style={{ backgroundColor: '#d4edda', color: '#155724', padding: '24px', borderRadius: '12px', textAlign: 'center' }}>
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '12px' }}>
-              <CheckCircle size={48} color="#155724" />
-            </div>
-            <h3 style={{ margin: '0 0 8px 0' }}>Session Booked!</h3>
-            <p style={{ margin: '0 0 16px 0' }}>
-              {selectedDate?.dayName}, {new Date(selectedDate?.dateStr + 'T12:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric' })} at {formatHour(selectedSlot!)}
-            </p>
-            <a href="/dashboard" style={{ backgroundColor: '#003087', color: 'white', padding: '10px 24px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold' }}>
-              Back to Dashboard
+        {allDogsBlocked && (
+          <div style={{ backgroundColor: '#f8d7da', border: '2px solid #dc3545', borderRadius: '12px', padding: '24px', textAlign: 'center', marginBottom: '24px' }}>
+            <ShieldAlert size={40} color="#dc3545" style={{ marginBottom: '12px' }} />
+            <h3 style={{ color: '#dc3545', margin: '0 0 8px 0' }}>Vaccine Records Required</h3>
+            <p style={{ color: '#721c24', margin: '0 0 16px 0', lineHeight: 1.5 }}>All of your dogs need approved vaccine records before booking. Upload their records from your dog profiles — we'll review within 24 hours.</p>
+            <a href="/dogs" style={{ backgroundColor: '#dc3545', color: 'white', padding: '10px 24px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+              <Shield size={15} /> Upload Vaccine Records
             </a>
           </div>
-        ) : (
+        )}
+
+        {success ? (
+          <div style={{ backgroundColor: '#d4edda', color: '#155724', padding: '24px', borderRadius: '12px', textAlign: 'center' }}>
+            <CheckCircle size={48} color="#155724" style={{ marginBottom: '12px' }} />
+            <h3 style={{ margin: '0 0 8px 0' }}>Session Booked!</h3>
+            <p style={{ margin: '0 0 16px 0' }}>{selectedDate?.dayName}, {new Date(selectedDate?.dateStr + 'T12:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric' })} at {formatHour(selectedSlot!)}</p>
+            <a href="/dashboard" style={{ backgroundColor: '#003087', color: 'white', padding: '10px 24px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold' }}>Back to Dashboard</a>
+          </div>
+        ) : !allDogsBlocked && (
           <>
             {dogs.length > 0 && (
               <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', marginBottom: '24px' }}>
@@ -248,54 +156,62 @@ export default function BookSession() {
                   <h3 style={{ color: '#003087', margin: 0 }}>Which dog(s)?</h3>
                 </div>
                 <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                  {dogs.map(dog => (
-                    <button key={dog.id} onClick={() => toggleDog(dog.id)}
-                      style={{ padding: '10px 20px', borderRadius: '8px', border: '2px solid', cursor: 'pointer', fontWeight: 'bold', fontSize: '15px', display: 'flex', alignItems: 'center', gap: '8px', borderColor: selectedDogIds.includes(dog.id) ? '#003087' : '#ddd', backgroundColor: selectedDogIds.includes(dog.id) ? '#003087' : 'white', color: selectedDogIds.includes(dog.id) ? 'white' : '#333' }}>
-                      <PawPrint size={16} /> {dog.name}
+                  {dogs.map(dog => {
+                    const badge = getDogVaccineBadge(dog.id)
+                    const isApproved = vaccineStatus[dog.id] === 'approved'
+                    const isSelected = selectedDogIds.includes(dog.id)
+                    return (
+                      <div key={dog.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '4px' }}>
+                        <button onClick={() => toggleDog(dog.id)} disabled={!isApproved}
+                          style={{ padding: '10px 20px', borderRadius: '8px', border: '2px solid', fontWeight: 'bold', fontSize: '15px', display: 'flex', alignItems: 'center', gap: '8px', cursor: isApproved ? 'pointer' : 'not-allowed', opacity: isApproved ? 1 : 0.6, borderColor: isSelected ? '#003087' : isApproved ? '#ddd' : '#f5c6cb', backgroundColor: isSelected ? '#003087' : isApproved ? 'white' : '#fff5f5', color: isSelected ? 'white' : '#333' }}>
+                          <PawPrint size={16} /> {dog.name}
+                          {isApproved && <ShieldCheck size={14} color={isSelected ? 'rgba(255,255,255,0.7)' : '#28a745'} />}
+                        </button>
+                        {badge && (
+                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', backgroundColor: badge.bg, color: badge.color, padding: '2px 8px', borderRadius: '20px', fontSize: '11px', fontWeight: '600' }}>
+                            {badge.icon} {badge.label} <a href="/dogs" style={{ color: badge.color, marginLeft: '4px', fontSize: '11px' }}>→ Fix</a>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
+            {selectedDogIds.length > 0 && allSelectedApproved && (
+              <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', marginBottom: '24px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}><Calendar size={20} color="#003087" /><h3 style={{ color: '#003087', margin: 0 }}>Pick a date</h3></div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '10px' }}>
+                  {availableDates.map(dateObj => (
+                    <button key={dateObj.dateStr} onClick={() => handleDateSelect(dateObj)}
+                      style={{ padding: '12px', borderRadius: '8px', border: '2px solid', cursor: 'pointer', textAlign: 'center', borderColor: selectedDate?.dateStr === dateObj.dateStr ? '#003087' : '#ddd', backgroundColor: selectedDate?.dateStr === dateObj.dateStr ? '#003087' : 'white', color: selectedDate?.dateStr === dateObj.dateStr ? 'white' : '#333' }}>
+                      <div style={{ fontWeight: 'bold', fontSize: '14px' }}>{dateObj.dayName}</div>
+                      <div style={{ fontSize: '13px', opacity: 0.8 }}>{new Date(dateObj.dateStr + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
                     </button>
                   ))}
                 </div>
               </div>
             )}
 
-            {selectedDogIds.length > 0 && <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', marginBottom: '24px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-                <Calendar size={20} color="#003087" />
-                <h3 style={{ color: '#003087', margin: 0 }}>Pick a date</h3>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '10px' }}>
-                {availableDates.map(dateObj => (
-                  <button key={dateObj.dateStr} onClick={() => handleDateSelect(dateObj)}
-                    style={{ padding: '12px', borderRadius: '8px', border: '2px solid', cursor: 'pointer', textAlign: 'center', borderColor: selectedDate?.dateStr === dateObj.dateStr ? '#003087' : '#ddd', backgroundColor: selectedDate?.dateStr === dateObj.dateStr ? '#003087' : 'white', color: selectedDate?.dateStr === dateObj.dateStr ? 'white' : '#333' }}>
-                    <div style={{ fontWeight: 'bold', fontSize: '14px' }}>{dateObj.dayName}</div>
-                    <div style={{ fontSize: '13px', opacity: 0.8 }}>{new Date(dateObj.dateStr + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
-                  </button>
-                ))}
-              </div>
-            </div>}
-
             {selectedDate && (
               <div style={{ backgroundColor: 'white', padding: '24px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', marginBottom: '24px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-                  <Clock size={20} color="#003087" />
-                  <h3 style={{ color: '#003087', margin: 0 }}>Pick a time</h3>
-                </div>
-                {availableSlots.length === 0 ? (
-                  <p style={{ color: '#666', margin: 0 }}>No available slots for this date. Please choose another day.</p>
-                ) : (
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '10px' }}>
-                    {availableSlots.map(hour => (
-                      <button key={hour} onClick={() => setSelectedSlot(hour)}
-                        style={{ padding: '12px', borderRadius: '8px', border: '2px solid', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px', borderColor: selectedSlot === hour ? '#FF6B35' : '#ddd', backgroundColor: selectedSlot === hour ? '#FF6B35' : 'white', color: selectedSlot === hour ? 'white' : '#333' }}>
-                        {formatHour(hour)}
-                      </button>
-                    ))}
-                  </div>
-                )}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}><Clock size={20} color="#003087" /><h3 style={{ color: '#003087', margin: 0 }}>Pick a time</h3></div>
+                {availableSlots.length === 0
+                  ? <p style={{ color: '#666', margin: 0 }}>No available slots for this date. Please choose another day.</p>
+                  : <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '10px' }}>
+                      {availableSlots.map(hour => (
+                        <button key={hour} onClick={() => setSelectedSlot(hour)}
+                          style={{ padding: '12px', borderRadius: '8px', border: '2px solid', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px', borderColor: selectedSlot === hour ? '#FF6B35' : '#ddd', backgroundColor: selectedSlot === hour ? '#FF6B35' : 'white', color: selectedSlot === hour ? 'white' : '#333' }}>
+                          {formatHour(hour)}
+                        </button>
+                      ))}
+                    </div>
+                }
               </div>
             )}
 
-            {selectedDate && selectedSlot !== null && selectedDogIds.length > 0 && (
+            {selectedDate && selectedSlot !== null && selectedDogIds.length > 0 && allSelectedApproved && (
               <button onClick={handleBook} disabled={booking}
                 style={{ width: '100%', padding: '16px', backgroundColor: '#FF6B35', color: 'white', border: 'none', borderRadius: '12px', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
                 <CheckCircle size={22} />
@@ -303,11 +219,7 @@ export default function BookSession() {
               </button>
             )}
 
-            {error && (
-              <p style={{ color: '#dc3545', marginTop: '16px', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-                <AlertCircle size={16} /> {error}
-              </p>
-            )}
+            {error && <p style={{ color: '#dc3545', marginTop: '16px', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}><AlertCircle size={16} /> {error}</p>}
           </>
         )}
       </div>

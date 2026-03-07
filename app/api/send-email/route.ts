@@ -248,6 +248,33 @@ export async function POST(request: Request) {
     `
   }
   
+  if (type === 'vaccine_uploaded') {
+    subject = `🔬 Vaccine record submitted: ${data.dogName} (${data.ownerName})`
+    html = `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;"><div style="background:#003087;padding:24px;border-radius:12px 12px 0 0;"><h1 style="color:white;margin:0;font-size:24px;">🐾 The Canine Gym — Admin</h1></div><div style="background:white;padding:32px;border:1px solid #eee;"><h2 style="color:#856404;">New Vaccine Record Submitted</h2><div style="background:#fff3cd;border:1px solid #ffc107;padding:20px;border-radius:8px;margin-bottom:24px;"><p style="margin:0 0 8px 0;color:#333;">🐾 <strong>${data.dogName}</strong></p><p style="margin:0 0 8px 0;color:#333;">👤 Owner: <strong>${data.ownerName}</strong></p><p style="margin:0;color:#333;">✉️ ${data.ownerEmail}</p></div><a href="https://app.thecaninegym.com/admin/dogs/vaccines" style="display:block;background:#003087;color:white;text-align:center;padding:14px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px;">Review Vaccine Records →</a></div></div>`
+  }
+
+  if (type === 'vaccine_approved') {
+    subject = `✅ ${data.dogName}'s vaccine records have been approved!`
+    html = `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;"><div style="background:#003087;padding:24px;border-radius:12px 12px 0 0;"><h1 style="color:white;margin:0;font-size:24px;">🐾 The Canine Gym</h1></div><div style="background:white;padding:32px;border:1px solid #eee;"><h2 style="color:#28a745;">Great news, ${data.ownerName}! ✅</h2><p style="color:#555;line-height:1.6;">We've reviewed and approved <strong>${data.dogName}</strong>'s vaccine records. You're all set to book sessions!</p><div style="background:#d4edda;border:1px solid #c3e6cb;padding:20px;border-radius:8px;margin:24px 0;"><p style="margin:0;color:#155724;font-weight:bold;">🐾 ${data.dogName} is cleared to run!</p></div><a href="https://app.thecaninegym.com/book" style="display:block;background:#FF6B35;color:white;text-align:center;padding:14px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px;">Book a Session Now →</a></div><div style="background:#f5f5f5;padding:16px;border-radius:0 0 12px 12px;text-align:center;"><p style="color:#999;font-size:12px;margin:0;">The Canine Gym · Hamilton County, IN · thecaninegym.com</p></div></div>`
+  }
+
+  if (type === 'vaccine_rejected') {
+    subject = `Action needed: ${data.dogName}'s vaccine records`
+    html = `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;"><div style="background:#003087;padding:24px;border-radius:12px 12px 0 0;"><h1 style="color:white;margin:0;font-size:24px;">🐾 The Canine Gym</h1></div><div style="background:white;padding:32px;border:1px solid #eee;"><h2 style="color:#dc3545;">Hi ${data.ownerName}, we need a better photo.</h2><p style="color:#555;line-height:1.6;">We weren't able to approve the vaccine records submitted for <strong>${data.dogName}</strong>.</p><div style="background:#f8d7da;border:1px solid #f5c6cb;padding:20px;border-radius:8px;margin:24px 0;"><p style="margin:0 0 4px 0;color:#721c24;font-weight:bold;">Reason:</p><p style="margin:0;color:#721c24;">${data.reason}</p></div><a href="https://app.thecaninegym.com/dogs" style="display:block;background:#FF6B35;color:white;text-align:center;padding:14px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px;">Re-upload Vaccine Records →</a></div><div style="background:#f5f5f5;padding:16px;border-radius:0 0 12px 12px;text-align:center;"><p style="color:#999;font-size:12px;margin:0;">The Canine Gym · Hamilton County, IN · thecaninegym.com</p></div></div>`
+  }
+
+  if (type === 'vaccine_expiring') {
+    const listItems = data.expiringFields.map((f: any) => `<p style="margin:0 0 8px 0;color:#333;">💉 <strong>${f.label}</strong> — expires ${f.date} (${f.daysLeft} days)</p>`).join('')
+    subject = `⚠️ ${data.dogName}'s vaccines are expiring soon`
+    html = `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;"><div style="background:#003087;padding:24px;border-radius:12px 12px 0 0;"><h1 style="color:white;margin:0;font-size:24px;">🐾 The Canine Gym</h1></div><div style="background:white;padding:32px;border:1px solid #eee;"><h2 style="color:#856404;">Hi ${data.ownerName}, ${data.dogName}'s vaccines need attention.</h2><p style="color:#555;line-height:1.6;">The following vaccine(s) are expiring within 30 days. Please visit your vet and upload updated records.</p><div style="background:#fff3cd;border:1px solid #ffc107;padding:20px;border-radius:8px;margin:24px 0;">${listItems}</div><a href="https://app.thecaninegym.com/dogs" style="display:block;background:#FF6B35;color:white;text-align:center;padding:14px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px;margin-bottom:12px;">Update Vaccine Records →</a></div><div style="background:#f5f5f5;padding:16px;border-radius:0 0 12px 12px;text-align:center;"><p style="color:#999;font-size:12px;margin:0;">The Canine Gym · Hamilton County, IN · thecaninegym.com</p></div></div>`
+  }
+
+  if (type === 'vaccine_expiring_admin') {
+    const listItems = data.expiringFields.map((f: any) => `<p style="margin:0 0 8px 0;color:#333;">💉 <strong>${f.label}</strong> — expires ${f.date} (${f.daysLeft} days)</p>`).join('')
+    subject = `⚠️ Vaccine expiry alert: ${data.dogName} (${data.ownerName})`
+    html = `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;"><div style="background:#003087;padding:24px;border-radius:12px 12px 0 0;"><h1 style="color:white;margin:0;font-size:24px;">🐾 The Canine Gym — Admin</h1></div><div style="background:white;padding:32px;border:1px solid #eee;"><h2 style="color:#856404;">Vaccine Expiry Alert</h2><div style="background:#f5f5f5;padding:16px;border-radius:8px;margin-bottom:16px;"><p style="margin:0 0 6px 0;color:#333;">🐾 <strong>${data.dogName}</strong></p><p style="margin:0 0 6px 0;color:#333;">👤 ${data.ownerName}</p><p style="margin:0;color:#333;">✉️ ${data.ownerEmail}</p></div><div style="background:#fff3cd;border:1px solid #ffc107;padding:20px;border-radius:8px;">${listItems}</div><p style="color:#555;margin-top:16px;font-size:14px;">The client has been notified automatically.</p><a href="https://app.thecaninegym.com/admin/dogs/vaccines" style="display:block;background:#003087;color:white;text-align:center;padding:14px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px;margin-top:16px;">View Vaccine Records →</a></div></div>`
+  }
+  
   try {
     await resend.emails.send({
       from: 'The Canine Gym <info@thecaninegym.com>',
