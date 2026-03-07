@@ -22,8 +22,8 @@ export default function MyDogs() {
   const [error, setError] = useState<string | null>(null)
   const [newDog, setNewDog] = useState({ name: '', breed: '', weight: '', birthday: '', visibility: 'anonymous' })
   const [uploadingVaccine, setUploadingVaccine] = useState<string | null>(null)
-  const [vaccineFile, setVaccineFile] = useState<File | null>(null)
-  const [vaccinePreview, setVaccinePreview] = useState<string | null>(null)
+  const [vaccineFiles, setVaccineFiles] = useState<Record<string, File>>({})
+  const [vaccinePreviews, setVaccinePreviews] = useState<Record<string, string>>({})
   const [vaccineSuccess, setVaccineSuccess] = useState<string | null>(null)
   const [vaccines, setVaccines] = useState<Record<string, any>>({})
 
@@ -151,6 +151,7 @@ export default function MyDogs() {
   }
 
   const handleVaccineUpload = async (dogId: string, dogName: string) => {
+    const vaccineFile = vaccineFiles[dogId]
     if (!vaccineFile) return
     setUploadingVaccine(dogId)
     const fileName = `vaccines/${dogId}-${Date.now()}.${vaccineFile.name.split('.').pop()}`
@@ -166,8 +167,8 @@ export default function MyDogs() {
       body: JSON.stringify({ type: 'vaccine_uploaded', to: 'dev@thecaninegym.com', data: { dogName, ownerName, ownerEmail, photoUrl: urlData.publicUrl, dogId } })
     })
     setVaccineSuccess(dogId)
-    setVaccineFile(null)
-    setVaccinePreview(null)
+    setVaccineFiles(prev => { const n = { ...prev }; delete n[dogId]; return n })
+    setVaccinePreviews(prev => { const n = { ...prev }; delete n[dogId]; return n })
     setUploadingVaccine(null)
     fetchDogs(ownerId)
     setTimeout(() => setVaccineSuccess(null), 4000)
@@ -501,14 +502,14 @@ export default function MyDogs() {
                     ) : (
                       <div>
                         <p style={{ color: '#666', fontSize: '13px', margin: '0 0 10px 0' }}>Upload a photo of your dog's vaccine record. Required before booking.</p>
-                        {vaccinePreview && <img src={vaccinePreview} alt="preview" style={{ maxWidth: '200px', borderRadius: '8px', border: '1px solid #ddd', marginBottom: '10px', display: 'block' }} />}
+                        {vaccinePreviews[dog.id] && <img src={vaccinePreviews[dog.id]} alt="preview" style={{ maxWidth: '200px', borderRadius: '8px', border: '1px solid #ddd', marginBottom: '10px', display: 'block' }} />}
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
                           <label style={{ cursor: 'pointer', backgroundColor: '#f0f0f0', padding: '9px 16px', borderRadius: '7px', fontSize: '13px', fontWeight: '600', color: '#333', display: 'flex', alignItems: 'center', gap: '6px' }}>
                             <Upload size={14} /> Choose Photo
                             <input type="file" accept="image/*,application/pdf" style={{ display: 'none' }}
-                              onChange={e => { const f = e.target.files?.[0]; if (f) { setVaccineFile(f); setVaccinePreview(URL.createObjectURL(f)) } }} />
+                              onChange={e => { const f = e.target.files?.[0]; if (f) { setVaccineFiles(prev => ({ ...prev, [dog.id]: f })); setVaccinePreviews(prev => ({ ...prev, [dog.id]: URL.createObjectURL(f) })) } }} />
                           </label>
-                          {vaccineFile && (
+                          {vaccineFiles[dog.id] && (
                             <button onClick={() => handleVaccineUpload(dog.id, dog.name)} disabled={uploadingVaccine === dog.id}
                               style={{ backgroundColor: '#003087', color: 'white', border: 'none', padding: '9px 18px', borderRadius: '7px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
                               {uploadingVaccine === dog.id ? 'Uploading...' : <><Shield size={13} /> Submit Vaccines</>}
@@ -530,9 +531,9 @@ export default function MyDogs() {
                           <label style={{ cursor: 'pointer', backgroundColor: '#f0f0f0', padding: '7px 14px', borderRadius: '7px', fontSize: '12px', fontWeight: '600', color: '#555', display: 'flex', alignItems: 'center', gap: '5px' }}>
                             <Upload size={12} /> Update Vaccine Records
                             <input type="file" accept="image/*,application/pdf" style={{ display: 'none' }}
-                              onChange={e => { const f = e.target.files?.[0]; if (f) { setVaccineFile(f); setVaccinePreview(URL.createObjectURL(f)) } }} />
+                              onChange={e => { const f = e.target.files?.[0]; if (f) { setVaccineFiles(prev => ({ ...prev, [dog.id]: f })); setVaccinePreviews(prev => ({ ...prev, [dog.id]: URL.createObjectURL(f) })) } }} />
                           </label>
-                          {vaccineFile && (
+                          {vaccineFiles[dog.id] && (
                             <button onClick={() => handleVaccineUpload(dog.id, dog.name)} disabled={uploadingVaccine === dog.id}
                               style={{ backgroundColor: '#003087', color: 'white', border: 'none', padding: '7px 14px', borderRadius: '7px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>
                               {uploadingVaccine === dog.id ? 'Uploading...' : 'Submit'}
