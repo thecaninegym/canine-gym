@@ -20,6 +20,7 @@ export default function Leaderboard() {
   const [selectedEntry, setSelectedEntry] = useState<any>(null)
   const [modalAchievements, setModalAchievements] = useState<any[]>([])
   const [modalLoading, setModalLoading] = useState(false)
+  const [enlargedPhoto, setEnlargedPhoto] = useState<string | null>(null)
 
   useEffect(() => {
     const init = async () => {
@@ -267,7 +268,8 @@ export default function Leaderboard() {
               </button>
               {selectedEntry.photo_url && !selectedEntry.is_anonymous ? (
                 <img src={selectedEntry.photo_url} alt={selectedEntry.display_name}
-                  style={{ width: '72px', height: '72px', borderRadius: '50%', objectFit: 'cover', border: '3px solid rgba(255,255,255,0.4)', marginBottom: '12px' }} />
+                  onClick={() => setEnlargedPhoto(selectedEntry.photo_url)}
+                  style={{ width: '72px', height: '72px', borderRadius: '50%', objectFit: 'cover', border: '3px solid rgba(255,255,255,0.4)', marginBottom: '12px', display: 'block', margin: '0 auto 12px', cursor: 'zoom-in' }} />
               ) : (
                 <div style={{ width: '72px', height: '72px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
                   <PawPrint size={32} color="white" />
@@ -322,6 +324,19 @@ export default function Leaderboard() {
               </div>
             </div>
           </div>
+        </div>
+)}
+
+      {/* Enlarged Photo Overlay */}
+      {enlargedPhoto && (
+        <div onClick={() => setEnlargedPhoto(null)}
+          style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, padding: '24px', cursor: 'zoom-out' }}>
+          <img src={enlargedPhoto} alt="Dog photo"
+            style={{ maxWidth: '100%', maxHeight: '80vh', borderRadius: '16px', objectFit: 'contain', boxShadow: '0 20px 60px rgba(0,0,0,0.5)' }} />
+          <button onClick={() => setEnlargedPhoto(null)}
+            style={{ position: 'absolute', top: '20px', right: '20px', background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'white' }}>
+            <X size={20} />
+          </button>
         </div>
       )}
     </div>
