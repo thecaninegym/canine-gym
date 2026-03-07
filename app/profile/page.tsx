@@ -42,8 +42,7 @@ export default function Profile() {
     if (dogData && dogData.length > 0) {
       await supabase.from('leaderboard_settings').update({ city }).in('dog_id', dogData.map((d: any) => d.id))
     }
-    if (error) { setError(error.message) } else { setSuccess(true); setTimeout(() => setSuccess(false), 3000) }
-    setSaving(false)
+    if (error) { setError(error.message); setSaving(false) } else { setSuccess(true); setTimeout(() => { window.location.href = '/dashboard' }, 1000) }
   }
 
   if (loading) return (

@@ -89,7 +89,7 @@ export default function MyDogs() {
     setNewPhotoPreview(null)
     setAddingDog(false)
     setSaving(false)
-    fetchDogs(ownerId)
+    window.location.href = '/dashboard'
   }
 
   const handleRemoveDog = async (dogId: string, dogName: string) => {
