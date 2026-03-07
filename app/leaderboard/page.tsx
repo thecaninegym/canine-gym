@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
-import { PawPrint, ArrowLeft, Trophy, Medal, Flame, Navigation, Calendar, MapPin, Shield, Star, Crown } from 'lucide-react'
+import { PawPrint, ArrowLeft, Trophy, Medal, Flame, Navigation, Calendar, MapPin, Shield, Star, Crown, X, Award } from 'lucide-react'
 
 const CATEGORIES = [
   { key: 'sessions', label: 'Sessions', icon: <Calendar size={16} />, field: 'session_count' },
@@ -17,6 +17,9 @@ export default function Leaderboard() {
   const [city, setCity] = useState('All Cities')
   const [loading, setLoading] = useState(true)
   const [currentDogId, setCurrentDogId] = useState<string | null>(null)
+  const [selectedEntry, setSelectedEntry] = useState<any>(null)
+  const [modalAchievements, setModalAchievements] = useState<any[]>([])
+  const [modalLoading, setModalLoading] = useState(false)
 
   useEffect(() => {
     const init = async () => {
@@ -37,7 +40,7 @@ export default function Leaderboard() {
 
   const fetchLeaderboard = async () => {
     setLoading(true)
-    let query = supabase.from('leaderboard_settings').select('*, dogs(id, name, breed, dog_achievements(count))').neq('visibility', 'private')
+    let query = supabase.from('leaderboard_settings').select('*, dogs(id, name, breed, photo_url, dog_achievements(count))').neq('visibility', 'private')
     if (city !== 'All Cities') query = query.eq('city', city)
     const { data: settingsData } = await query
     if (!settingsData) { setLoading(false); return }
@@ -69,6 +72,8 @@ export default function Leaderboard() {
         dog_id: setting.dog_id,
         display_name: isAnonymous ? 'Mystery Pup' : (setting.display_name || setting.dogs?.name),
         is_anonymous: isAnonymous,
+        breed: isAnonymous ? null : setting.dogs?.breed,
+        photo_url: isAnonymous ? null : setting.dogs?.photo_url,
         city: setting.city,
         session_count: stats.session_count || 0,
         total_miles: parseFloat((stats.total_miles || 0).toFixed(2)),
@@ -81,6 +86,18 @@ export default function Leaderboard() {
     entries.sort((a, b) => b[fieldMap[category]] - a[fieldMap[category]])
     setLeaderboard(entries)
     setLoading(false)
+  }
+
+  const openModal = async (entry: any) => {
+    setSelectedEntry(entry)
+    setModalLoading(true)
+    const { data } = await supabase
+      .from('dog_achievements')
+      .select('achievement_key, earned_at')
+      .eq('dog_id', entry.dog_id)
+      .order('earned_at', { ascending: false })
+    setModalAchievements(data || [])
+    setModalLoading(false)
   }
 
   const getCategoryValue = (entry: any) => {
@@ -119,6 +136,25 @@ export default function Leaderboard() {
   }
 
   const monthName = new Date().toLocaleString('default', { month: 'long' })
+
+  const formatAchievementLabel = (key: string) => {
+    const labels: Record<string, string> = {
+      first_session: 'First Stride 🐾',
+      sessions_5: 'Finding Their Pace',
+      sessions_10: 'Ten and Counting',
+      sessions_100: 'Century Club 💯',
+      miles_26: 'Marathon Pup 🏅',
+      calories_10000: 'Calorie Crusher 🔥',
+      speed_demon: 'Speed Demon ⚡',
+      personal_best: 'Personal Best 🎯',
+      streak_3: 'On A Roll',
+      streak_hat_trick: 'Hat Trick',
+      streak_5: 'Hot Streak',
+      streak_unstoppable: 'Unstoppable',
+      comeback: 'Comeback Kid',
+    }
+    return labels[key] || key.replace(/_/g, ' ')
+  }
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f5' }}>
@@ -181,7 +217,8 @@ export default function Leaderboard() {
             leaderboard.map((entry, i) => {
               const isMe = entry.dog_id === currentDogId
               return (
-                <div key={entry.dog_id} style={{ background: isMe ? 'linear-gradient(135deg, #E8EEF7, #dce6f5)' : getRankBg(i), border: isMe ? '2px solid #003087' : getRankBorder(i), borderRadius: '14px', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '16px', boxShadow: i < 3 ? '0 4px 12px rgba(0,0,0,0.08)' : '0 2px 6px rgba(0,0,0,0.04)' }}>
+                <div key={entry.dog_id} onClick={() => openModal(entry)}
+                  style={{ background: isMe ? 'linear-gradient(135deg, #E8EEF7, #dce6f5)' : getRankBg(i), border: isMe ? '2px solid #003087' : getRankBorder(i), borderRadius: '14px', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '16px', boxShadow: i < 3 ? '0 4px 12px rgba(0,0,0,0.08)' : '0 2px 6px rgba(0,0,0,0.04)', cursor: 'pointer' }}>
                   <div style={{ width: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, backgroundColor: i === 0 ? 'rgba(255,215,0,0.2)' : i === 1 ? 'rgba(192,192,192,0.2)' : i === 2 ? 'rgba(205,127,50,0.2)' : '#f5f5f5' }}>
                     {getRankIcon(i)}
                   </div>
@@ -214,6 +251,79 @@ export default function Leaderboard() {
           <Shield size={12} /> Anonymous dogs appear as Mystery Pup · Manage privacy in your dog settings
         </p>
       </div>
+
+      {/* Modal */}
+      {selectedEntry && (
+        <div onClick={() => setSelectedEntry(null)}
+          style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '24px' }}>
+          <div onClick={e => e.stopPropagation()}
+            style={{ backgroundColor: 'white', borderRadius: '20px', width: '100%', maxWidth: '420px', overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+
+            {/* Modal Header */}
+            <div style={{ background: 'linear-gradient(135deg, #003087, #00409e)', padding: '28px 24px 24px', position: 'relative', textAlign: 'center' }}>
+              <button onClick={() => setSelectedEntry(null)}
+                style={{ position: 'absolute', top: '16px', right: '16px', background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'white' }}>
+                <X size={16} />
+              </button>
+              {selectedEntry.photo_url && !selectedEntry.is_anonymous ? (
+                <img src={selectedEntry.photo_url} alt={selectedEntry.display_name}
+                  style={{ width: '72px', height: '72px', borderRadius: '50%', objectFit: 'cover', border: '3px solid rgba(255,255,255,0.4)', marginBottom: '12px' }} />
+              ) : (
+                <div style={{ width: '72px', height: '72px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
+                  <PawPrint size={32} color="white" />
+                </div>
+              )}
+              <h3 style={{ color: 'white', margin: '0 0 4px 0', fontSize: '22px', fontWeight: 'bold' }}>{selectedEntry.display_name}</h3>
+              {selectedEntry.breed && <p style={{ color: 'rgba(255,255,255,0.7)', margin: '0 0 4px 0', fontSize: '14px' }}>{selectedEntry.breed}</p>}
+              {selectedEntry.city && (
+                <p style={{ color: 'rgba(255,255,255,0.6)', margin: 0, fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                  <MapPin size={12} /> {selectedEntry.city}
+                </p>
+              )}
+            </div>
+
+            {/* Stats */}
+            <div style={{ padding: '24px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '24px' }}>
+                {[
+                  { label: 'Sessions', value: selectedEntry.session_count, icon: <Calendar size={18} color="#003087" /> },
+                  { label: 'Miles', value: selectedEntry.total_miles, icon: <Navigation size={18} color="#003087" /> },
+                  { label: 'Calories', value: selectedEntry.total_calories.toLocaleString(), icon: <Flame size={18} color="#FF6B35" /> },
+                ].map(stat => (
+                  <div key={stat.label} style={{ backgroundColor: '#f8f9fa', borderRadius: '12px', padding: '14px 10px', textAlign: 'center' }}>
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '6px' }}>{stat.icon}</div>
+                    <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#111', lineHeight: 1 }}>{stat.value}</div>
+                    <div style={{ fontSize: '11px', color: '#999', marginTop: '3px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{stat.label}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Achievements */}
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '12px' }}>
+                  <Award size={16} color="#FF6B35" />
+                  <span style={{ fontWeight: 'bold', color: '#333', fontSize: '14px' }}>Badges Earned</span>
+                  <span style={{ backgroundColor: '#FF6B35', color: 'white', fontSize: '11px', padding: '1px 7px', borderRadius: '10px', fontWeight: 'bold' }}>{selectedEntry.achievement_count}</span>
+                </div>
+                {modalLoading ? (
+                  <p style={{ color: '#999', fontSize: '13px', margin: 0 }}>Loading badges...</p>
+                ) : modalAchievements.length === 0 ? (
+                  <p style={{ color: '#bbb', fontSize: '13px', margin: 0 }}>No badges earned yet.</p>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '160px', overflowY: 'auto' }}>
+                    {modalAchievements.map((a, idx) => (
+                      <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '10px', backgroundColor: '#FFF8F0', border: '1px solid #FFE8D0', borderRadius: '8px', padding: '8px 12px' }}>
+                        <Star size={14} color="#FF6B35" />
+                        <span style={{ fontSize: '13px', fontWeight: '500', color: '#333' }}>{formatAchievementLabel(a.achievement_key)}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
