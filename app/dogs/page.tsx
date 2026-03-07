@@ -501,14 +501,36 @@ export default function MyDogs() {
                       </div>
                     ) : (
                       <div>
-                        <p style={{ color: '#666', fontSize: '13px', margin: '0 0 10px 0' }}>Upload a photo of your dog's vaccine record. Required before booking.</p>
-                        {vaccinePreviews[dog.id] && <img src={vaccinePreviews[dog.id]} alt="preview" style={{ maxWidth: '200px', borderRadius: '8px', border: '1px solid #ddd', marginBottom: '10px', display: 'block' }} />}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-                          <label style={{ cursor: 'pointer', backgroundColor: '#f0f0f0', padding: '9px 16px', borderRadius: '7px', fontSize: '13px', fontWeight: '600', color: '#333', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <Upload size={14} /> Choose Photo
+                        <p style={{ color: '#666', fontSize: '13px', margin: '0 0 12px 0' }}>Upload a photo of your dog's vaccine record. Required before booking.</p>
+                        
+                        {vaccinePreviews[dog.id] ? (
+                          <div style={{ marginBottom: '12px' }}>
+                            <div style={{ position: 'relative', display: 'inline-block' }}>
+                              <img src={vaccinePreviews[dog.id]} alt="Vaccine record preview" style={{ maxWidth: '100%', width: '280px', height: '180px', objectFit: 'cover', borderRadius: '10px', border: '2px solid #003087', display: 'block' }} />
+                              <div style={{ position: 'absolute', top: '8px', right: '8px', backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: '6px', padding: '3px 8px', fontSize: '11px', color: 'white', fontWeight: '600' }}>
+                                Preview
+                              </div>
+                            </div>
+                            <p style={{ color: '#555', fontSize: '12px', margin: '6px 0 0 0' }}>{vaccineFiles[dog.id]?.name}</p>
+                          </div>
+                        ) : (
+                          <label style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '280px', height: '140px', border: '2px dashed #ccc', borderRadius: '10px', backgroundColor: '#fafafa', marginBottom: '12px', gap: '8px' }}>
+                            <Upload size={28} color="#aaa" />
+                            <span style={{ color: '#888', fontSize: '13px', fontWeight: '600' }}>Click to choose photo</span>
+                            <span style={{ color: '#bbb', fontSize: '11px' }}>JPG, PNG or PDF</span>
                             <input type="file" accept="image/*,application/pdf" style={{ display: 'none' }}
                               onChange={e => { const f = e.target.files?.[0]; if (f) { setVaccineFiles(prev => ({ ...prev, [dog.id]: f })); setVaccinePreviews(prev => ({ ...prev, [dog.id]: URL.createObjectURL(f) })) } }} />
                           </label>
+                        )}
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                          {vaccinePreviews[dog.id] && (
+                            <label style={{ cursor: 'pointer', backgroundColor: '#f0f0f0', padding: '9px 16px', borderRadius: '7px', fontSize: '13px', fontWeight: '600', color: '#333', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <Upload size={14} /> Change Photo
+                              <input type="file" accept="image/*,application/pdf" style={{ display: 'none' }}
+                                onChange={e => { const f = e.target.files?.[0]; if (f) { setVaccineFiles(prev => ({ ...prev, [dog.id]: f })); setVaccinePreviews(prev => ({ ...prev, [dog.id]: URL.createObjectURL(f) })) } }} />
+                            </label>
+                          )}
                           {vaccineFiles[dog.id] && (
                             <button onClick={() => handleVaccineUpload(dog.id, dog.name)} disabled={uploadingVaccine === dog.id}
                               style={{ backgroundColor: '#003087', color: 'white', border: 'none', padding: '9px 18px', borderRadius: '7px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
