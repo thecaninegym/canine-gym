@@ -163,7 +163,7 @@ export default function MyDogs() {
               ].map(({ label, key, type, required }) => (
                 <div key={key} style={{ marginBottom: '14px' }}>
                   <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500', color: '#333', fontSize: '14px' }}>{label}</label>
-                  <input type={type} value={(newDog as any)[key]} onChange={(e) => setNewDog({ ...newDog, [key]: e.target.value })} required={required} max={(key === 'birthday') ? new Date().toISOString().split('T')[0] : undefined}
+                  <input type={type} value={(newDog as any)[key]} onChange={(e) => setNewDog({ ...newDog, [key]: key === 'weight' ? e.target.value.slice(0, 3) : e.target.value })} required={required} max={(key === 'birthday') ? new Date().toISOString().split('T')[0] : undefined}
                     style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '15px', boxSizing: 'border-box', color: '#000' }} />
                 </div>
               ))}
@@ -222,7 +222,7 @@ export default function MyDogs() {
                     ].map(({ label, key, type, required }) => (
                       <div key={key} style={{ marginBottom: '14px' }}>
                         <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500', color: '#333', fontSize: '14px' }}>{label}</label>
-                        <input type={type} value={editingDog[key] || ''} onChange={(e) => setEditingDog({ ...editingDog, [key]: e.target.value })} required={required} max={(key === 'birthday') ? new Date().toISOString().split('T')[0] : undefined}
+                        <input type={type} value={editingDog[key] || ''} onChange={(e) => setEditingDog({ ...editingDog, [key]: key === 'weight' ? e.target.value.slice(0, 3) : e.target.value })} required={required} max={(key === 'birthday') ? new Date().toISOString().split('T')[0] : undefined}
                           style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '15px', boxSizing: 'border-box', color: '#000' }} />
                       </div>
                     ))}
