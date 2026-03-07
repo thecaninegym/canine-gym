@@ -344,7 +344,7 @@ export default function MyDogs() {
                 {!isEditing && (
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <button onClick={() => handleEdit(dog)}
-                      style={{ backgroundColor: '#f0f0f0', border: 'none', padding: '8px 14px', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', fontWeight: '600' }}>
+                      style={{ backgroundColor: '#f0f0f0', border: 'none', padding: '8px 14px', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', fontWeight: '600', color: '#333' }}>
                       <Pencil size={13} /> Edit
                     </button>
                     <button onClick={() => handleDelete(dog.id, dog.name)}
