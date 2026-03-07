@@ -505,12 +505,19 @@ export default function MyDogs() {
                         
                         {vaccinePreviews[dog.id] ? (
                           <div style={{ marginBottom: '12px' }}>
-                            <div style={{ position: 'relative', display: 'inline-block' }}>
-                              <img src={vaccinePreviews[dog.id]} alt="Vaccine record preview" style={{ maxWidth: '100%', width: '280px', height: '180px', objectFit: 'cover', borderRadius: '10px', border: '2px solid #003087', display: 'block' }} />
-                              <div style={{ position: 'absolute', top: '8px', right: '8px', backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: '6px', padding: '3px 8px', fontSize: '11px', color: 'white', fontWeight: '600' }}>
-                                Preview
+                            {vaccineFiles[dog.id]?.type === 'application/pdf' ? (
+                              <div style={{ width: '280px', height: '120px', border: '2px solid #003087', borderRadius: '10px', backgroundColor: '#f0f4ff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                <div style={{ fontSize: '32px' }}>📄</div>
+                                <span style={{ color: '#003087', fontWeight: '700', fontSize: '13px' }}>PDF Selected</span>
                               </div>
-                            </div>
+                            ) : (
+                              <div style={{ position: 'relative', display: 'inline-block' }}>
+                                <img src={vaccinePreviews[dog.id]} alt="Vaccine record preview" style={{ maxWidth: '100%', width: '280px', height: '180px', objectFit: 'cover', borderRadius: '10px', border: '2px solid #003087', display: 'block' }} />
+                                <div style={{ position: 'absolute', top: '8px', right: '8px', backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: '6px', padding: '3px 8px', fontSize: '11px', color: 'white', fontWeight: '600' }}>
+                                  Preview
+                                </div>
+                              </div>
+                            )}
                             <p style={{ color: '#555', fontSize: '12px', margin: '6px 0 0 0' }}>{vaccineFiles[dog.id]?.name}</p>
                           </div>
                         ) : (
