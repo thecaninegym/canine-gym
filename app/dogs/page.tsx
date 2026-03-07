@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import { PawPrint, ArrowLeft, Camera, Plus, CheckCircle, Trash2, Pencil, X } from 'lucide-react'
 
+const BREEDS = ['Affenpinscher','Afghan Hound','Airedale Terrier','Akita','Alaskan Malamute','American Bulldog','American Eskimo Dog','American Foxhound','American Pit Bull Terrier','American Staffordshire Terrier','Australian Cattle Dog','Australian Shepherd','Australian Terrier','Basenji','Basset Hound','Beagle','Bearded Collie','Bedlington Terrier','Belgian Malinois','Belgian Sheepdog','Belgian Tervuren','Bernese Mountain Dog','Bichon Frise','Black and Tan Coonhound','Bloodhound','Border Collie','Border Terrier','Borzoi','Boston Terrier','Bouvier des Flandres','Boxer','Boykin Spaniel','Briard','Brittany','Brussels Griffon','Bull Terrier','Bulldog','Bullmastiff','Cairn Terrier','Cane Corso','Cavalier King Charles Spaniel','Chesapeake Bay Retriever','Chihuahua','Chinese Crested','Chinese Shar-Pei','Chow Chow','Cocker Spaniel','Collie','Dachshund','Dalmatian','Doberman Pinscher','Dogue de Bordeaux','English Setter','English Springer Spaniel','Flat-Coated Retriever','French Bulldog','German Pinscher','German Shepherd','German Shorthaired Pointer','German Wirehaired Pointer','Giant Schnauzer','Golden Retriever','Gordon Setter','Great Dane','Great Pyrenees','Greater Swiss Mountain Dog','Greyhound','Havanese','Ibizan Hound','Irish Setter','Irish Terrier','Irish Water Spaniel','Irish Wolfhound','Italian Greyhound','Jack Russell Terrier','Japanese Chin','Keeshond','Kerry Blue Terrier','Komondor','Kuvasz','Labrador Retriever','Lhasa Apso','Maltese','Mastiff','Miniature Pinscher','Miniature Schnauzer','Newfoundland','Norfolk Terrier','Norwegian Elkhound','Norwich Terrier','Old English Sheepdog','Papillon','Pekingese','Pembroke Welsh Corgi','Pointer','Pomeranian','Poodle (Miniature)','Poodle (Standard)','Poodle (Toy)','Portuguese Water Dog','Pug','Rat Terrier','Redbone Coonhound','Rhodesian Ridgeback','Rottweiler','Saint Bernard','Samoyed','Schipperke','Scottish Deerhound','Scottish Terrier','Shetland Sheepdog','Shiba Inu','Shih Tzu','Siberian Husky','Silky Terrier','Soft Coated Wheaten Terrier','Staffordshire Bull Terrier','Standard Schnauzer','Sussex Spaniel','Tibetan Mastiff','Tibetan Terrier','Vizsla','Weimaraner','Welsh Springer Spaniel','Welsh Terrier','West Highland White Terrier','Whippet','Wire Fox Terrier','Wirehaired Pointing Griffon','Xoloitzcuintli','Yorkshire Terrier','Mixed Breed','Other']
+
 export default function MyDogs() {
   const [dogs, setDogs] = useState<any[]>([])
   const [ownerId, setOwnerId] = useState('')
@@ -156,7 +158,6 @@ export default function MyDogs() {
               </div>
               {[
                 { label: 'Dog Name', key: 'name', type: 'text', required: true },
-                { label: 'Breed', key: 'breed', type: 'text' },
                 { label: 'Weight (lbs)', key: 'weight', type: 'number' },
                 { label: 'Birthday', key: 'birthday', type: 'date' },
               ].map(({ label, key, type, required }) => (
@@ -166,6 +167,14 @@ export default function MyDogs() {
                     style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '15px', boxSizing: 'border-box', color: '#000' }} />
                 </div>
               ))}
+              <div style={{ marginBottom: '14px' }}>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500', color: '#333', fontSize: '14px' }}>Breed</label>
+                <select value={newDog.breed} onChange={(e) => setNewDog({ ...newDog, breed: e.target.value })}
+                  style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '15px', boxSizing: 'border-box', color: '#000' }}>
+                  <option value="">Select a breed...</option>
+                  {BREEDS.map(b => <option key={b} value={b}>{b}</option>)}
+                </select>
+              </div>
               {error && <p style={{ color: 'red', marginBottom: '12px', fontSize: '14px' }}>{error}</p>}
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button type="submit" disabled={saving}
@@ -208,7 +217,6 @@ export default function MyDogs() {
                     </div>
                     {[
                       { label: 'Dog Name', key: 'name', type: 'text', required: true },
-                      { label: 'Breed', key: 'breed', type: 'text' },
                       { label: 'Weight (lbs)', key: 'weight', type: 'number' },
                       { label: 'Birthday', key: 'birthday', type: 'date' },
                     ].map(({ label, key, type, required }) => (
@@ -218,6 +226,14 @@ export default function MyDogs() {
                           style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '15px', boxSizing: 'border-box', color: '#000' }} />
                       </div>
                     ))}
+                    <div style={{ marginBottom: '14px' }}>
+                      <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500', color: '#333', fontSize: '14px' }}>Breed</label>
+                      <select value={editingDog.breed || ''} onChange={(e) => setEditingDog({ ...editingDog, breed: e.target.value })}
+                        style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '15px', boxSizing: 'border-box', color: '#000' }}>
+                        <option value="">Select a breed...</option>
+                        {BREEDS.map(b => <option key={b} value={b}>{b}</option>)}
+                      </select>
+                    </div>
                     <div style={{ marginBottom: '20px' }}>
                       <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500', color: '#333', fontSize: '14px' }}>Leaderboard Privacy</label>
                       <select value={editingDog.leaderboard_settings?.visibility || 'anonymous'} onChange={(e) => setEditingDog({ ...editingDog, leaderboard_settings: { ...editingDog.leaderboard_settings, visibility: e.target.value } })}
