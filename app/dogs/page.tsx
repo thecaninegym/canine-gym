@@ -159,11 +159,11 @@ export default function MyDogs() {
               {[
                 { label: 'Dog Name', key: 'name', type: 'text', required: true },
                 { label: 'Weight (lbs)', key: 'weight', type: 'number' },
-                { label: 'Birthday', key: 'birthday', type: 'date' },
+                { label: 'Birthday', key: 'birthday', type: 'date', max: new Date().toISOString().split('T')[0] },
               ].map(({ label, key, type, required }) => (
                 <div key={key} style={{ marginBottom: '14px' }}>
                   <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500', color: '#333', fontSize: '14px' }}>{label}</label>
-                  <input type={type} value={(newDog as any)[key]} onChange={(e) => setNewDog({ ...newDog, [key]: e.target.value })} required={required}
+                  <input type={type} value={(newDog as any)[key]} onChange={(e) => setNewDog({ ...newDog, [key]: e.target.value })} required={required} max={(key === 'birthday') ? new Date().toISOString().split('T')[0] : undefined}
                     style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '15px', boxSizing: 'border-box', color: '#000' }} />
                 </div>
               ))}
@@ -218,11 +218,11 @@ export default function MyDogs() {
                     {[
                       { label: 'Dog Name', key: 'name', type: 'text', required: true },
                       { label: 'Weight (lbs)', key: 'weight', type: 'number' },
-                      { label: 'Birthday', key: 'birthday', type: 'date' },
+                      { label: 'Birthday', key: 'birthday', type: 'date', max: new Date().toISOString().split('T')[0] },
                     ].map(({ label, key, type, required }) => (
                       <div key={key} style={{ marginBottom: '14px' }}>
                         <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500', color: '#333', fontSize: '14px' }}>{label}</label>
-                        <input type={type} value={editingDog[key] || ''} onChange={(e) => setEditingDog({ ...editingDog, [key]: e.target.value })} required={required}
+                        <input type={type} value={editingDog[key] || ''} onChange={(e) => setEditingDog({ ...editingDog, [key]: e.target.value })} required={required} max={(key === 'birthday') ? new Date().toISOString().split('T')[0] : undefined}
                           style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '15px', boxSizing: 'border-box', color: '#000' }} />
                       </div>
                     ))}
