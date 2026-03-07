@@ -18,7 +18,7 @@ export default function MyDogs() {
   const [newPhotoPreview, setNewPhotoPreview] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [newDog, setNewDog] = useState({ name: '', breed: '', weight: '', birthday: '' })
+  const [newDog, setNewDog] = useState({ name: '', breed: '', weight: '', birthday: '', visibility: 'anonymous' })
 
   useEffect(() => {
     const init = async () => {
@@ -85,8 +85,8 @@ export default function MyDogs() {
         await supabase.from('dogs').update({ photo_url: urlData.publicUrl }).eq('id', dogId)
       }
     }
-    await supabase.from('leaderboard_settings').insert([{ dog_id: dogId, visibility: 'anonymous', display_name: newDog.name, city: ownerCity }])
-    setNewDog({ name: '', breed: '', weight: '', birthday: '' })
+    await supabase.from('leaderboard_settings').insert([{ dog_id: dogId, visibility: newDog.visibility, display_name: newDog.name, city: ownerCity }])
+    setNewDog({ name: '', breed: '', weight: '', birthday: '', visibility: 'anonymous' })
     setNewPhotoFile(null)
     setNewPhotoPreview(null)
     setAddingDog(false)
@@ -173,6 +173,15 @@ export default function MyDogs() {
                   style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '15px', boxSizing: 'border-box', color: '#000' }}>
                   <option value="">Select a breed...</option>
                   {BREEDS.map(b => <option key={b} value={b}>{b}</option>)}
+                </select>
+              </div>
+              <div style={{ marginBottom: '14px' }}>
+                <label style={{ display: 'block', marginBottom: '5px', fontWeight: '500', color: '#333', fontSize: '14px' }}>Leaderboard Privacy</label>
+                <select value={newDog.visibility || 'anonymous'} onChange={(e) => setNewDog({ ...newDog, visibility: e.target.value })}
+                  style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '15px', boxSizing: 'border-box', color: '#000' }}>
+                  <option value="public">Public — show my dog's name</option>
+                  <option value="anonymous">Anonymous — show as Mystery Pup</option>
+                  <option value="private">Private — don't show on leaderboard</option>
                 </select>
               </div>
               {error && <p style={{ color: 'red', marginBottom: '12px', fontSize: '14px' }}>{error}</p>}
