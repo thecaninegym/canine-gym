@@ -44,7 +44,9 @@ const fullName = `${firstName} ${lastName}`.trim()
 await supabase.from('owners').insert([{ name: fullName, email, phone }])
     await fetch('/api/send-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'welcome', to: email, data: { ownerName: firstName, dogName: 'your dog' } }) })
     await fetch('/api/send-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'admin_notification', to: 'dev@thecaninegym.com', data: { action: 'New Client Signed Up', dogName: 'Not yet added', ownerName: `${firstName} ${lastName}`, date: new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }), time: email } }) })
-    setSignupSuccess(true); setLoading(false)
+    await supabase.auth.signInWithPassword({ email, password })
+    window.location.href = '/dashboard'
+    setLoading(false)
   }
 
   const handleReset = async (e: React.FormEvent) => {
@@ -87,7 +89,7 @@ await supabase.from('owners').insert([{ name: fullName, email, phone }])
               <CheckCircle size={30} color="#22c55e" />
             </div>
             <h2 style={{ color: 'white', margin: '0 0 10px', fontWeight: '800', fontSize: '20px' }}>Welcome to the pack!</h2>
-            <p style={{ color: 'rgba(255,255,255,0.6)', marginBottom: '24px', fontSize: '14px', lineHeight: 1.6 }}>Your account has been created. Check your email to confirm your address, then log in to get started.</p>
+            <p style={{ color: 'rgba(255,255,255,0.6)', marginBottom: '24px', fontSize: '14px', lineHeight: 1.6 }}>Your account has been created. You can log in now!</p>
             <button onClick={() => { setMode('login'); setSignupSuccess(false) }}
               style={{ width: '100%', padding: '13px', background: 'linear-gradient(135deg, #FF6B35, #ff8c5a)', color: 'white', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: 'pointer' }}>
               Go to Login
