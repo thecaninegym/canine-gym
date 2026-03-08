@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
-import { Trophy, PawPrint, User, CreditCard, LogOut, Calendar, Flame, Share2, Lock, CheckCircle, ChevronRight, X, Activity, Navigation, Medal, Zap, Target, RefreshCw, Award, TrendingUp, Dumbbell, RotateCcw, Hash, Star, MapPin, Clock } from 'lucide-react'
+import { Trophy, PawPrint, User, CreditCard, LogOut, Calendar, Flame, Share2, Lock, CheckCircle, ChevronRight, X, Activity, Navigation, Medal, Zap, Target, RefreshCw, Award, TrendingUp, Dumbbell, RotateCcw, Hash, Star, Users, MapPin, Clock } from 'lucide-react'
 
 export default function ClientDashboard() {
   const [dogs, setDogs] = useState<any[]>([])
@@ -120,6 +120,7 @@ export default function ClientDashboard() {
         </div>
         <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
           {[
+            { href: '/friends', icon: <Users size={15} />, label: 'Friends' },
             { href: '/leaderboard', icon: <Trophy size={15} />, label: 'Leaderboard' },
             { href: '/dogs', icon: <PawPrint size={15} />, label: 'My Dogs' },
             { href: '/profile', icon: <User size={15} />, label: 'Profile' },

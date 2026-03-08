@@ -12,6 +12,7 @@ export default function Profile() {
   const [address, setAddress] = useState('')
   const [city, setCity] = useState('')
   const [zip, setZip] = useState('')
+  const [gymTag, setGymTag] = useState('')
   const [ownerId, setOwnerId] = useState('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -30,6 +31,7 @@ export default function Profile() {
         setAddress(ownerData.address || '')
         setCity(ownerData.city || '')
         setZip(ownerData.zip || '')
+        setGymTag(ownerData.gym_tag || '')
       }
       setLoading(false)
     }
@@ -40,7 +42,7 @@ export default function Profile() {
     e.preventDefault()
     setSaving(true)
     setError(null)
-    const { error } = await supabase.from('owners').update({ name, phone, address, city, zip }).eq('id', ownerId)
+    const { error } = await supabase.from('owners').update({ name, phone, address, city, zip, gym_tag: gymTag.toLowerCase().replace(/[^a-z0-9_]/g, '') || null }).eq('id', ownerId)
     const { data: dogData } = await supabase.from('dogs').select('id').eq('owner_id', ownerId)
     if (dogData && dogData.length > 0) {
       await supabase.from('leaderboard_settings').update({ city }).in('dog_id', dogData.map((d: any) => d.id))
@@ -115,6 +117,13 @@ export default function Profile() {
               <div style={{ gridColumn: '1 / -1' }}>
                 <label style={labelStyle}>Phone</label>
                 <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} style={inputStyle} placeholder="(317) 555-0123" />
+              </div>
+              <div style={{ gridColumn: '1 / -1' }}>
+                <label style={labelStyle}>Gym Tag <span style={{ color: '#aaa', fontWeight: '400' }}>— your unique handle for friends to find you</span></label>
+                <div style={{ position: 'relative' }}>
+                  <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#FF6B35', fontWeight: '800', fontSize: '14px' }}>@</span>
+                  <input type="text" value={gymTag} onChange={e => setGymTag(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))} style={{ ...inputStyle, paddingLeft: '28px' }} placeholder="e.g. gravysmom" />
+                </div>
               </div>
               <div style={{ gridColumn: '1 / -1' }}>
                 <label style={labelStyle}>Street Address</label>
