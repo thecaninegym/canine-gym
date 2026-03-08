@@ -92,6 +92,7 @@ export default function LogSession() {
       <style>{`
   @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
   * { box-sizing: border-box; }
+  input[type="date"], input[type="time"] { max-width: 100%; }
   @media (max-width: 480px) {
     .time-grid { grid-template-columns: 1fr !important; }
   }
@@ -143,7 +144,7 @@ export default function LogSession() {
           </div>
         )}
 
-        <div style={{ background: 'white', borderRadius: '16px', padding: '28px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5' }}>
+        <div style={{ background: 'white', borderRadius: '16px', padding: '28px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5', overflow: 'hidden' }}>
           <form onSubmit={handleSubmit}>
             <div style={{ marginBottom: '16px' }}>
               <label style={labelStyle}>Dog</label>
