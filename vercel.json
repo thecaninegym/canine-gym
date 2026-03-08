@@ -11,6 +11,18 @@
     {
       "path": "/api/check-vaccine-expiry",
       "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/monthly-reset",
+      "schedule": "0 9 1 * *"
+    },
+    {
+      "path": "/api/send-reminders",
+      "schedule": "0 10 * * *"
+    },
+    {
+      "path": "/api/birthday-emails",
+      "schedule": "0 9 * * *"
     }
   ]
 }
