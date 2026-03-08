@@ -82,23 +82,33 @@ export default function Friends() {
   }
 
   const OwnerCard = ({ owner, showFollowBtn = true }: { owner: any, showFollowBtn?: boolean }) => {
-    const dog = owner.dogs?.[0]
+    const dogs = owner.dogs || []
     const following_ = isFollowing(owner.id)
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 0', borderBottom: '1.5px solid #f0f2f7' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          {dog?.photo_url ? (
-            <img src={dog.photo_url} alt={dog.name} style={{ width: '48px', height: '48px', borderRadius: '12px', objectFit: 'cover', border: '2px solid #eef0f5' }} />
-          ) : (
-            <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: '#f0f2f7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <PawPrint size={22} color="#ccc" />
-            </div>
-          )}
+          <div style={{ display: 'flex', position: 'relative', width: dogs.length > 1 ? `${28 + (dogs.length - 1) * 20}px` : '48px', height: '48px', flexShrink: 0 }}>
+            {dogs.length === 0 ? (
+              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: '#f0f2f7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <PawPrint size={22} color="#ccc" />
+              </div>
+            ) : dogs.length === 1 ? (
+              dogs[0].photo_url
+                ? <img src={dogs[0].photo_url} alt={dogs[0].name} style={{ width: '48px', height: '48px', borderRadius: '12px', objectFit: 'cover', border: '2px solid #eef0f5' }} />
+                : <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: '#f0f2f7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><PawPrint size={22} color="#ccc" /></div>
+            ) : (
+              dogs.slice(0, 3).map((d: any, i: number) => (
+                d.photo_url
+                  ? <img key={d.name} src={d.photo_url} alt={d.name} style={{ width: '34px', height: '34px', borderRadius: '10px', objectFit: 'cover', border: '2px solid white', position: 'absolute', left: `${i * 20}px`, top: '50%', transform: 'translateY(-50%)', zIndex: dogs.length - i }} />
+                  : <div key={d.name} style={{ width: '34px', height: '34px', borderRadius: '10px', background: '#f0f2f7', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid white', position: 'absolute', left: `${i * 20}px`, top: '50%', transform: 'translateY(-50%)', zIndex: dogs.length - i }}><PawPrint size={14} color="#ccc" /></div>
+              ))
+            )}
+          </div>
           <div>
             <div style={{ fontWeight: '800', color: '#1a1a2e', fontSize: '14px' }}>{owner.name}</div>
             {owner.gym_tag && <div style={{ color: '#FF6B35', fontSize: '12px', fontWeight: '700' }}>@{owner.gym_tag}</div>}
             {owner.city && <div style={{ color: '#888', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '3px' }}><MapPin size={10} /> {owner.city}</div>}
-            {dog && <div style={{ color: '#aaa', fontSize: '12px' }}>🐾 {owner.dogs.map((d: any) => d.name).join(', ')}</div>}
+            {dogs.length > 0 && <div style={{ color: '#aaa', fontSize: '12px' }}>🐾 {dogs.map((d: any) => d.name).join(', ')}</div>}
           </div>
         </div>
         {showFollowBtn && owner.id !== ownerId && (
