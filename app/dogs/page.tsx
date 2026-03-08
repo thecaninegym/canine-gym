@@ -194,6 +194,11 @@ export default function MyDogs() {
         .dog-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.1) !important; }
         input:focus, select:focus { border-color: #003087 !important; box-shadow: 0 0 0 3px rgba(0,48,135,0.08); }
         * { box-sizing: border-box; }
+        @media (max-width: 480px) {
+  .dog-header { flex-direction: column; gap: 12px; }
+  .dog-actions { width: 100%; }
+  .dog-actions button { flex: 1; justify-content: center; }
+}
       `}</style>
 
       {/* Nav */}
@@ -329,7 +334,7 @@ export default function MyDogs() {
             <div key={dog.id} className="dog-card" style={{ backgroundColor: 'white', borderRadius: '16px', padding: '24px', marginBottom: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', transition: 'box-shadow 0.2s', border: '1.5px solid #eef0f5' }}>
 
               {/* Dog Header */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: isEditing ? '24px' : '0' }}>
+              <div className="dog-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: isEditing ? '24px' : '0' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                   {dog.photo_url ? (
                     <img src={dog.photo_url} alt={dog.name} style={{ width: '72px', height: '72px', borderRadius: '16px', objectFit: 'cover', flexShrink: 0, border: '2px solid #eef0f5' }} />
@@ -350,7 +355,7 @@ export default function MyDogs() {
                   </div>
                 </div>
                 {!isEditing && (
-                  <div style={{ display: 'flex', gap: '8px' }}>
+                  <div className="dog-actions" style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
                     <button onClick={() => handleEdit(dog)}
                       style={{ background: '#f0f2f7', border: 'none', padding: '8px 14px', borderRadius: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px', fontSize: '13px', fontWeight: '700', color: '#555' }}>
                       <Pencil size={13} /> Edit
