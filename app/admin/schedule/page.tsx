@@ -124,7 +124,7 @@ export default function AdminSchedule() {
   * { box-sizing: border-box; }
   @media (max-width: 560px) {
     .booking-card-inner { flex-direction: column; gap: 14px; }
-    .booking-card-actions { margin-left: 0; flex-direction: column; align-items: center; width: 100%; display: flex; }
+    .booking-card-actions { margin-left: 0 !important; flex-direction: column; align-items: center; width: 100%; display: flex; }
 .booking-card-actions a, .booking-card-actions button { width: 260px !important; justify-content: center; }
     .booking-card-actions a, .booking-card-actions button { flex: 1; min-width: 120px; }
   }
