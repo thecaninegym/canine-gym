@@ -16,7 +16,7 @@ export default function Leaderboard() {
   const [category, setCategory] = useState('sessions')
   const [city, setCity] = useState('All Cities')
   const [loading, setLoading] = useState(true)
-  const [currentDogId, setCurrentDogId] = useState<string | null>(null)
+  const [currentDogIds, setCurrentDogIds] = useState<string[]>([])
   const [selectedEntry, setSelectedEntry] = useState<any>(null)
   const [modalAchievements, setModalAchievements] = useState<any[]>([])
   const [modalLoading, setModalLoading] = useState(false)
@@ -32,8 +32,8 @@ export default function Leaderboard() {
         const { data: ownerData } = await supabase.from('owners').select('id').eq('email', user.email).single()
         if (ownerData) {
           setOwnerId(ownerData.id)
-          const { data: dogsData } = await supabase.from('dogs').select('id').eq('owner_id', ownerData.id).limit(1)
-          if (dogsData && dogsData.length > 0) setCurrentDogId(dogsData[0].id)
+          const { data: dogsData } = await supabase.from('dogs').select('id').eq('owner_id', ownerData.id)
+          if (dogsData && dogsData.length > 0) setCurrentDogIds(dogsData.map(d => d.id))
           const { data: followsData } = await supabase.from('follows').select('following_owner_id').eq('follower_owner_id', ownerData.id)
           setFollowingIds((followsData || []).map((f: any) => f.following_owner_id))
         }
@@ -252,7 +252,7 @@ export default function Leaderboard() {
             leaderboard
             .filter(entry => viewMode === 'all' || followingIds.includes(entry.owner_id) || entry.owner_id === ownerId)
             .map((entry, i) => {
-              const isMe = entry.dog_id === currentDogId
+              const isMe = currentDogIds.includes(entry.dog_id)
               const rank = getRankStyle(i)
               return (
                 <div key={entry.dog_id} onClick={() => openModal(entry)} className="entry-row"
