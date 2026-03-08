@@ -2,7 +2,10 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { supabase } from '../../../../../lib/supabase'
-import { PawPrint, ArrowLeft, CheckCircle } from 'lucide-react'
+import { PawPrint, ArrowLeft, CheckCircle, User } from 'lucide-react'
+
+const inputStyle = { width: '100%', padding: '10px 14px', border: '1.5px solid #e5e8f0', borderRadius: '10px', fontSize: '15px', boxSizing: 'border-box' as const, color: '#1a1a2e', fontFamily: 'inherit', outline: 'none' }
+const labelStyle = { display: 'block', marginBottom: '6px', fontWeight: '700' as const, color: '#555', fontSize: '13px' }
 
 export default function EditOwner() {
   const params = useParams()
@@ -41,30 +44,45 @@ export default function EditOwner() {
   }
 
   if (loading) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#003087' }}>
-      <p style={{ color: 'white' }}>Loading...</p>
+    <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Segoe UI', system-ui, sans-serif" }}>
+      <p style={{ color: '#aaa' }}>Loading...</p>
     </div>
   )
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
-      <nav style={{ backgroundColor: '#003087', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <PawPrint size={24} color="white" />
-          <h1 style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>The Canine Gym — Admin</h1>
+    <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', fontFamily: "'Segoe UI', system-ui, sans-serif" }}>
+      <style>{`@keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } } * { box-sizing: border-box; }`}</style>
+
+      <nav style={{ background: 'linear-gradient(135deg, #001a4d 0%, #003087 100%)', padding: '0 24px', height: '64px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 20px rgba(0,0,0,0.2)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ width: '36px', height: '36px', background: 'rgba(255,107,53,0.2)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <PawPrint size={20} color="#FF6B35" />
+          </div>
+          <span style={{ color: 'white', fontSize: '17px', fontWeight: '700' }}>The Canine Gym <span style={{ color: 'rgba(255,255,255,0.45)', fontWeight: '500' }}>· Admin</span></span>
         </div>
-        <a href="/admin/owners" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <ArrowLeft size={16} /> Back to Owners
+        <a href="/admin/owners" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none', fontWeight: '600', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)' }}>
+          <ArrowLeft size={15} /> All Owners
         </a>
       </nav>
-      <div style={{ padding: '32px', maxWidth: '600px', margin: '0 auto' }}>
-        <h2 style={{ color: '#003087', marginBottom: '24px' }}>Edit Owner</h2>
+
+      <div style={{ padding: '32px 24px', maxWidth: '600px', margin: '0 auto', animation: 'fadeUp 0.35s ease' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+          <div style={{ width: '42px', height: '42px', background: 'linear-gradient(135deg, #001a4d, #003087)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <User size={22} color="white" />
+          </div>
+          <div>
+            <h2 style={{ color: '#1a1a2e', margin: '0 0 2px', fontSize: '20px', fontWeight: '800' }}>Edit Owner</h2>
+            <p style={{ color: '#888', margin: 0, fontSize: '13px' }}>Update contact and location info</p>
+          </div>
+        </div>
+
         {success && (
-          <div style={{ backgroundColor: '#d4edda', color: '#155724', padding: '12px', borderRadius: '6px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <CheckCircle size={18} color="#155724" /> Saved successfully!
+          <div style={{ background: '#d4edda', color: '#155724', padding: '12px 16px', borderRadius: '12px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '600', fontSize: '14px' }}>
+            <CheckCircle size={17} color="#155724" /> Saved successfully!
           </div>
         )}
-        <div style={{ backgroundColor: 'white', padding: '32px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+
+        <div style={{ background: 'white', padding: '32px', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5' }}>
           <form onSubmit={handleSubmit}>
             {[
               { label: 'Full Name', value: name, onChange: setName, type: 'text', required: true },
@@ -73,23 +91,32 @@ export default function EditOwner() {
               { label: 'Street Address', value: address, onChange: setAddress, type: 'text', placeholder: '123 Main St' },
               { label: 'Zip Code', value: zip, onChange: setZip, type: 'text', placeholder: '46032' },
             ].map(({ label, value, onChange, type, required, placeholder }) => (
-              <div key={label} style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>{label}</label>
+              <div key={label} style={{ marginBottom: '18px' }}>
+                <label style={labelStyle}>{label}{required && <span style={{ color: '#FF6B35', marginLeft: '3px' }}>*</span>}</label>
                 <input type={type} value={value} onChange={(e) => onChange(e.target.value)} required={required} placeholder={placeholder}
-                  style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000' }} />
+                  style={inputStyle} />
               </div>
             ))}
+
             <div style={{ marginBottom: '24px' }}>
-              <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>City</label>
+              <label style={labelStyle}>City</label>
               <select value={city} onChange={(e) => setCity(e.target.value)}
-                style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000' }}>
+                style={{ ...inputStyle, cursor: 'pointer' }}>
                 <option value="">Select a city...</option>
-                {['Carmel', 'Zionsville', 'Fishers', 'Geist', 'Westfield', 'Noblesville'].map(c => <option key={c} value={c}>{c}</option>)}
+                {['Carmel', 'Zionsville', 'Fishers', 'Geist', 'Westfield', 'Noblesville'].map(c => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
               </select>
             </div>
-            {error && <p style={{ color: 'red', marginBottom: '16px', fontSize: '14px' }}>{error}</p>}
+
+            {error && (
+              <div style={{ background: '#f8d7da', color: '#721c24', padding: '10px 14px', borderRadius: '10px', marginBottom: '16px', fontSize: '13px', fontWeight: '600' }}>
+                {error}
+              </div>
+            )}
+
             <button type="submit" disabled={saving}
-              style={{ width: '100%', padding: '12px', backgroundColor: '#FF6B35', color: 'white', border: 'none', borderRadius: '6px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>
+              style={{ width: '100%', padding: '13px', background: saving ? '#ccc' : 'linear-gradient(135deg, #FF6B35, #ff8c5a)', color: 'white', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: saving ? 'not-allowed' : 'pointer', boxShadow: saving ? 'none' : '0 4px 14px rgba(255,107,53,0.35)', transition: 'all 0.2s' }}>
               {saving ? 'Saving...' : 'Save Changes'}
             </button>
           </form>
