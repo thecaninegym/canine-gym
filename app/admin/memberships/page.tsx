@@ -75,7 +75,11 @@ export default function AdminMemberships() {
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', fontFamily: "'Segoe UI', system-ui, sans-serif" }}>
-      <style>{`@keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } } * { box-sizing: border-box; }`}</style>
+      <style>{`@keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } } * { box-sizing: border-box; }  @media (max-width: 560px) {
+  .membership-row { flex-direction: column; align-items: stretch; }
+  .membership-sessions { width: 100%; }
+  .membership-sessions > div { width: 100%; }
+}`} </style>
 
       <nav style={{ background: 'linear-gradient(135deg, #001a4d 0%, #003087 100%)', padding: '0 24px', height: '64px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 20px rgba(0,0,0,0.2)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -126,7 +130,7 @@ export default function AdminMemberships() {
               const current = adjustments[membership.id] ?? membership.sessions_remaining
               const isDirty = current !== membership.sessions_remaining
               return (
-                <div key={membership.id} style={{ padding: '20px 24px', borderBottom: '1px solid #f0f2f7', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
+                <div key={membership.id} className="membership-row" style={{ padding: '20px 24px', borderBottom: '1px solid #f0f2f7', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
                   <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px', flexWrap: 'wrap' as const }}>
                       <span style={{ fontWeight: '800', fontSize: '16px', color: '#1a1a2e' }}>{membership.owners?.name}</span>
@@ -149,7 +153,7 @@ export default function AdminMemberships() {
                     </div>
                   </div>
 
-                  <div style={{ textAlign: 'center', flexShrink: 0 }}>
+                  <div className="membership-sessions" style={{ textAlign: 'center', flexShrink: 0 }}>
                     <div style={{ background: '#f0f4ff', padding: '14px 20px', borderRadius: '12px', marginBottom: '10px', border: '1.5px solid #d0d8ee' }}>
                       <p style={{ margin: '0 0 2px', fontSize: '11px', color: '#888', fontWeight: '700', textTransform: 'uppercase' as const }}>Sessions Left</p>
                       <p style={{ margin: '0 0 6px', fontSize: '28px', fontWeight: '800', color: current === 0 ? '#dc3545' : '#003087' }}>{current}</p>
