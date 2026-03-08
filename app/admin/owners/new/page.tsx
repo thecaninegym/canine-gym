@@ -3,6 +3,9 @@ import { useState } from 'react'
 import { supabase } from '../../../../lib/supabase'
 import { PawPrint, ArrowLeft, Users, CheckCircle } from 'lucide-react'
 
+const inputStyle = { width: '100%', padding: '10px 14px', border: '1.5px solid #e5e8f0', borderRadius: '10px', fontSize: '14px', color: '#1a1a2e', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' as const }
+const labelStyle = { display: 'block', marginBottom: '6px', fontWeight: '700', color: '#555', fontSize: '13px' }
+
 export default function AddOwner() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -27,53 +30,59 @@ export default function AddOwner() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
-      <nav style={{ backgroundColor: '#003087', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <PawPrint size={24} color="white" />
-          <h1 style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>The Canine Gym — Admin</h1>
+    <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', fontFamily: "'Segoe UI', system-ui, sans-serif" }}>
+      <style>{`@keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } } * { box-sizing: border-box; }`}</style>
+      <nav style={{ background: 'linear-gradient(135deg, #001a4d 0%, #003087 100%)', padding: '0 24px', height: '64px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 20px rgba(0,0,0,0.2)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ width: '36px', height: '36px', background: 'rgba(255,107,53,0.2)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><PawPrint size={20} color="#FF6B35" /></div>
+          <span style={{ color: 'white', fontSize: '17px', fontWeight: '700' }}>The Canine Gym <span style={{ color: 'rgba(255,255,255,0.45)', fontWeight: '500' }}>· Admin</span></span>
         </div>
-        <a href="/admin" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <ArrowLeft size={16} /> Back to Dashboard
+        <a href="/admin" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none', fontWeight: '600', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)' }}>
+          <ArrowLeft size={15} /> Dashboard
         </a>
       </nav>
-      <div style={{ padding: '32px', maxWidth: '600px', margin: '0 auto' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
-          <Users size={28} color="#003087" />
-          <h2 style={{ color: '#003087', margin: 0 }}>Add New Owner</h2>
+
+      <div style={{ padding: '32px 24px', maxWidth: '600px', margin: '0 auto', animation: 'fadeUp 0.35s ease' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+          <div style={{ width: '42px', height: '42px', background: 'linear-gradient(135deg, #001a4d, #003087)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Users size={22} color="white" />
+          </div>
+          <div>
+            <h2 style={{ color: '#1a1a2e', margin: '0 0 2px', fontSize: '20px', fontWeight: '800' }}>Add New Owner</h2>
+            <p style={{ color: '#888', margin: 0, fontSize: '13px' }}>Create a new client account</p>
+          </div>
         </div>
+
         {success && (
-          <div style={{ backgroundColor: '#d4edda', color: '#155724', padding: '12px', borderRadius: '6px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <CheckCircle size={18} color="#155724" /> Owner added successfully!
+          <div style={{ background: '#d4edda', color: '#155724', padding: '14px 16px', borderRadius: '12px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '600' }}>
+            <CheckCircle size={18} /> Owner added successfully!
           </div>
         )}
-        <div style={{ backgroundColor: 'white', padding: '32px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+        {error && (
+          <div style={{ background: '#f8d7da', color: '#721c24', padding: '14px 16px', borderRadius: '12px', marginBottom: '16px', fontWeight: '600' }}>
+            {error}
+          </div>
+        )}
+
+        <div style={{ background: 'white', borderRadius: '16px', padding: '28px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5' }}>
           <form onSubmit={handleSubmit}>
-            {[
-              { label: 'Full Name', value: name, onChange: setName, type: 'text', required: true },
-              { label: 'Email', value: email, onChange: setEmail, type: 'email', required: true },
-              { label: 'Phone', value: phone, onChange: setPhone, type: 'tel' },
-              { label: 'Street Address', value: address, onChange: setAddress, type: 'text', placeholder: '123 Main St' },
-              { label: 'Zip Code', value: zip, onChange: setZip, type: 'text', placeholder: '46032' },
-            ].map(({ label, value, onChange, type, required, placeholder }) => (
-              <div key={label} style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>{label}</label>
-                <input type={type} value={value} onChange={(e) => onChange(e.target.value)} required={required} placeholder={placeholder}
-                  style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000' }} />
-              </div>
-            ))}
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>City</label>
-              <select value={city} onChange={(e) => setCity(e.target.value)}
-                style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000' }}>
-                <option value="">Select a city...</option>
-                {['Carmel', 'Zionsville', 'Fishers', 'Geist', 'Westfield', 'Noblesville'].map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              {[
+                { label: 'Full Name', value: name, onChange: setName, type: 'text', required: true, col: '1 / -1' },
+                { label: 'Email', value: email, onChange: setEmail, type: 'email', required: true, col: '1 / -1' },
+                { label: 'Phone', value: phone, onChange: setPhone, type: 'tel', col: '1 / -1' },
+                { label: 'Street Address', value: address, onChange: setAddress, type: 'text', col: '1 / -1' },
+                { label: 'City', value: city, onChange: setCity, type: 'text', col: undefined },
+                { label: 'Zip Code', value: zip, onChange: setZip, type: 'text', col: undefined },
+              ].map(({ label, value, onChange, type, required, col }) => (
+                <div key={label} style={{ gridColumn: col }}>
+                  <label style={labelStyle}>{label}</label>
+                  <input type={type} value={value} onChange={e => onChange(e.target.value)} required={required} style={inputStyle} />
+                </div>
+              ))}
             </div>
-            {error && <p style={{ color: 'red', marginBottom: '16px', fontSize: '14px' }}>{error}</p>}
-            <button type="submit" disabled={loading}
-              style={{ width: '100%', padding: '12px', backgroundColor: '#FF6B35', color: 'white', border: 'none', borderRadius: '6px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>
-              {loading ? 'Saving...' : 'Add Owner'}
+            <button type="submit" disabled={loading} style={{ marginTop: '24px', width: '100%', padding: '13px', background: 'linear-gradient(135deg, #003087, #0052cc)', color: 'white', border: 'none', borderRadius: '12px', fontWeight: '700', fontSize: '15px', cursor: 'pointer' }}>
+              {loading ? 'Adding…' : 'Add Owner'}
             </button>
           </form>
         </div>
