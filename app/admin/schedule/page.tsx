@@ -119,7 +119,15 @@ export default function AdminSchedule() {
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', fontFamily: "'Segoe UI', system-ui, sans-serif" }}>
-      <style>{`@keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } } * { box-sizing: border-box; }`}</style>
+      <style>{`
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+  * { box-sizing: border-box; }
+  @media (max-width: 560px) {
+    .booking-card-inner { flex-direction: column; gap: 14px; }
+    .booking-card-actions { margin-left: 0; flex-direction: row; flex-wrap: wrap; width: 100%; }
+    .booking-card-actions a, .booking-card-actions button { flex: 1; min-width: 120px; }
+  }
+`}</style>
 
       <nav style={{ background: 'linear-gradient(135deg, #001a4d 0%, #003087 100%)', padding: '0 24px', height: '64px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 20px rgba(0,0,0,0.2)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -178,8 +186,8 @@ export default function AdminSchedule() {
             <div style={{ display: 'grid', gap: '16px' }}>
               {bookings.map(booking => (
                 <div key={booking.id} style={{ background: 'white', padding: '24px', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                    <div style={{ flex: 1 }}>
+                  <div className="booking-card-inner" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+  <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                           <Clock size={16} color="#FF6B35" />
@@ -214,7 +222,7 @@ export default function AdminSchedule() {
                       </div>
                       {booking.cancellation_reason && <p style={{ margin: '8px 0 0', fontSize: '13px', color: '#aaa', fontStyle: 'italic' }}>Reason: {booking.cancellation_reason}</p>}
                     </div>
-                    <div style={{ display: 'flex', gap: '8px', flexDirection: 'column', marginLeft: '16px' }}>
+                    <div className="booking-card-actions" style={{ display: 'flex', gap: '8px', flexDirection: 'column', marginLeft: '16px' }}>
                       {booking.status === 'confirmed' && (
                         <>
                           <a href={`/admin/sessions/new?dog=${booking.dogs?.id}&booking=${booking.id}&hour=${booking.slot_hour}&date=${booking.booking_date}`}
