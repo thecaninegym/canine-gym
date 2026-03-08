@@ -577,14 +577,9 @@ export default function ClientDashboard() {
                   )}
                 </div>
 
-              </div>
-            )}
-          </>
-        )}
-      </div>
-      {/* FRIENDS ACTIVITY */}
+                {/* FRIENDS ACTIVITY */}
                 {friendsActivity.length > 0 && (
-                  <div style={{ backgroundColor: 'white', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', overflow: 'hidden', marginBottom: '20px' }}>
+                  <div style={{ backgroundColor: 'white', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', overflow: 'hidden', marginBottom: '20px', marginTop: '20px' }}>
                     <div style={{ padding: '18px 24px', borderBottom: '1px solid #f0f2f7', display: 'flex', alignItems: 'center', gap: '10px' }}>
                       <div style={{ width: '34px', height: '34px', background: '#fff0ea', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <Users size={17} color="#FF6B35" />
@@ -620,6 +615,12 @@ export default function ClientDashboard() {
                     })}
                   </div>
                 )}
+
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </div>
   )
 }
