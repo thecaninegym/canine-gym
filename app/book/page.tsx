@@ -168,9 +168,9 @@ export default function BookSession() {
                           {isApproved && <ShieldCheck size={14} color={isSelected ? 'rgba(255,255,255,0.7)' : '#28a745'} />}
                         </button>
                         {badge && (
-                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', backgroundColor: badge.bg, color: badge.color, padding: '2px 8px', borderRadius: '20px', fontSize: '11px', fontWeight: '600' }}>
-                            {badge.icon} {badge.label} <a href="/dogs" style={{ color: badge.color, marginLeft: '4px', fontSize: '11px' }}>→ Fix</a>
-                          </div>
+                          <a href="/dogs" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', backgroundColor: badge.bg, color: badge.color, padding: '2px 8px', borderRadius: '20px', fontSize: '11px', fontWeight: '600', textDecoration: 'none' }}>
+                            {badge.icon} {badge.label} → Fix
+                          </a>
                         )}
                       </div>
                     )
