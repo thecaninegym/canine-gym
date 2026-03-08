@@ -3,6 +3,9 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../../../../lib/supabase'
 import { PawPrint, ArrowLeft, ShieldCheck, ShieldAlert, Clock, CheckCircle, X, Calendar, Stethoscope, Phone, MapPin } from 'lucide-react'
 
+const inputStyle = { width: '100%', padding: '8px 12px', border: '1.5px solid #e5e8f0', borderRadius: '8px', fontSize: '13px', boxSizing: 'border-box' as const, color: '#1a1a2e', fontFamily: 'inherit', outline: 'none' }
+const labelStyle = { display: 'block', marginBottom: '4px', fontWeight: '700' as const, color: '#555', fontSize: '12px' }
+
 export default function AdminVaccineReview() {
   const [vaccines, setVaccines] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -74,98 +77,111 @@ export default function AdminVaccineReview() {
   const pending = vaccines.filter(v => v.status === 'pending')
   const reviewed = vaccines.filter(v => v.status !== 'pending')
 
-  if (loading) return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><p>Loading...</p></div>
+  if (loading) return (
+    <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Segoe UI', system-ui, sans-serif" }}>
+      <p style={{ color: '#888' }}>Loading...</p>
+    </div>
+  )
 
   const renderCard = (vaccine: any, isPending: boolean) => {
     const dog = vaccine.dogs
     const owner = dog?.owners
     const rd = reviewData[vaccine.id] || {}
     const badge = vaccine.status === 'approved'
-      ? { color: '#28a745', bg: '#d4edda', icon: <ShieldCheck size={13} />, label: 'Approved' }
+      ? { color: '#28a745', bg: '#d4edda', icon: <ShieldCheck size={12} />, label: 'Approved' }
       : vaccine.status === 'rejected'
-      ? { color: '#dc3545', bg: '#f8d7da', icon: <ShieldAlert size={13} />, label: 'Rejected' }
-      : { color: '#856404', bg: '#fff3cd', icon: <Clock size={13} />, label: 'Pending Review' }
+      ? { color: '#dc3545', bg: '#f8d7da', icon: <ShieldAlert size={12} />, label: 'Rejected' }
+      : { color: '#856404', bg: '#fff3cd', icon: <Clock size={12} />, label: 'Pending Review' }
 
     return (
-      <div key={vaccine.id} style={{ backgroundColor: 'white', borderRadius: '12px', padding: '24px', marginBottom: '16px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', border: isPending ? '2px solid #ffc107' : '1px solid #e5e5e5' }}>
+      <div key={vaccine.id} style={{ background: 'white', borderRadius: '16px', padding: '24px', marginBottom: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: isPending ? '2px solid #ffc107' : '1.5px solid #eef0f5' }}>
+        {/* Dog + owner header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
             {dog?.photo_url
-              ? <img src={dog.photo_url} alt={dog.name} style={{ width: '52px', height: '52px', borderRadius: '50%', objectFit: 'cover' }} />
-              : <div style={{ width: '52px', height: '52px', borderRadius: '50%', backgroundColor: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><PawPrint size={24} color="#ccc" /></div>
+              ? <img src={dog.photo_url} alt={dog.name} style={{ width: '52px', height: '52px', borderRadius: '12px', objectFit: 'cover', flexShrink: 0 }} />
+              : <div style={{ width: '52px', height: '52px', borderRadius: '12px', background: '#f0f2f7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><PawPrint size={22} color="#ccc" /></div>
             }
             <div>
-              <h3 style={{ color: '#003087', margin: '0 0 3px 0', fontSize: '18px' }}>{dog?.name}</h3>
-              <p style={{ color: '#666', margin: '0 0 4px 0', fontSize: '14px' }}>{dog?.breed} · Owner: {owner?.name}</p>
-              <p style={{ color: '#999', margin: 0, fontSize: '13px' }}>{owner?.email} · Submitted {new Date(vaccine.uploaded_at).toLocaleDateString()}</p>
+              <p style={{ margin: '0 0 3px', fontWeight: '800', color: '#1a1a2e', fontSize: '17px' }}>{dog?.name}</p>
+              <p style={{ margin: '0 0 2px', color: '#888', fontSize: '13px' }}>{dog?.breed} · {owner?.name}</p>
+              <p style={{ margin: 0, color: '#aaa', fontSize: '12px' }}>{owner?.email} · Submitted {new Date(vaccine.uploaded_at).toLocaleDateString()}</p>
             </div>
           </div>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', backgroundColor: badge.bg, color: badge.color, padding: '5px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '700' }}>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', background: badge.bg, color: badge.color, padding: '5px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '700', flexShrink: 0 }}>
             {badge.icon} {badge.label}
-          </div>
+          </span>
         </div>
 
+        {/* Vet info */}
         {(dog?.vet_name || dog?.vet_clinic || dog?.vet_phone) && (
-          <div style={{ backgroundColor: '#f8f9fa', borderRadius: '8px', padding: '10px 14px', marginBottom: '16px', display: 'flex', flexWrap: 'wrap', gap: '14px' }}>
-            {dog.vet_clinic && <span style={{ color: '#555', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px' }}><MapPin size={12} /> {dog.vet_clinic}</span>}
-            {dog.vet_name && <span style={{ color: '#555', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px' }}><Stethoscope size={12} /> {dog.vet_name}</span>}
-            {dog.vet_phone && <span style={{ color: '#555', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px' }}><Phone size={12} /> {dog.vet_phone}</span>}
+          <div style={{ background: '#f8f9fc', borderRadius: '10px', padding: '10px 14px', marginBottom: '16px', display: 'flex', flexWrap: 'wrap', gap: '14px' }}>
+            {dog.vet_clinic && <span style={{ color: '#666', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px' }}><MapPin size={12} color="#aaa" /> {dog.vet_clinic}</span>}
+            {dog.vet_name && <span style={{ color: '#666', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px' }}><Stethoscope size={12} color="#aaa" /> {dog.vet_name}</span>}
+            {dog.vet_phone && <span style={{ color: '#666', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px' }}><Phone size={12} color="#aaa" /> {dog.vet_phone}</span>}
           </div>
         )}
 
+        {/* Submitted photo */}
         <div style={{ marginBottom: '16px' }}>
-          <p style={{ fontWeight: '700', color: '#333', fontSize: '13px', margin: '0 0 8px 0' }}>Submitted Photo</p>
+          <p style={{ fontWeight: '700', color: '#555', fontSize: '12px', margin: '0 0 8px' }}>Submitted Photo</p>
           {vaccine.photo_url?.toLowerCase().includes('.pdf') ? (
             <a href={vaccine.photo_url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-              <div style={{ width: '100%', maxWidth: '400px', height: '120px', border: '2px solid #003087', borderRadius: '10px', backgroundColor: '#f0f4ff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer' }}>
+              <div style={{ width: '100%', maxWidth: '400px', height: '120px', border: '2px solid #003087', borderRadius: '12px', background: '#f0f4ff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer' }}>
                 <div style={{ fontSize: '32px' }}>📄</div>
                 <span style={{ color: '#003087', fontWeight: '700', fontSize: '13px' }}>Click to open PDF</span>
               </div>
             </a>
           ) : (
             <a href={vaccine.photo_url} target="_blank" rel="noopener noreferrer">
-              <img src={vaccine.photo_url} alt="vaccine record" style={{ maxWidth: '100%', maxHeight: '340px', borderRadius: '8px', border: '1px solid #ddd', objectFit: 'contain', cursor: 'pointer', display: 'block' }} />
+              <img src={vaccine.photo_url} alt="vaccine record" style={{ maxWidth: '100%', maxHeight: '340px', borderRadius: '10px', border: '1.5px solid #eef0f5', objectFit: 'contain', cursor: 'pointer', display: 'block' }} />
             </a>
           )}
-          <p style={{ color: '#999', fontSize: '12px', margin: '4px 0 0 0' }}>Click to open full size</p>
+          <p style={{ color: '#aaa', fontSize: '12px', margin: '4px 0 0' }}>Click to open full size</p>
         </div>
 
+        {/* Expiry dates */}
         {(isPending || vaccine.status === 'approved') && (
           <div style={{ marginBottom: '16px' }}>
-            <p style={{ fontWeight: '700', color: '#333', fontSize: '13px', margin: '0 0 10px 0', display: 'flex', alignItems: 'center', gap: '5px' }}>
-              <Calendar size={13} /> Enter Expiration Dates (leave blank if not applicable)
+            <p style={{ fontWeight: '700', color: '#555', fontSize: '12px', margin: '0 0 10px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <Calendar size={12} /> Enter Expiration Dates (leave blank if not applicable)
             </p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '10px' }}>
-              {[{ key: 'rabies_exp', label: 'Rabies' }, { key: 'dhpp_exp', label: 'DHPP' }, { key: 'bordetella_exp', label: 'Bordetella' }, { key: 'leptospira_exp', label: 'Leptospira' }, { key: 'influenza_exp', label: 'Influenza' }].map(f => (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '10px' }}>
+              {[
+                { key: 'rabies_exp', label: 'Rabies' },
+                { key: 'dhpp_exp', label: 'DHPP' },
+                { key: 'bordetella_exp', label: 'Bordetella' },
+                { key: 'leptospira_exp', label: 'Leptospira' },
+                { key: 'influenza_exp', label: 'Influenza' },
+              ].map(f => (
                 <div key={f.key}>
-                  <label style={{ display: 'block', marginBottom: '4px', fontWeight: '600', color: '#555', fontSize: '12px' }}>{f.label}</label>
+                  <label style={labelStyle}>{f.label}</label>
                   <input type="date" value={rd[f.key] || ''}
                     onChange={e => setReviewData(prev => ({ ...prev, [vaccine.id]: { ...prev[vaccine.id], [f.key]: e.target.value } }))}
-                    style={{ width: '100%', padding: '7px 10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '13px', boxSizing: 'border-box', color: '#000' }} />
+                    style={inputStyle} />
                 </div>
               ))}
             </div>
             <div style={{ marginTop: '10px' }}>
-              <label style={{ display: 'block', marginBottom: '4px', fontWeight: '600', color: '#555', fontSize: '12px' }}>Other Vaccines / Notes</label>
+              <label style={labelStyle}>Other Vaccines / Notes</label>
               <input type="text" value={rd.other_vaccines || ''} placeholder="e.g. Lyme exp 6/2026"
                 onChange={e => setReviewData(prev => ({ ...prev, [vaccine.id]: { ...prev[vaccine.id], other_vaccines: e.target.value } }))}
-                style={{ width: '100%', padding: '7px 10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '13px', boxSizing: 'border-box', color: '#000' }} />
+                style={inputStyle} />
             </div>
           </div>
         )}
 
+        {/* Admin notes */}
         <div style={{ marginBottom: '16px' }}>
-          <label style={{ display: 'block', marginBottom: '5px', fontWeight: '600', color: '#555', fontSize: '13px' }}>
-            {isPending ? 'Rejection Reason (required if rejecting)' : 'Admin Notes'}
-          </label>
+          <label style={labelStyle}>{isPending ? 'Rejection Reason (required if rejecting)' : 'Admin Notes'}</label>
           <textarea value={rd.admin_notes || ''} rows={2}
             placeholder={isPending ? 'Tell the owner what needs to be fixed...' : 'Any notes...'}
             onChange={e => setReviewData(prev => ({ ...prev, [vaccine.id]: { ...prev[vaccine.id], admin_notes: e.target.value } }))}
-            style={{ width: '100%', padding: '8px 12px', border: '1px solid #ddd', borderRadius: '7px', fontSize: '13px', boxSizing: 'border-box', color: '#000', resize: 'vertical' }} />
+            style={{ ...inputStyle, resize: 'vertical' as const }} />
         </div>
 
         {success === vaccine.id && (
-          <div style={{ backgroundColor: '#d4edda', color: '#155724', padding: '10px 14px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px', fontSize: '14px', fontWeight: '600' }}>
+          <div style={{ background: '#d4edda', color: '#155724', padding: '10px 14px', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', fontSize: '14px', fontWeight: '600' }}>
             <CheckCircle size={16} /> Approved and client notified!
           </div>
         )}
@@ -173,18 +189,18 @@ export default function AdminVaccineReview() {
         {isPending && (
           <div style={{ display: 'flex', gap: '10px' }}>
             <button onClick={() => handleApprove(vaccine)} disabled={saving === vaccine.id}
-              style={{ flex: 1, padding: '12px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+              style={{ flex: 1, padding: '12px', background: 'linear-gradient(135deg, #28a745, #34c759)', color: 'white', border: 'none', borderRadius: '10px', fontWeight: '700', cursor: 'pointer', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
               <ShieldCheck size={16} /> {saving === vaccine.id ? 'Saving...' : 'Approve'}
             </button>
             <button onClick={() => handleReject(vaccine)} disabled={saving === vaccine.id}
-              style={{ flex: 1, padding: '12px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+              style={{ flex: 1, padding: '12px', background: 'linear-gradient(135deg, #dc3545, #e85d6d)', color: 'white', border: 'none', borderRadius: '10px', fontWeight: '700', cursor: 'pointer', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
               <X size={16} /> {saving === vaccine.id ? 'Saving...' : 'Reject'}
             </button>
           </div>
         )}
         {!isPending && vaccine.status === 'approved' && (
           <button onClick={() => handleApprove(vaccine)} disabled={saving === vaccine.id}
-            style={{ padding: '10px 20px', backgroundColor: '#003087', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', fontSize: '14px' }}>
+            style={{ padding: '10px 20px', background: 'linear-gradient(135deg, #003087, #0052cc)', color: 'white', border: 'none', borderRadius: '10px', fontWeight: '700', cursor: 'pointer', fontSize: '14px' }}>
             {saving === vaccine.id ? 'Saving...' : 'Update Expiry Dates'}
           </button>
         )}
@@ -193,27 +209,51 @@ export default function AdminVaccineReview() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
-      <nav style={{ backgroundColor: '#003087', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <PawPrint size={24} color="white" />
-          <h1 style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>The Canine Gym — Admin</h1>
+    <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', fontFamily: "'Segoe UI', system-ui, sans-serif" }}>
+      <style>{`@keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } } * { box-sizing: border-box; }`}</style>
+
+      <nav style={{ background: 'linear-gradient(135deg, #001a4d 0%, #003087 100%)', padding: '0 24px', height: '64px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 20px rgba(0,0,0,0.2)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ width: '36px', height: '36px', background: 'rgba(255,107,53,0.2)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><PawPrint size={20} color="#FF6B35" /></div>
+          <span style={{ color: 'white', fontSize: '17px', fontWeight: '700' }}>The Canine Gym <span style={{ color: 'rgba(255,255,255,0.45)', fontWeight: '500' }}>· Admin</span></span>
         </div>
-        <a href="/admin/dogs" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <ArrowLeft size={16} /> All Dogs
+        <a href="/admin/dogs" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none', fontWeight: '600', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)' }}>
+          <ArrowLeft size={15} /> All Dogs
         </a>
       </nav>
-      <div style={{ padding: '32px 24px', maxWidth: '900px', margin: '0 auto' }}>
+
+      <div style={{ padding: '32px 24px', maxWidth: '900px', margin: '0 auto', animation: 'fadeUp 0.35s ease' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '28px' }}>
-          <ShieldCheck size={28} color="#003087" />
+          <div style={{ width: '42px', height: '42px', background: 'linear-gradient(135deg, #001a4d, #003087)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <ShieldCheck size={22} color="white" />
+          </div>
           <div>
-            <h2 style={{ color: '#003087', margin: 0 }}>Vaccine Records</h2>
-            {pending.length > 0 && <p style={{ color: '#856404', margin: '4px 0 0 0', fontSize: '14px', fontWeight: '600' }}>{pending.length} record{pending.length !== 1 ? 's' : ''} awaiting review</p>}
+            <h2 style={{ color: '#1a1a2e', margin: '0 0 2px', fontSize: '20px', fontWeight: '800' }}>Vaccine Records</h2>
+            {pending.length > 0 && <p style={{ color: '#856404', margin: 0, fontSize: '13px', fontWeight: '700' }}>{pending.length} record{pending.length !== 1 ? 's' : ''} awaiting review</p>}
           </div>
         </div>
-        {vaccines.length === 0 && <div style={{ backgroundColor: 'white', borderRadius: '12px', padding: '40px', textAlign: 'center' }}><p style={{ color: '#666' }}>No vaccine records submitted yet.</p></div>}
-        {pending.length > 0 && <div style={{ marginBottom: '32px' }}><h3 style={{ color: '#856404', margin: '0 0 16px 0', fontSize: '16px', display: 'flex', alignItems: 'center', gap: '6px' }}><Clock size={16} /> Pending Review ({pending.length})</h3>{pending.map(v => renderCard(v, true))}</div>}
-        {reviewed.length > 0 && <div><h3 style={{ color: '#555', margin: '0 0 16px 0', fontSize: '16px' }}>Previously Reviewed</h3>{reviewed.map(v => renderCard(v, false))}</div>}
+
+        {vaccines.length === 0 && (
+          <div style={{ background: 'white', borderRadius: '16px', padding: '48px', textAlign: 'center', border: '1.5px solid #eef0f5' }}>
+            <p style={{ color: '#aaa', margin: 0 }}>No vaccine records submitted yet.</p>
+          </div>
+        )}
+
+        {pending.length > 0 && (
+          <div style={{ marginBottom: '32px' }}>
+            <h3 style={{ color: '#856404', margin: '0 0 16px', fontSize: '15px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Clock size={15} /> Pending Review ({pending.length})
+            </h3>
+            {pending.map(v => renderCard(v, true))}
+          </div>
+        )}
+
+        {reviewed.length > 0 && (
+          <div>
+            <h3 style={{ color: '#888', margin: '0 0 16px', fontSize: '15px', fontWeight: '700' }}>Previously Reviewed</h3>
+            {reviewed.map(v => renderCard(v, false))}
+          </div>
+        )}
       </div>
     </div>
   )
