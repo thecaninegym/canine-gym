@@ -156,7 +156,7 @@ export default function ClientDashboard() {
 
           /* Membership card stacks */
           .membership-inner { flex-direction: column !important; gap: 12px !important; }
-          .membership-manage { align-self: flex-start; }
+          .membership-manage { align-self: center; }
 
           /* Page padding tighter on mobile */
           .page-inner { padding: 16px 14px !important; }
