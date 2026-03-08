@@ -3,6 +3,9 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import { PawPrint, ArrowLeft, User, CheckCircle } from 'lucide-react'
 
+const inputStyle = { width: '100%', padding: '10px 14px', border: '1.5px solid #e5e8f0', borderRadius: '10px', fontSize: '14px', boxSizing: 'border-box' as const, color: '#1a1a2e', outline: 'none', fontFamily: 'inherit' }
+const labelStyle = { display: 'block', marginBottom: '6px', fontWeight: '700', color: '#555', fontSize: '13px' }
+
 export default function Profile() {
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
@@ -46,63 +49,95 @@ export default function Profile() {
   }
 
   if (loading) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#003087' }}>
-      <p style={{ color: 'white' }}>Loading...</p>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #001a4d 0%, #003087 100%)' }}>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ width: '48px', height: '48px', border: '3px solid rgba(255,255,255,0.2)', borderTopColor: '#FF6B35', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }} />
+        <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '15px' }}>Loading…</p>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      </div>
     </div>
   )
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
-      <nav style={{ backgroundColor: '#003087', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <PawPrint size={24} color="white" />
-          <h1 style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>The Canine Gym</h1>
+    <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', fontFamily: "'Segoe UI', system-ui, sans-serif" }}>
+      <style>{`
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+        input:focus, select:focus { border-color: #003087 !important; box-shadow: 0 0 0 3px rgba(0,48,135,0.08); }
+        * { box-sizing: border-box; }
+      `}</style>
+
+      {/* Nav */}
+      <nav style={{ background: 'linear-gradient(135deg, #001a4d 0%, #003087 100%)', padding: '0 24px', height: '64px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 20px rgba(0,0,0,0.2)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ width: '36px', height: '36px', background: 'rgba(255,107,53,0.2)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <PawPrint size={20} color="#FF6B35" />
+          </div>
+          <span style={{ color: 'white', fontSize: '17px', fontWeight: '700', letterSpacing: '-0.3px' }}>The Canine Gym</span>
         </div>
-        <a href="/dashboard" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <ArrowLeft size={16} /> Back to Dashboard
+        <a href="/dashboard" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none', fontWeight: '600', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)' }}>
+          <ArrowLeft size={15} /> Dashboard
         </a>
       </nav>
 
-      <div style={{ padding: '32px', maxWidth: '600px', margin: '0 auto' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
-          <User size={28} color="#003087" />
-          <h2 style={{ color: '#003087', margin: 0 }}>My Profile</h2>
+      <div style={{ padding: '28px 24px', maxWidth: '600px', margin: '0 auto', animation: 'fadeUp 0.35s ease' }}>
+
+        {/* Page Header */}
+        <div style={{ marginBottom: '24px' }}>
+          <h2 style={{ color: '#1a1a2e', margin: '0 0 4px', fontSize: '22px', fontWeight: '800' }}>My Profile</h2>
+          <p style={{ color: '#888', margin: 0, fontSize: '13px' }}>Update your personal information</p>
         </div>
 
         {success && (
-          <div style={{ backgroundColor: '#d4edda', color: '#155724', padding: '12px', borderRadius: '6px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <CheckCircle size={18} color="#155724" /> Saved successfully!
+          <div style={{ background: '#d4edda', color: '#155724', padding: '13px 18px', borderRadius: '12px', marginBottom: '18px', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '600', fontSize: '14px' }}>
+            <CheckCircle size={17} /> Saved successfully!
           </div>
         )}
+        {error && (
+          <div style={{ background: '#ffeaea', color: '#dc3545', padding: '13px 18px', borderRadius: '12px', marginBottom: '18px', fontSize: '14px', fontWeight: '600' }}>{error}</div>
+        )}
 
-        <div style={{ backgroundColor: 'white', padding: '32px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-          <form onSubmit={handleSubmit}>
-            {[
-              { label: 'Full Name', value: name, onChange: setName, type: 'text', required: true },
-              { label: 'Phone', value: phone, onChange: setPhone, type: 'tel', required: false },
-              { label: 'Street Address', value: address, onChange: setAddress, type: 'text', placeholder: '123 Main St', required: false },
-              { label: 'Zip Code', value: zip, onChange: setZip, type: 'text', placeholder: '46032', required: false },
-            ].map(({ label, value, onChange, type, placeholder, required }) => (
-              <div key={label} style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>{label}</label>
-                <input type={type} value={value} onChange={(e) => onChange(e.target.value)} required={required} placeholder={placeholder}
-                  style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000' }} />
-              </div>
-            ))}
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>City</label>
-              <select value={city} onChange={(e) => setCity(e.target.value)}
-                style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000' }}>
-                <option value="">Select a city...</option>
-                {['Carmel', 'Zionsville', 'Fishers', 'Geist', 'Westfield', 'Noblesville'].map(c => (
-                  <option key={c} value={c}>{c}</option>
-                ))}
-              </select>
+        <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '28px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5' }}>
+
+          {/* Section header */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px', paddingBottom: '16px', borderBottom: '1.5px solid #f0f2f7' }}>
+            <div style={{ width: '34px', height: '34px', background: '#e8edf5', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <User size={17} color="#003087" />
             </div>
-            {error && <p style={{ color: 'red', marginBottom: '16px', fontSize: '14px' }}>{error}</p>}
+            <span style={{ fontWeight: '800', color: '#1a1a2e', fontSize: '15px' }}>Personal Details</span>
+          </div>
+
+          <form onSubmit={handleSubmit}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '14px' }}>
+              <div style={{ gridColumn: '1 / -1' }}>
+                <label style={labelStyle}>Full Name</label>
+                <input type="text" value={name} onChange={e => setName(e.target.value)} required style={inputStyle} placeholder="Jane Smith" />
+              </div>
+              <div style={{ gridColumn: '1 / -1' }}>
+                <label style={labelStyle}>Phone</label>
+                <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} style={inputStyle} placeholder="(317) 555-0123" />
+              </div>
+              <div style={{ gridColumn: '1 / -1' }}>
+                <label style={labelStyle}>Street Address</label>
+                <input type="text" value={address} onChange={e => setAddress(e.target.value)} style={inputStyle} placeholder="123 Main St" />
+              </div>
+              <div>
+                <label style={labelStyle}>City</label>
+                <select value={city} onChange={e => setCity(e.target.value)} style={inputStyle}>
+                  <option value="">Select a city…</option>
+                  {['Carmel', 'Zionsville', 'Fishers', 'Geist', 'Westfield', 'Noblesville'].map(c => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label style={labelStyle}>Zip Code</label>
+                <input type="text" value={zip} onChange={e => setZip(e.target.value)} style={inputStyle} placeholder="46032" />
+              </div>
+            </div>
+
             <button type="submit" disabled={saving}
-              style={{ width: '100%', padding: '12px', backgroundColor: '#FF6B35', color: 'white', border: 'none', borderRadius: '6px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>
-              {saving ? 'Saving...' : 'Save Changes'}
+              style={{ width: '100%', padding: '13px', background: 'linear-gradient(135deg, #003087, #0052cc)', color: 'white', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: 'pointer', boxShadow: '0 4px 14px rgba(0,48,135,0.25)', marginTop: '8px' }}>
+              {saving ? 'Saving…' : 'Save Changes'}
             </button>
           </form>
         </div>

@@ -51,10 +51,8 @@ export default function Leaderboard() {
     const dogIds = settingsData.map(s => s.dog_id)
 
     const { data: sessionData } = await supabase
-      .from('sessions')
-      .select('dog_id, distance_miles, calories_burned')
-      .in('dog_id', dogIds)
-      .gte('session_date', firstOfMonth)
+      .from('sessions').select('dog_id, distance_miles, calories_burned')
+      .in('dog_id', dogIds).gte('session_date', firstOfMonth)
 
     const statsMap: Record<string, any> = {}
     dogIds.forEach(id => { statsMap[id] = { session_count: 0, total_miles: 0, total_calories: 0 } })
@@ -92,11 +90,7 @@ export default function Leaderboard() {
   const openModal = async (entry: any) => {
     setSelectedEntry(entry)
     setModalLoading(true)
-    const { data } = await supabase
-      .from('dog_achievements')
-      .select('achievement_key, earned_at')
-      .eq('dog_id', entry.dog_id)
-      .order('earned_at', { ascending: false })
+    const { data } = await supabase.from('dog_achievements').select('achievement_key, earned_at').eq('dog_id', entry.dog_id).order('earned_at', { ascending: false })
     setModalAchievements(data || [])
     setModalLoading(false)
   }
@@ -116,129 +110,170 @@ export default function Leaderboard() {
   }
 
   const getRankIcon = (index: number) => {
-    if (index === 0) return <Crown size={18} color="#B8860B" />
-    if (index === 1) return <Medal size={18} color="#888" />
-    if (index === 2) return <Medal size={18} color="#8B4513" />
-    return <span style={{ fontWeight: 'bold', fontSize: '14px', color: '#999' }}>{index + 1}</span>
+    if (index === 0) return <Crown size={20} color="#B8860B" />
+    if (index === 1) return <Medal size={20} color="#888" />
+    if (index === 2) return <Medal size={20} color="#8B4513" />
+    return <span style={{ fontWeight: '800', fontSize: '14px', color: '#aaa' }}>{index + 1}</span>
   }
 
-  const getRankBg = (index: number) => {
-    if (index === 0) return 'linear-gradient(135deg, #FFF9E6, #FFF3C4)'
-    if (index === 1) return 'linear-gradient(135deg, #F5F5F5, #EBEBEB)'
-    if (index === 2) return 'linear-gradient(135deg, #FDF0E8, #FAE0CC)'
-    return 'white'
+  const getRankStyle = (index: number) => {
+    if (index === 0) return { bg: 'linear-gradient(135deg, #FFFBEA, #FFF3C4)', border: '2px solid #FFD700', iconBg: 'rgba(255,215,0,0.15)' }
+    if (index === 1) return { bg: 'linear-gradient(135deg, #F8F8F8, #EFEFEF)', border: '2px solid #C0C0C0', iconBg: 'rgba(192,192,192,0.2)' }
+    if (index === 2) return { bg: 'linear-gradient(135deg, #FDF0E8, #FAE0CC)', border: '2px solid #CD7F32', iconBg: 'rgba(205,127,50,0.15)' }
+    return { bg: 'white', border: '1.5px solid #eef0f5', iconBg: '#f0f2f7' }
   }
-
-  const getRankBorder = (index: number) => {
-    if (index === 0) return '2px solid #FFD700'
-    if (index === 1) return '2px solid #C0C0C0'
-    if (index === 2) return '2px solid #CD7F32'
-    return '1px solid #eee'
-  }
-
-  const monthName = new Date().toLocaleString('default', { month: 'long' })
 
   const formatAchievementLabel = (key: string) => {
     const labels: Record<string, string> = {
-      first_session: 'First Stride 🐾',
-      sessions_5: 'Finding Their Pace',
-      sessions_10: 'Ten and Counting',
-      sessions_100: 'Century Club 💯',
-      miles_26: 'Marathon Pup 🏅',
-      calories_10000: 'Calorie Crusher 🔥',
-      speed_demon: 'Speed Demon ⚡',
-      personal_best: 'Personal Best 🎯',
-      streak_3: 'On A Roll',
-      streak_hat_trick: 'Hat Trick',
-      streak_5: 'Hot Streak',
-      streak_unstoppable: 'Unstoppable',
-      comeback: 'Comeback Kid',
+      first_session: 'First Stride 🐾', sessions_5: 'Finding Their Pace', sessions_10: 'Ten and Counting',
+      sessions_100: 'Century Club 💯', miles_26: 'Marathon Pup 🏅', calories_10000: 'Calorie Crusher 🔥',
+      speed_demon: 'Speed Demon ⚡', personal_best: 'Personal Best 🎯', streak_3: 'On A Roll',
+      streak_hat_trick: 'Hat Trick', streak_5: 'Hot Streak', streak_unstoppable: 'Unstoppable', comeback: 'Comeback Kid',
     }
     return labels[key] || key.replace(/_/g, ' ')
   }
 
+  const monthName = new Date().toLocaleString('default', { month: 'long' })
+
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f5' }}>
-      <nav style={{ backgroundColor: '#003087', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <PawPrint size={24} color="white" />
-          <h1 style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>The Canine Gym</h1>
+    <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', fontFamily: "'Segoe UI', system-ui, sans-serif" }}>
+      <style>{`
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+        .entry-row:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,0,0,0.1) !important; }
+        .cat-btn:hover { opacity: 0.85; }
+        .city-btn:hover { opacity: 0.8; }
+        * { box-sizing: border-box; }
+      `}</style>
+
+      {/* Nav */}
+      <nav style={{ background: 'linear-gradient(135deg, #001a4d 0%, #003087 100%)', padding: '0 24px', height: '64px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 20px rgba(0,0,0,0.2)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ width: '36px', height: '36px', background: 'rgba(255,107,53,0.2)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <PawPrint size={20} color="#FF6B35" />
+          </div>
+          <span style={{ color: 'white', fontSize: '17px', fontWeight: '700', letterSpacing: '-0.3px' }}>The Canine Gym</span>
         </div>
-        <a href="/dashboard" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <ArrowLeft size={16} /> My Dashboard
+        <a href="/dashboard" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none', fontWeight: '600', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)' }}>
+          <ArrowLeft size={15} /> My Dashboard
         </a>
       </nav>
 
-      <div style={{ background: 'linear-gradient(135deg, #003087 0%, #00409e 100%)', padding: '40px 24px 60px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: '-20px', left: '50%', transform: 'translateX(-50%)', width: '300px', height: '300px', background: 'rgba(255,255,255,0.03)', borderRadius: '50%' }} />
+      {/* Hero Banner */}
+      <div style={{ background: 'linear-gradient(135deg, #001a4d 0%, #003087 100%)', padding: '44px 24px 68px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%,-50%)', width: '320px', height: '320px', background: 'rgba(255,255,255,0.03)', borderRadius: '50%', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', right: '-40px', bottom: '-40px', opacity: 0.04, pointerEvents: 'none' }}>
+          <Trophy size={240} color="white" />
+        </div>
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '64px', height: '64px', backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: '50%', marginBottom: '16px' }}>
-            <Trophy size={32} color="#FFD700" />
+          <div style={{ width: '68px', height: '68px', background: 'rgba(255,215,0,0.15)', border: '2px solid rgba(255,215,0,0.3)', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+            <Trophy size={34} color="#FFD700" />
           </div>
-          <h2 style={{ color: 'white', fontSize: '32px', fontWeight: 'bold', margin: '0 0 8px 0', letterSpacing: '-0.5px' }}>Leaderboard</h2>
-          <p style={{ color: 'rgba(255,255,255,0.7)', margin: 0, fontSize: '15px' }}>{monthName} Rankings · Resets on the 1st</p>
+          <h2 style={{ color: 'white', fontSize: '34px', fontWeight: '800', margin: '0 0 8px', letterSpacing: '-0.5px' }}>Leaderboard</h2>
+          <p style={{ color: 'rgba(255,255,255,0.55)', margin: 0, fontSize: '14px', fontWeight: '500' }}>{monthName} Rankings · Resets on the 1st</p>
         </div>
       </div>
 
-      <div style={{ maxWidth: '700px', margin: '-24px auto 0', padding: '0 24px 40px', position: 'relative', zIndex: 2 }}>
+      <div style={{ maxWidth: '720px', margin: '-28px auto 0', padding: '0 24px 48px', position: 'relative', zIndex: 2, animation: 'fadeUp 0.35s ease' }}>
+
+        {/* Filters Card */}
         <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px 24px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', marginBottom: '20px' }}>
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+          {/* Category Tabs */}
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '18px' }}>
             {CATEGORIES.map(c => (
-              <button key={c.key} onClick={() => setCategory(c.key)}
-                style={{ flex: 1, padding: '10px 8px', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', backgroundColor: category === c.key ? '#003087' : '#f0f2f5', color: category === c.key ? 'white' : '#666' }}>
+              <button key={c.key} onClick={() => setCategory(c.key)} className="cat-btn"
+                style={{ flex: 1, padding: '10px 8px', border: 'none', borderRadius: '12px', cursor: 'pointer', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', transition: 'all 0.15s',
+                  background: category === c.key ? 'linear-gradient(135deg, #003087, #0052cc)' : '#f0f2f7',
+                  color: category === c.key ? 'white' : '#666',
+                  boxShadow: category === c.key ? '0 4px 12px rgba(0,48,135,0.25)' : 'none'
+                }}>
                 {c.icon} {c.label}
               </button>
             ))}
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <MapPin size={16} color="#666" />
-            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-              {CITIES.map(c => (
-                <button key={c} onClick={() => setCity(c)}
-                  style={{ padding: '5px 12px', border: '1px solid', borderRadius: '20px', cursor: 'pointer', fontSize: '13px', fontWeight: '500', borderColor: city === c ? '#FF6B35' : '#ddd', backgroundColor: city === c ? '#FFF0EA' : 'white', color: city === c ? '#FF6B35' : '#666' }}>
-                  {c}
-                </button>
-              ))}
-            </div>
+          {/* City Filter */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            <MapPin size={14} color="#aaa" />
+            {CITIES.map(c => (
+              <button key={c} onClick={() => setCity(c)} className="city-btn"
+                style={{ padding: '5px 12px', borderRadius: '20px', cursor: 'pointer', fontSize: '12px', fontWeight: '600', transition: 'all 0.15s', border: 'none',
+                  background: city === c ? '#FF6B35' : '#f0f2f7',
+                  color: city === c ? 'white' : '#777',
+                }}>
+                {c}
+              </button>
+            ))}
           </div>
         </div>
 
+        {/* Leaderboard Entries */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {loading ? (
-            <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '48px', textAlign: 'center' }}>
-              <PawPrint size={32} color="#ddd" style={{ marginBottom: '12px' }} />
-              <p style={{ color: '#999', margin: 0 }}>Loading rankings...</p>
+            <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '52px', textAlign: 'center' }}>
+              <div style={{ width: '40px', height: '40px', border: '3px solid rgba(0,48,135,0.1)', borderTopColor: '#003087', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 14px' }} />
+              <p style={{ color: '#bbb', margin: 0, fontSize: '14px' }}>Loading rankings…</p>
+              <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
             </div>
           ) : leaderboard.length === 0 ? (
-            <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '48px', textAlign: 'center' }}>
-              <Trophy size={32} color="#ddd" style={{ marginBottom: '12px' }} />
-              <p style={{ color: '#999', margin: 0 }}>No entries yet — be the first on the board!</p>
+            <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '52px', textAlign: 'center' }}>
+              <Trophy size={36} color="#e0e3ed" style={{ marginBottom: '12px' }} />
+              <p style={{ color: '#bbb', margin: 0, fontSize: '15px' }}>No entries yet — be the first on the board!</p>
             </div>
           ) : (
             leaderboard.map((entry, i) => {
               const isMe = entry.dog_id === currentDogId
+              const rank = getRankStyle(i)
               return (
-                <div key={entry.dog_id} onClick={() => openModal(entry)}
-                  style={{ background: isMe ? 'linear-gradient(135deg, #E8EEF7, #dce6f5)' : getRankBg(i), border: isMe ? '2px solid #003087' : getRankBorder(i), borderRadius: '14px', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '16px', boxShadow: i < 3 ? '0 4px 12px rgba(0,0,0,0.08)' : '0 2px 6px rgba(0,0,0,0.04)', cursor: 'pointer' }}>
-                  <div style={{ width: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, backgroundColor: i === 0 ? 'rgba(255,215,0,0.2)' : i === 1 ? 'rgba(192,192,192,0.2)' : i === 2 ? 'rgba(205,127,50,0.2)' : '#f5f5f5' }}>
+                <div key={entry.dog_id} onClick={() => openModal(entry)} className="entry-row"
+                  style={{ background: isMe ? 'linear-gradient(135deg, #e8edf5, #dce6f5)' : rank.bg, border: isMe ? '2px solid #003087' : rank.border, borderRadius: '16px', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '16px', cursor: 'pointer', transition: 'all 0.2s',
+                    boxShadow: i < 3 ? '0 4px 16px rgba(0,0,0,0.08)' : '0 2px 8px rgba(0,0,0,0.04)'
+                  }}>
+                  {/* Rank */}
+                  <div style={{ width: '42px', height: '42px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: isMe ? 'rgba(0,48,135,0.1)' : rank.iconBg }}>
                     {getRankIcon(i)}
                   </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                      {entry.is_anonymous && <PawPrint size={14} color="#003087" />}
-                      <span style={{ fontWeight: 'bold', color: '#111', fontSize: '16px' }}>{entry.display_name}</span>
-                      {isMe && <span style={{ backgroundColor: '#003087', color: 'white', fontSize: '10px', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>YOU</span>}
+
+                  {/* Photo */}
+                  {entry.photo_url && !entry.is_anonymous ? (
+                    <img src={entry.photo_url} alt={entry.display_name} style={{ width: '46px', height: '46px', borderRadius: '12px', objectFit: 'cover', flexShrink: 0, border: '2px solid rgba(255,255,255,0.8)' }} />
+                  ) : (
+                    <div style={{ width: '46px', height: '46px', borderRadius: '12px', background: 'rgba(0,48,135,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <PawPrint size={20} color="#003087" />
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '4px' }}>
-                      {entry.city && <span style={{ fontSize: '12px', color: '#888', display: 'flex', alignItems: 'center', gap: '3px' }}><MapPin size={11} /> {entry.city}</span>}
-                      {entry.achievement_count > 0 && <span style={{ fontSize: '12px', color: '#888', display: 'flex', alignItems: 'center', gap: '3px' }}><Star size={11} color="#FF6B35" /> {entry.achievement_count} badges</span>}
+                  )}
+
+                  {/* Info */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '4px' }}>
+                      <span style={{ fontWeight: '800', color: '#1a1a2e', fontSize: '15px' }}>{entry.display_name}</span>
+                      {isMe && (
+                        <span style={{ background: 'linear-gradient(135deg, #003087, #0052cc)', color: 'white', fontSize: '10px', padding: '2px 8px', borderRadius: '20px', fontWeight: '700', letterSpacing: '0.3px' }}>YOU</span>
+                      )}
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                      {entry.city && (
+                        <span style={{ fontSize: '12px', color: '#aaa', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                          <MapPin size={11} /> {entry.city}
+                        </span>
+                      )}
+                      {entry.breed && (
+                        <span style={{ fontSize: '12px', color: '#aaa' }}>{entry.breed}</span>
+                      )}
+                      {entry.achievement_count > 0 && (
+                        <span style={{ fontSize: '12px', color: '#FF6B35', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                          <Star size={11} color="#FF6B35" fill="#FF6B35" /> {entry.achievement_count} badges
+                        </span>
+                      )}
                     </div>
                   </div>
+
+                  {/* Score */}
                   <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                    <div style={{ fontSize: '22px', fontWeight: 'bold', color: i === 0 ? '#B8860B' : i === 1 ? '#666' : i === 2 ? '#8B4513' : '#003087', lineHeight: 1 }}>
+                    <div style={{ fontSize: '24px', fontWeight: '800', letterSpacing: '-0.5px', lineHeight: 1,
+                      color: i === 0 ? '#B8860B' : i === 1 ? '#777' : i === 2 ? '#8B4513' : '#003087'
+                    }}>
                       {getCategoryValue(entry)}
                     </div>
-                    <div style={{ fontSize: '11px', color: '#999', marginTop: '2px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    <div style={{ fontSize: '11px', color: '#bbb', marginTop: '3px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                       {getCategoryUnit()}
                     </div>
                   </div>
@@ -248,75 +283,76 @@ export default function Leaderboard() {
           )}
         </div>
 
-        <p style={{ textAlign: 'center', color: '#bbb', fontSize: '12px', marginTop: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px' }}>
-          <Shield size={12} /> Anonymous dogs appear as Mystery Pup · Manage privacy in your dog settings
+        <p style={{ textAlign: 'center', color: '#c0c4d0', fontSize: '12px', marginTop: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px' }}>
+          <Shield size={12} /> Anonymous dogs appear as Mystery Pup · Manage privacy in dog settings
         </p>
       </div>
 
-      {/* Modal */}
+      {/* Entry Modal */}
       {selectedEntry && (
         <div onClick={() => setSelectedEntry(null)}
-          style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '24px' }}>
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '24px', backdropFilter: 'blur(4px)' }}>
           <div onClick={e => e.stopPropagation()}
-            style={{ backgroundColor: 'white', borderRadius: '20px', width: '100%', maxWidth: '420px', overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+            style={{ background: 'white', borderRadius: '20px', width: '100%', maxWidth: '420px', overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.25)', animation: 'fadeUp 0.25s ease' }}>
 
             {/* Modal Header */}
-            <div style={{ background: 'linear-gradient(135deg, #003087, #00409e)', padding: '28px 24px 24px', position: 'relative', textAlign: 'center' }}>
+            <div style={{ background: 'linear-gradient(135deg, #001a4d, #003087)', padding: '28px 24px 24px', position: 'relative', textAlign: 'center' }}>
               <button onClick={() => setSelectedEntry(null)}
-                style={{ position: 'absolute', top: '16px', right: '16px', background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'white' }}>
+                style={{ position: 'absolute', top: '14px', right: '14px', background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'white' }}>
                 <X size={16} />
               </button>
               {selectedEntry.photo_url && !selectedEntry.is_anonymous ? (
                 <img src={selectedEntry.photo_url} alt={selectedEntry.display_name}
                   onClick={() => setEnlargedPhoto(selectedEntry.photo_url)}
-                  style={{ width: '72px', height: '72px', borderRadius: '50%', objectFit: 'cover', border: '3px solid rgba(255,255,255,0.4)', marginBottom: '12px', display: 'block', margin: '0 auto 12px', cursor: 'zoom-in' }} />
+                  style={{ width: '80px', height: '80px', borderRadius: '18px', objectFit: 'cover', border: '3px solid rgba(255,255,255,0.25)', marginBottom: '14px', display: 'block', margin: '0 auto 14px', cursor: 'zoom-in', boxShadow: '0 8px 24px rgba(0,0,0,0.3)' }} />
               ) : (
-                <div style={{ width: '72px', height: '72px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
-                  <PawPrint size={32} color="white" />
+                <div style={{ width: '80px', height: '80px', borderRadius: '18px', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
+                  <PawPrint size={36} color="rgba(255,255,255,0.6)" />
                 </div>
               )}
-              <h3 style={{ color: 'white', margin: '0 0 4px 0', fontSize: '22px', fontWeight: 'bold' }}>{selectedEntry.display_name}</h3>
-              {selectedEntry.breed && <p style={{ color: 'rgba(255,255,255,0.7)', margin: '0 0 4px 0', fontSize: '14px' }}>{selectedEntry.breed}</p>}
+              <h3 style={{ color: 'white', margin: '0 0 4px', fontSize: '22px', fontWeight: '800' }}>{selectedEntry.display_name}</h3>
+              {selectedEntry.breed && <p style={{ color: 'rgba(255,255,255,0.6)', margin: '0 0 4px', fontSize: '14px' }}>{selectedEntry.breed}</p>}
               {selectedEntry.city && (
-                <p style={{ color: 'rgba(255,255,255,0.6)', margin: 0, fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                <p style={{ color: 'rgba(255,255,255,0.5)', margin: 0, fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                   <MapPin size={12} /> {selectedEntry.city}
                 </p>
               )}
             </div>
 
-            {/* Stats */}
+            {/* Modal Stats */}
             <div style={{ padding: '24px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '24px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', marginBottom: '24px' }}>
                 {[
-                  { label: 'Sessions', value: selectedEntry.session_count, icon: <Calendar size={18} color="#003087" /> },
-                  { label: 'Miles', value: selectedEntry.total_miles, icon: <Navigation size={18} color="#003087" /> },
-                  { label: 'Calories', value: selectedEntry.total_calories.toLocaleString(), icon: <Flame size={18} color="#FF6B35" /> },
+                  { label: 'Sessions', value: selectedEntry.session_count, icon: <Calendar size={16} color="#003087" />, bg: '#e8edf5' },
+                  { label: 'Miles', value: selectedEntry.total_miles, icon: <Navigation size={16} color="#003087" />, bg: '#e8edf5' },
+                  { label: 'Calories', value: selectedEntry.total_calories.toLocaleString(), icon: <Flame size={16} color="#FF6B35" />, bg: '#fff0ea' },
                 ].map(stat => (
-                  <div key={stat.label} style={{ backgroundColor: '#f8f9fa', borderRadius: '12px', padding: '14px 10px', textAlign: 'center' }}>
-                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '6px' }}>{stat.icon}</div>
-                    <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#111', lineHeight: 1 }}>{stat.value}</div>
-                    <div style={{ fontSize: '11px', color: '#999', marginTop: '3px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{stat.label}</div>
+                  <div key={stat.label} style={{ background: '#f0f2f7', borderRadius: '14px', padding: '14px 10px', textAlign: 'center' }}>
+                    <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: stat.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 8px' }}>{stat.icon}</div>
+                    <div style={{ fontSize: '20px', fontWeight: '800', color: '#1a1a2e', lineHeight: 1 }}>{stat.value}</div>
+                    <div style={{ fontSize: '11px', color: '#aaa', marginTop: '3px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{stat.label}</div>
                   </div>
                 ))}
               </div>
 
               {/* Achievements */}
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '12px' }}>
-                  <Award size={16} color="#FF6B35" />
-                  <span style={{ fontWeight: 'bold', color: '#333', fontSize: '14px' }}>Badges Earned</span>
-                  <span style={{ backgroundColor: '#FF6B35', color: 'white', fontSize: '11px', padding: '1px 7px', borderRadius: '10px', fontWeight: 'bold' }}>{selectedEntry.achievement_count}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                  <div style={{ width: '28px', height: '28px', background: '#fff5e6', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Award size={15} color="#FF6B35" />
+                  </div>
+                  <span style={{ fontWeight: '700', color: '#1a1a2e', fontSize: '14px' }}>Badges Earned</span>
+                  <span style={{ background: 'linear-gradient(135deg, #FF6B35, #ff8c5a)', color: 'white', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: '700' }}>{selectedEntry.achievement_count}</span>
                 </div>
                 {modalLoading ? (
-                  <p style={{ color: '#999', fontSize: '13px', margin: 0 }}>Loading badges...</p>
+                  <p style={{ color: '#bbb', fontSize: '13px', margin: 0 }}>Loading badges…</p>
                 ) : modalAchievements.length === 0 ? (
-                  <p style={{ color: '#bbb', fontSize: '13px', margin: 0 }}>No badges earned yet.</p>
+                  <p style={{ color: '#ccc', fontSize: '13px', margin: 0 }}>No badges earned yet.</p>
                 ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '160px', overflowY: 'auto' }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', maxHeight: '160px', overflowY: 'auto' }}>
                     {modalAchievements.map((a, idx) => (
-                      <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '10px', backgroundColor: '#FFF8F0', border: '1px solid #FFE8D0', borderRadius: '8px', padding: '8px 12px' }}>
-                        <Star size={14} color="#FF6B35" />
-                        <span style={{ fontSize: '13px', fontWeight: '500', color: '#333' }}>{formatAchievementLabel(a.achievement_key)}</span>
+                      <div key={idx} style={{ background: 'linear-gradient(135deg, #FF6B35, #ff8c5a)', color: 'white', padding: '6px 12px', borderRadius: '10px', fontSize: '12px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                        <Star size={11} color="white" fill="white" /> {formatAchievementLabel(a.achievement_key)}
                       </div>
                     ))}
                   </div>
@@ -325,16 +361,16 @@ export default function Leaderboard() {
             </div>
           </div>
         </div>
-)}
+      )}
 
-      {/* Enlarged Photo Overlay */}
+      {/* Enlarged Photo */}
       {enlargedPhoto && (
         <div onClick={() => setEnlargedPhoto(null)}
-          style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, padding: '24px', cursor: 'zoom-out' }}>
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2000, padding: '24px', cursor: 'zoom-out', backdropFilter: 'blur(8px)' }}>
           <img src={enlargedPhoto} alt="Dog photo"
             style={{ maxWidth: '100%', maxHeight: '80vh', borderRadius: '16px', objectFit: 'contain', boxShadow: '0 20px 60px rgba(0,0,0,0.5)' }} />
           <button onClick={() => setEnlargedPhoto(null)}
-            style={{ position: 'absolute', top: '20px', right: '20px', background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'white' }}>
+            style={{ position: 'absolute', top: '20px', right: '20px', background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'white' }}>
             <X size={20} />
           </button>
         </div>
