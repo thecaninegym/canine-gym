@@ -21,6 +21,9 @@ export default function Leaderboard() {
   const [modalAchievements, setModalAchievements] = useState<any[]>([])
   const [modalLoading, setModalLoading] = useState(false)
   const [enlargedPhoto, setEnlargedPhoto] = useState<string | null>(null)
+  const [viewMode, setViewMode] = useState<'all' | 'friends'>('all')
+  const [ownerId, setOwnerId] = useState<string | null>(null)
+  const [followingIds, setFollowingIds] = useState<string[]>([])
 
   useEffect(() => {
     const init = async () => {
@@ -28,8 +31,11 @@ export default function Leaderboard() {
       if (user) {
         const { data: ownerData } = await supabase.from('owners').select('id').eq('email', user.email).single()
         if (ownerData) {
+          setOwnerId(ownerData.id)
           const { data: dogsData } = await supabase.from('dogs').select('id').eq('owner_id', ownerData.id).limit(1)
           if (dogsData && dogsData.length > 0) setCurrentDogId(dogsData[0].id)
+          const { data: followsData } = await supabase.from('follows').select('following_owner_id').eq('follower_owner_id', ownerData.id)
+          setFollowingIds((followsData || []).map((f: any) => f.following_owner_id))
         }
       }
       fetchLeaderboard()
@@ -41,7 +47,7 @@ export default function Leaderboard() {
 
   const fetchLeaderboard = async () => {
     setLoading(true)
-    let query = supabase.from('leaderboard_settings').select('*, dogs(id, name, breed, photo_url, dog_achievements(count))').neq('visibility', 'private')
+    let query = supabase.from('leaderboard_settings').select('*, dogs(id, name, breed, photo_url, owner_id, dog_achievements(count))').neq('visibility', 'private')
     if (city !== 'All Cities') query = query.eq('city', city)
     const { data: settingsData } = await query
     if (!settingsData) { setLoading(false); return }
@@ -69,6 +75,7 @@ export default function Leaderboard() {
       const isAnonymous = setting.visibility === 'anonymous'
       return {
         dog_id: setting.dog_id,
+        owner_id: setting.dogs?.owner_id,
         display_name: isAnonymous ? 'Mystery Pup' : (setting.display_name || setting.dogs?.name),
         is_anonymous: isAnonymous,
         breed: isAnonymous ? null : setting.dogs?.breed,
@@ -178,7 +185,16 @@ export default function Leaderboard() {
         {/* Filters Card */}
         <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px 24px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', marginBottom: '20px' }}>
           {/* Category Tabs */}
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '18px' }}>
+          {/* All vs Friends toggle */}
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+            {['all', 'friends'].map(mode => (
+              <button key={mode} onClick={() => setViewMode(mode as any)}
+                style={{ padding: '9px 20px', borderRadius: '10px', border: 'none', cursor: 'pointer', fontWeight: '700', fontSize: '13px', background: viewMode === mode ? 'linear-gradient(135deg, #FF6B35, #ff8c5a)' : '#f0f2f5', color: viewMode === mode ? 'white' : '#666', boxShadow: viewMode === mode ? '0 3px 10px rgba(255,107,53,0.3)' : 'none' }}>
+                {mode === 'all' ? '🌍 Everyone' : '👥 Friends'}
+              </button>
+            ))}
+          </div>
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
             {CATEGORIES.map(c => (
               <button key={c.key} onClick={() => setCategory(c.key)} className="cat-btn"
                 style={{ flex: 1, padding: '10px 8px', border: 'none', borderRadius: '12px', cursor: 'pointer', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', transition: 'all 0.15s',
@@ -219,7 +235,9 @@ export default function Leaderboard() {
               <p style={{ color: '#bbb', margin: 0, fontSize: '15px' }}>No entries yet — be the first on the board!</p>
             </div>
           ) : (
-            leaderboard.map((entry, i) => {
+            leaderboard
+            .filter(entry => viewMode === 'all' || followingIds.includes(entry.owner_id) || entry.owner_id === ownerId)
+            .map((entry, i) => {
               const isMe = entry.dog_id === currentDogId
               const rank = getRankStyle(i)
               return (
