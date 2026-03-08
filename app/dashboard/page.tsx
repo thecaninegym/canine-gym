@@ -528,44 +528,7 @@ export default function ClientDashboard() {
                   </div>
                 )}
 
-{/* FRIENDS ACTIVITY */}
-                {friendsActivity.length > 0 && (
-                  <div style={{ backgroundColor: 'white', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', overflow: 'hidden', marginBottom: '20px' }}>
-                    <div style={{ padding: '18px 24px', borderBottom: '1px solid #f0f2f7', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <div style={{ width: '34px', height: '34px', background: '#fff0ea', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Users size={17} color="#FF6B35" />
-                      </div>
-                      <h3 style={{ margin: 0, color: '#1a1a2e', fontSize: '16px', fontWeight: '700' }}>Friends Activity</h3>
-                      <span style={{ marginLeft: 'auto', background: '#FF6B35', color: 'white', borderRadius: '20px', padding: '2px 10px', fontSize: '12px', fontWeight: '700' }}>Last 7 days</span>
-                    </div>
-                    {friendsActivity.map((item, i) => {
-                      const daysDiff = Math.floor((Date.now() - new Date(item.session_date).getTime()) / (1000 * 60 * 60 * 24))
-                      const timeLabel = daysDiff === 0 ? 'Today' : daysDiff === 1 ? 'Yesterday' : `${daysDiff} days ago`
-                      return (
-                        <div key={item.id} style={{ padding: '14px 24px', borderBottom: i < friendsActivity.length - 1 ? '1px solid #f0f2f7' : 'none', display: 'flex', alignItems: 'center', gap: '14px' }}>
-                          {item.dog?.photo_url ? (
-                            <img src={item.dog.photo_url} alt={item.dog.name} style={{ width: '42px', height: '42px', borderRadius: '12px', objectFit: 'cover', flexShrink: 0, border: '2px solid #eef0f5' }} />
-                          ) : (
-                            <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: '#f0f2f7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                              <PawPrint size={18} color="#ccc" />
-                            </div>
-                          )}
-                          <div style={{ flex: 1 }}>
-                            <p style={{ margin: '0 0 2px', fontWeight: '700', color: '#1a1a2e', fontSize: '14px' }}>
-                              {item.dog?.name} <span style={{ color: '#aaa', fontWeight: '400' }}>completed a session</span>
-                            </p>
-                            <p style={{ margin: 0, fontSize: '12px', color: '#aaa' }}>
-                              {item.duration_minutes && `${item.duration_minutes} min`}
-                              {item.distance_miles ? ` · ${item.distance_miles} mi` : ''}
-                              {item.calories_burned ? ` · ${item.calories_burned} cal` : ''}
-                            </p>
-                          </div>
-                          <span style={{ fontSize: '12px', color: '#bbb', flexShrink: 0 }}>{timeLabel}</span>
-                        </div>
-                      )
-                    })}
-                  </div>
-                )}
+
                 {/* RECENT SESSIONS */}
                 <div style={{ backgroundColor: 'white', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', overflow: 'hidden' }}>
                   <div style={{ padding: '18px 24px', borderBottom: '1px solid #f0f2f7', display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -619,6 +582,44 @@ export default function ClientDashboard() {
           </>
         )}
       </div>
+      {/* FRIENDS ACTIVITY */}
+                {friendsActivity.length > 0 && (
+                  <div style={{ backgroundColor: 'white', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', overflow: 'hidden', marginBottom: '20px' }}>
+                    <div style={{ padding: '18px 24px', borderBottom: '1px solid #f0f2f7', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <div style={{ width: '34px', height: '34px', background: '#fff0ea', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Users size={17} color="#FF6B35" />
+                      </div>
+                      <h3 style={{ margin: 0, color: '#1a1a2e', fontSize: '16px', fontWeight: '700' }}>Friends Activity</h3>
+                      <span style={{ marginLeft: 'auto', background: '#FF6B35', color: 'white', borderRadius: '20px', padding: '2px 10px', fontSize: '12px', fontWeight: '700' }}>Last 7 days</span>
+                    </div>
+                    {friendsActivity.map((item, i) => {
+                      const daysDiff = Math.floor((Date.now() - new Date(item.session_date).getTime()) / (1000 * 60 * 60 * 24))
+                      const timeLabel = daysDiff === 0 ? 'Today' : daysDiff === 1 ? 'Yesterday' : `${daysDiff} days ago`
+                      return (
+                        <div key={item.id} style={{ padding: '14px 24px', borderBottom: i < friendsActivity.length - 1 ? '1px solid #f0f2f7' : 'none', display: 'flex', alignItems: 'center', gap: '14px' }}>
+                          {item.dog?.photo_url ? (
+                            <img src={item.dog.photo_url} alt={item.dog.name} style={{ width: '42px', height: '42px', borderRadius: '12px', objectFit: 'cover', flexShrink: 0, border: '2px solid #eef0f5' }} />
+                          ) : (
+                            <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: '#f0f2f7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                              <PawPrint size={18} color="#ccc" />
+                            </div>
+                          )}
+                          <div style={{ flex: 1 }}>
+                            <p style={{ margin: '0 0 2px', fontWeight: '700', color: '#1a1a2e', fontSize: '14px' }}>
+                              {item.dog?.name} <span style={{ color: '#aaa', fontWeight: '400' }}>completed a session</span>
+                            </p>
+                            <p style={{ margin: 0, fontSize: '12px', color: '#aaa' }}>
+                              {item.duration_minutes && `${item.duration_minutes} min`}
+                              {item.distance_miles ? ` · ${item.distance_miles} mi` : ''}
+                              {item.calories_burned ? ` · ${item.calories_burned} cal` : ''}
+                            </p>
+                          </div>
+                          <span style={{ fontSize: '12px', color: '#bbb', flexShrink: 0 }}>{timeLabel}</span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
     </div>
   )
 }
