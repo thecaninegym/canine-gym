@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
-import { PawPrint, ArrowLeft, Trophy, Medal, Flame, Navigation, Calendar, MapPin, Shield, Star, Crown, X, Award } from 'lucide-react'
+import { PawPrint, ArrowLeft, Trophy, Medal, Flame, Navigation, Calendar, MapPin, Shield, Star, Crown, X, Award, UserPlus, UserCheck } from 'lucide-react'
 
 const CATEGORIES = [
   { key: 'sessions', label: 'Sessions', icon: <Calendar size={16} />, field: 'session_count' },
@@ -138,6 +138,20 @@ export default function Leaderboard() {
       streak_hat_trick: 'Hat Trick', streak_5: 'Hot Streak', streak_unstoppable: 'Unstoppable', comeback: 'Comeback Kid',
     }
     return labels[key] || key.replace(/_/g, ' ')
+  }
+
+  const isFollowingEntry = (ownerIdToCheck: string) => followingIds.includes(ownerIdToCheck)
+
+  const handleFollowFromModal = async (targetOwnerId: string) => {
+    if (!ownerId) return
+    await supabase.from('follows').insert([{ follower_owner_id: ownerId, following_owner_id: targetOwnerId }])
+    setFollowingIds(prev => [...prev, targetOwnerId])
+  }
+
+  const handleUnfollowFromModal = async (targetOwnerId: string) => {
+    if (!ownerId) return
+    await supabase.from('follows').delete().eq('follower_owner_id', ownerId).eq('following_owner_id', targetOwnerId)
+    setFollowingIds(prev => prev.filter(id => id !== targetOwnerId))
   }
 
   const monthName = new Date().toLocaleString('default', { month: 'long' })
@@ -331,9 +345,16 @@ export default function Leaderboard() {
               <h3 style={{ color: 'white', margin: '0 0 4px', fontSize: '22px', fontWeight: '800' }}>{selectedEntry.display_name}</h3>
               {selectedEntry.breed && <p style={{ color: 'rgba(255,255,255,0.6)', margin: '0 0 4px', fontSize: '14px' }}>{selectedEntry.breed}</p>}
               {selectedEntry.city && (
-                <p style={{ color: 'rgba(255,255,255,0.5)', margin: 0, fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                <p style={{ color: 'rgba(255,255,255,0.6)', margin: 0, fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                   <MapPin size={12} /> {selectedEntry.city}
                 </p>
+              )}
+              {ownerId && selectedEntry.owner_id && selectedEntry.owner_id !== ownerId && (
+                <button
+                  onClick={e => { e.stopPropagation(); isFollowingEntry(selectedEntry.owner_id) ? handleUnfollowFromModal(selectedEntry.owner_id) : handleFollowFromModal(selectedEntry.owner_id) }}
+                  style={{ marginTop: '14px', padding: '8px 24px', borderRadius: '20px', border: 'none', cursor: 'pointer', fontWeight: '700', fontSize: '13px', background: isFollowingEntry(selectedEntry.owner_id) ? 'rgba(255,255,255,0.15)' : '#FF6B35', color: 'white', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                  {isFollowingEntry(selectedEntry.owner_id) ? '✓ Following' : '+ Follow'}
+                </button>
               )}
             </div>
 
