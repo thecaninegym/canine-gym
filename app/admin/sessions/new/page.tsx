@@ -4,6 +4,9 @@ import { supabase } from '../../../../lib/supabase'
 import { checkAchievements } from '../../../../lib/achievements'
 import { PawPrint, ArrowLeft, ClipboardList, CheckCircle, Clock } from 'lucide-react'
 
+const inputStyle = { width: '100%', padding: '10px 14px', border: '1.5px solid #e5e8f0', borderRadius: '10px', fontSize: '14px', color: '#1a1a2e', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' as const }
+const labelStyle = { display: 'block', marginBottom: '6px', fontWeight: '700' as const, color: '#555', fontSize: '13px' }
+
 export default function LogSession() {
   const [dogs, setDogs] = useState<any[]>([])
   const [devices, setDevices] = useState<any[]>([])
@@ -85,104 +88,109 @@ export default function LogSession() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
-      <nav style={{ backgroundColor: '#003087', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <PawPrint size={24} color="white" />
-          <h1 style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>The Canine Gym — Admin</h1>
+    <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', fontFamily: "'Segoe UI', system-ui, sans-serif" }}>
+      <style>{`@keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } } * { box-sizing: border-box; }`}</style>
+
+      <nav style={{ background: 'linear-gradient(135deg, #001a4d 0%, #003087 100%)', padding: '0 24px', height: '64px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 20px rgba(0,0,0,0.2)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ width: '36px', height: '36px', background: 'rgba(255,107,53,0.2)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <PawPrint size={20} color="#FF6B35" />
+          </div>
+          <span style={{ color: 'white', fontSize: '17px', fontWeight: '700' }}>The Canine Gym <span style={{ color: 'rgba(255,255,255,0.45)', fontWeight: '500' }}>· Admin</span></span>
         </div>
-        <a href="/admin" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <ArrowLeft size={16} /> Back to Dashboard
+        <a href="/admin" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none', fontWeight: '600', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)' }}>
+          <ArrowLeft size={15} /> Dashboard
         </a>
       </nav>
-      <div style={{ padding: '32px', maxWidth: '600px', margin: '0 auto' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
-          <ClipboardList size={28} color="#003087" />
-          <h2 style={{ color: '#003087', margin: 0 }}>Log Session</h2>
+
+      <div style={{ padding: '32px 24px', maxWidth: '600px', margin: '0 auto', animation: 'fadeUp 0.35s ease' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+          <div style={{ width: '42px', height: '42px', background: 'linear-gradient(135deg, #FF6B35, #ff8c5a)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <ClipboardList size={22} color="white" />
+          </div>
+          <div>
+            <h2 style={{ color: '#1a1a2e', margin: '0 0 2px', fontSize: '20px', fontWeight: '800' }}>Log Session</h2>
+            <p style={{ color: '#888', margin: 0, fontSize: '13px' }}>Record a completed workout</p>
+          </div>
         </div>
+
         {success && (
-          <div style={{ backgroundColor: '#d4edda', color: '#155724', padding: '12px', borderRadius: '6px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <CheckCircle size={18} color="#155724" /> Session logged successfully!
-            <a href="/admin/schedule" style={{ color: '#155724', fontWeight: 'bold', marginLeft: '8px' }}>← Back to Schedule</a>
+          <div style={{ background: '#d4edda', color: '#155724', padding: '14px 16px', borderRadius: '12px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '600' }}>
+            <CheckCircle size={18} /> Session logged successfully!
+            <a href="/admin/schedule" style={{ color: '#155724', marginLeft: 'auto', textDecoration: 'underline', fontSize: '13px' }}>← Back to Schedule</a>
           </div>
         )}
+
         {selectedDog && (
-          <div style={{ backgroundColor: '#003087', color: 'white', padding: '16px', borderRadius: '8px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ background: 'linear-gradient(135deg, #001a4d, #003087)', borderRadius: '16px', padding: '18px 20px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '14px' }}>
             {selectedDog.photo_url ? (
-              <img src={selectedDog.photo_url} style={{ width: '44px', height: '44px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
+              <img src={selectedDog.photo_url} alt={selectedDog.name} style={{ width: '48px', height: '48px', borderRadius: '12px', objectFit: 'cover', flexShrink: 0, border: '2px solid rgba(255,255,255,0.2)' }} />
             ) : (
-              <div style={{ width: '44px', height: '44px', borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <PawPrint size={22} color="white" />
               </div>
             )}
             <div>
-              <p style={{ margin: 0, fontWeight: 'bold', fontSize: '18px' }}>{selectedDog.name}</p>
-              <p style={{ margin: '4px 0 0 0', fontSize: '14px', opacity: 0.8 }}>{selectedDog.owners?.name} · {selectedDog.leaderboard_settings?.city}</p>
+              <p style={{ margin: 0, fontWeight: '800', fontSize: '17px', color: 'white' }}>{selectedDog.name}</p>
+              <p style={{ margin: '3px 0 0', fontSize: '13px', color: 'rgba(255,255,255,0.6)' }}>{selectedDog.owners?.name} · {selectedDog.leaderboard_settings?.city}</p>
             </div>
           </div>
         )}
-        <div style={{ backgroundColor: 'white', padding: '32px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+
+        <div style={{ background: 'white', borderRadius: '16px', padding: '28px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5' }}>
           <form onSubmit={handleSubmit}>
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>Dog</label>
-              <select value={dogId} onChange={(e) => setDogId(e.target.value)} required
-                style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000' }}>
+              <label style={labelStyle}>Dog</label>
+              <select value={dogId} onChange={(e) => setDogId(e.target.value)} required style={{ ...inputStyle, background: 'white' }}>
                 <option value="">Select a dog...</option>
                 {dogs.map(dog => <option key={dog.id} value={dog.id}>{dog.name} ({dog.owners?.name})</option>)}
               </select>
             </div>
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>FitBark Device</label>
-              <select value={deviceSlug} onChange={(e) => setDeviceSlug(e.target.value)} required
-                style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000' }}>
+              <label style={labelStyle}>FitBark Device</label>
+              <select value={deviceSlug} onChange={(e) => setDeviceSlug(e.target.value)} required style={{ ...inputStyle, background: 'white' }}>
                 <option value="">Select a device...</option>
                 {devices.length === 0 && <option disabled>No devices added yet</option>}
                 {devices.map(device => <option key={device.id} value={device.fitbark_slug}>{device.device_name}</option>)}
               </select>
             </div>
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>Session Date</label>
-              <input type="date" value={sessionDate} onChange={(e) => setSessionDate(e.target.value)} required
-                style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000' }} />
+              <label style={labelStyle}>Session Date</label>
+              <input type="date" value={sessionDate} onChange={(e) => setSessionDate(e.target.value)} required style={inputStyle} />
             </div>
             {timeFromBooking ? (
-              <div style={{ backgroundColor: '#f0f4ff', border: '1px solid #003087', padding: '14px 16px', borderRadius: '8px', marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ background: '#f0f4ff', border: '1.5px solid #d0d8ee', padding: '14px 16px', borderRadius: '12px', marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <Clock size={18} color="#003087" />
                   <div>
-                    <p style={{ margin: '0 0 2px 0', fontWeight: 'bold', color: '#003087', fontSize: '14px' }}>Session Time</p>
-                    <p style={{ margin: 0, color: '#333', fontSize: '16px', fontWeight: 'bold' }}>{formatTimeDisplay(startTime)} – {formatTimeDisplay(endTime)}</p>
+                    <p style={{ margin: '0 0 2px', fontWeight: '700', color: '#003087', fontSize: '13px' }}>Session Time</p>
+                    <p style={{ margin: 0, color: '#1a1a2e', fontSize: '15px', fontWeight: '800' }}>{formatTimeDisplay(startTime)} – {formatTimeDisplay(endTime)}</p>
                   </div>
                 </div>
-                <button type="button" onClick={() => setTimeFromBooking(false)}
-                  style={{ background: 'none', border: 'none', color: '#999', fontSize: '12px', cursor: 'pointer', textDecoration: 'underline' }}>
-                  Edit
-                </button>
+                <button type="button" onClick={() => setTimeFromBooking(false)} style={{ background: 'none', border: 'none', color: '#888', fontSize: '12px', cursor: 'pointer', textDecoration: 'underline' }}>Edit</button>
               </div>
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
                 <div>
-                  <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>Start Time</label>
-                  <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} required
-                    style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000' }} />
+                  <label style={labelStyle}>Start Time</label>
+                  <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} required style={inputStyle} />
                 </div>
                 <div>
-                  <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>End Time</label>
-                  <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} required
-                    style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000' }} />
+                  <label style={labelStyle}>End Time</label>
+                  <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} required style={inputStyle} />
                 </div>
               </div>
             )}
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>Notes</label>
+            <div style={{ marginBottom: '20px' }}>
+              <label style={labelStyle}>Notes</label>
               <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3}
                 placeholder="How did the session go? Any observations?"
-                style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000', resize: 'vertical' }} />
+                style={{ ...inputStyle, resize: 'vertical' as const }} />
             </div>
-            {error && <p style={{ color: 'red', marginBottom: '16px', fontSize: '14px' }}>{error}</p>}
+            {error && <div style={{ background: '#f8d7da', color: '#721c24', padding: '12px 14px', borderRadius: '10px', marginBottom: '16px', fontSize: '14px', fontWeight: '600' }}>{error}</div>}
             <button type="submit" disabled={loading}
-              style={{ width: '100%', padding: '12px', backgroundColor: '#FF6B35', color: 'white', border: 'none', borderRadius: '6px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-              <ClipboardList size={18} /> {loading ? 'Saving...' : 'Log Session'}
+              style={{ width: '100%', padding: '13px', background: 'linear-gradient(135deg, #FF6B35, #ff8c5a)', color: 'white', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 14px rgba(255,107,53,0.35)' }}>
+              <ClipboardList size={17} /> {loading ? 'Saving...' : 'Log Session'}
             </button>
           </form>
         </div>

@@ -1,13 +1,14 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '../../../lib/supabase'
-import { PawPrint, ArrowLeft, Plus, Activity, Shield, ShieldCheck, Clock, ShieldAlert, Stethoscope } from 'lucide-react'
+import { PawPrint, ArrowLeft, Plus, Activity, Shield, ShieldCheck, Clock, ShieldAlert, Stethoscope, MapPin } from 'lucide-react'
 
 export default function AllDogs() {
   const [dogs, setDogs] = useState<any[]>([])
   const [vaccines, setVaccines] = useState<Record<string, any>>({})
   const [loading, setLoading] = useState(true)
   const [pendingCount, setPendingCount] = useState(0)
+  const [search, setSearch] = useState('')
 
   useEffect(() => {
     const fetchDogs = async () => {
@@ -39,81 +40,106 @@ export default function AllDogs() {
     return { color: '#dc3545', bg: '#f8d7da', icon: <ShieldAlert size={11} />, label: 'Rejected' }
   }
 
+  const filtered = dogs.filter(d =>
+    d.name?.toLowerCase().includes(search.toLowerCase()) ||
+    d.owners?.name?.toLowerCase().includes(search.toLowerCase())
+  )
+
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
-      <nav style={{ backgroundColor: '#003087', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <PawPrint size={24} color="white" />
-          <h1 style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>The Canine Gym — Admin</h1>
+    <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', fontFamily: "'Segoe UI', system-ui, sans-serif" }}>
+      <style>{`@keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } } * { box-sizing: border-box; }`}</style>
+
+      <nav style={{ background: 'linear-gradient(135deg, #001a4d 0%, #003087 100%)', padding: '0 24px', height: '64px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 20px rgba(0,0,0,0.2)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ width: '36px', height: '36px', background: 'rgba(255,107,53,0.2)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <PawPrint size={20} color="#FF6B35" />
+          </div>
+          <span style={{ color: 'white', fontSize: '17px', fontWeight: '700' }}>The Canine Gym <span style={{ color: 'rgba(255,255,255,0.45)', fontWeight: '500' }}>· Admin</span></span>
         </div>
-        <a href="/admin" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <ArrowLeft size={16} /> Back to Dashboard
+        <a href="/admin" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none', fontWeight: '600', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)' }}>
+          <ArrowLeft size={15} /> Dashboard
         </a>
       </nav>
-      <div style={{ padding: '32px', maxWidth: '1200px', margin: '0 auto' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <PawPrint size={28} color="#003087" />
-            <h2 style={{ color: '#003087', margin: 0 }}>All Dogs ({dogs.length})</h2>
+
+      <div style={{ padding: '32px 24px', maxWidth: '1100px', margin: '0 auto', animation: 'fadeUp 0.35s ease' }}>
+        {/* Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+          <div>
+            <h2 style={{ color: '#1a1a2e', margin: '0 0 4px', fontSize: '22px', fontWeight: '800' }}>All Dogs</h2>
+            <p style={{ color: '#888', margin: 0, fontSize: '13px' }}>{dogs.length} registered</p>
           </div>
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-            <a href="/admin/dogs/vaccines"
-              style={{ backgroundColor: pendingCount > 0 ? '#fff3cd' : '#f0f0f0', color: pendingCount > 0 ? '#856404' : '#555', border: pendingCount > 0 ? '2px solid #ffc107' : '2px solid transparent', padding: '9px 18px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Shield size={15} /> Vaccine Reviews
+            <a href="/admin/dogs/vaccines" style={{ background: pendingCount > 0 ? '#fff3cd' : 'white', color: pendingCount > 0 ? '#856404' : '#555', border: pendingCount > 0 ? '2px solid #ffc107' : '1.5px solid #e5e8f0', padding: '9px 16px', borderRadius: '10px', textDecoration: 'none', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Shield size={14} /> Vaccine Reviews
               {pendingCount > 0 && (
-                <span style={{ backgroundColor: '#FF6B35', color: 'white', borderRadius: '50%', width: '20px', height: '20px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 'bold' }}>
+                <span style={{ background: '#FF6B35', color: 'white', borderRadius: '50%', width: '18px', height: '18px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: '700' }}>
                   {pendingCount}
                 </span>
               )}
             </a>
-            <a href="/admin/dogs/new" style={{ backgroundColor: '#FF6B35', color: 'white', padding: '10px 20px', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Plus size={16} /> Add Dog
+            <a href="/admin/dogs/new" style={{ background: 'linear-gradient(135deg, #FF6B35, #ff8c5a)', color: 'white', padding: '10px 18px', borderRadius: '10px', textDecoration: 'none', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 4px 12px rgba(255,107,53,0.3)' }}>
+              <Plus size={15} /> Add Dog
             </a>
           </div>
         </div>
 
+        {/* Pending banner */}
         {pendingCount > 0 && (
-          <div style={{ backgroundColor: '#fff3cd', border: '1px solid #ffc107', borderRadius: '10px', padding: '14px 18px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ background: '#fff3cd', border: '1.5px solid #ffc107', borderRadius: '12px', padding: '14px 18px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#856404', fontWeight: '600', fontSize: '14px' }}>
               <Clock size={16} /> {pendingCount} vaccine record{pendingCount !== 1 ? 's' : ''} waiting for your review
             </div>
-            <a href="/admin/dogs/vaccines" style={{ backgroundColor: '#856404', color: 'white', padding: '7px 14px', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px' }}>Review Now →</a>
+            <a href="/admin/dogs/vaccines" style={{ background: '#856404', color: 'white', padding: '7px 14px', borderRadius: '8px', textDecoration: 'none', fontWeight: '700', fontSize: '13px' }}>Review Now →</a>
           </div>
         )}
 
-        {loading ? <p style={{ color: '#666' }}>Loading...</p> : dogs.length === 0 ? <p style={{ color: '#666' }}>No dogs yet.</p> : (
+        {/* Search */}
+        <input
+          value={search} onChange={e => setSearch(e.target.value)}
+          placeholder="Search by dog or owner name…"
+          style={{ width: '100%', padding: '10px 14px', border: '1.5px solid #e5e8f0', borderRadius: '10px', fontSize: '14px', marginBottom: '16px', outline: 'none', fontFamily: 'inherit' }}
+        />
+
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '48px', color: '#aaa' }}>Loading...</div>
+        ) : filtered.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '48px', color: '#aaa' }}>No dogs found.</div>
+        ) : (
           <div style={{ display: 'grid', gap: '12px' }}>
-            {dogs.map((dog: any) => {
+            {filtered.map((dog: any) => {
               const badge = getVaccineBadge(dog.id)
               return (
-                <div key={dog.id} style={{ backgroundColor: 'white', padding: '20px 24px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+                <div key={dog.id} style={{ background: 'white', padding: '20px 24px', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                     {dog.photo_url
-                      ? <img src={dog.photo_url} alt={dog.name} style={{ width: '52px', height: '52px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
-                      : <div style={{ width: '52px', height: '52px', borderRadius: '50%', backgroundColor: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><PawPrint size={24} color="#ccc" /></div>
+                      ? <img src={dog.photo_url} alt={dog.name} style={{ width: '52px', height: '52px', borderRadius: '12px', objectFit: 'cover', flexShrink: 0 }} />
+                      : <div style={{ width: '52px', height: '52px', borderRadius: '12px', background: '#f0f2f7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><PawPrint size={22} color="#ccc" /></div>
                     }
                     <div>
-                      <h3 style={{ color: '#003087', margin: '0 0 3px 0', fontSize: '18px' }}>{dog.name}</h3>
-                      <p style={{ color: '#666', margin: '0 0 4px 0', fontSize: '13px' }}>{dog.breed}{dog.weight ? ` · ${dog.weight} lbs` : ''} · {dog.leaderboard_settings?.city}</p>
-                      <p style={{ color: '#888', margin: '0 0 6px 0', fontSize: '13px' }}>Owner: {dog.owners?.name} · {dog.owners?.email}</p>
+                      <p style={{ margin: '0 0 3px', fontWeight: '800', color: '#1a1a2e', fontSize: '16px' }}>{dog.name}</p>
+                      <p style={{ margin: '0 0 3px', color: '#888', fontSize: '13px' }}>
+                        {dog.breed}{dog.weight ? ` · ${dog.weight} lbs` : ''}
+                        {dog.leaderboard_settings?.city && <span style={{ marginLeft: '6px', display: 'inline-flex', alignItems: 'center', gap: '3px' }}><MapPin size={10} />{dog.leaderboard_settings.city}</span>}
+                      </p>
+                      <p style={{ margin: '0 0 6px', color: '#aaa', fontSize: '12px' }}>👤 {dog.owners?.name} · {dog.owners?.email}</p>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', backgroundColor: badge.bg, color: badge.color, padding: '2px 9px', borderRadius: '20px', fontSize: '11px', fontWeight: '700' }}>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: badge.bg, color: badge.color, padding: '2px 9px', borderRadius: '20px', fontSize: '11px', fontWeight: '700' }}>
                           {badge.icon} {badge.label}
-                        </div>
+                        </span>
                         {(dog.vet_name || dog.vet_clinic) && (
-                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#555', fontSize: '11px' }}>
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#888', fontSize: '11px' }}>
                             <Stethoscope size={11} /> {dog.vet_clinic || dog.vet_name}
-                          </div>
+                          </span>
                         )}
                       </div>
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <a href="/admin/dogs/vaccines"
-                      style={{ backgroundColor: badge.label === 'Pending Review' ? '#fff3cd' : '#f0f4ff', color: badge.label === 'Pending Review' ? '#856404' : '#003087', padding: '8px 14px', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px', border: badge.label === 'Pending Review' ? '1px solid #ffc107' : 'none' }}>
+                      style={{ background: badge.label === 'Pending Review' ? '#fff3cd' : '#f0f4ff', color: badge.label === 'Pending Review' ? '#856404' : '#003087', padding: '8px 14px', borderRadius: '10px', textDecoration: 'none', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px', border: badge.label === 'Pending Review' ? '1.5px solid #ffc107' : '1.5px solid #d0d8ee' }}>
                       <Shield size={13} /> Vaccines
                     </a>
-                    <a href={`/admin/sessions/new?dog=${dog.id}`} style={{ backgroundColor: '#FF6B35', color: 'white', padding: '8px 16px', borderRadius: '6px', textDecoration: 'none', fontWeight: 'bold', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <a href={`/admin/sessions/new?dog=${dog.id}`} style={{ background: 'linear-gradient(135deg, #FF6B35, #ff8c5a)', color: 'white', padding: '8px 16px', borderRadius: '10px', textDecoration: 'none', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px', boxShadow: '0 3px 10px rgba(255,107,53,0.25)' }}>
                       <Activity size={13} /> Log Session
                     </a>
                   </div>
