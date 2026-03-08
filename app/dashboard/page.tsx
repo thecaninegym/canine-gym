@@ -285,7 +285,9 @@ export default function ClientDashboard() {
           <>
             {/* DOG SELECTOR TABS */}
             {dogs.length > 1 && (
-              <div style={{ display: 'flex', gap: '10px', marginBottom: '24px', overflowX: 'auto', padding: '6px 4px 10px' }}>
+  <div style={{ marginBottom: '24px' }}>
+  <p style={{ margin: '0 0 10px', fontSize: '12px', fontWeight: '700', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Select Dog</p>
+  <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', padding: '6px 4px 10px' }}>
                 {dogs.map(dog => (
                   <button key={dog.id} onClick={() => handleDogSelect(dog)} className="dog-tab"
                     style={{ padding: '10px 18px', borderRadius: '40px', border: 'none', cursor: 'pointer', fontWeight: '700', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px', transition: 'all 0.2s', flexShrink: 0,
@@ -303,7 +305,8 @@ export default function ClientDashboard() {
                   </button>
                 ))}
               </div>
-            )}
+  </div>
+)}
 
             {selectedDog && (
               <div style={{ animation: 'fadeUp 0.35s ease' }}>
