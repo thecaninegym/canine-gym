@@ -37,9 +37,11 @@ useEffect(() => {
     if (password !== confirmPassword) { setError('Passwords do not match.'); setLoading(false); return }
     if (password.length < 6) { setError('Password must be at least 6 characters.'); setLoading(false); return }
     const { error: signupError } = await supabase.auth.signUp({ email, password })
-    if (signupError) { setError(signupError.message); setLoading(false); return }
-    const fullName = `${firstName} ${lastName}`.trim()
-    await supabase.from('owners').insert([{ name: fullName, email, phone }])
+if (signupError) { setError(signupError.message); setLoading(false); return }
+// Sign in immediately so session is active before inserting
+await supabase.auth.signInWithPassword({ email, password })
+const fullName = `${firstName} ${lastName}`.trim()
+await supabase.from('owners').insert([{ name: fullName, email, phone }])
     await fetch('/api/send-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'welcome', to: email, data: { ownerName: firstName, dogName: 'your dog' } }) })
     await fetch('/api/send-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'admin_notification', to: 'dev@thecaninegym.com', data: { action: 'New Client Signed Up', dogName: 'Not yet added', ownerName: `${firstName} ${lastName}`, date: new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }), time: email } }) })
     setSignupSuccess(true); setLoading(false)
