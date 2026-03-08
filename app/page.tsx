@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '../lib/supabase'
 import { PawPrint, Mail, CheckCircle } from 'lucide-react'
@@ -7,7 +7,7 @@ import { PawPrint, Mail, CheckCircle } from 'lucide-react'
 const inputStyle = { width: '100%', padding: '11px 14px', border: '1.5px solid rgba(255,255,255,0.2)', borderRadius: '10px', fontSize: '14px', boxSizing: 'border-box' as const, color: 'white', outline: 'none', fontFamily: 'inherit', background: 'rgba(255,255,255,0.08)' }
 const labelStyle = { display: 'block', marginBottom: '6px', fontWeight: '700', color: 'rgba(255,255,255,0.75)', fontSize: '13px' }
 
-export default function LoginPage() {
+function LoginContent() {
   const [mode, setMode] = useState<'login' | 'signup' | 'reset'>('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -210,5 +210,13 @@ useEffect(() => {
         )}
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginContent />
+    </Suspense>
   )
 }
