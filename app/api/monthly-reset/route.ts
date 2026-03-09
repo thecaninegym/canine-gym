@@ -9,6 +9,11 @@ const supabase = createClient(
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
+const LOGO_URL = 'https://www.thecaninegym.com/logo.png'
+const BLUE = '#2c5a9e'
+const ORANGE = '#f88124'
+const DARK_BLUE = '#001840'
+
 export async function GET(request: Request) {
   // Verify this is called by Vercel Cron
   const authHeader = request.headers.get('authorization')
@@ -92,24 +97,22 @@ export async function GET(request: Request) {
       from: 'The Canine Gym <info@thecaninegym.com>',
       to: owner.email,
       subject: `🏆 New month, new leaderboard — who's taking #1?`,
-      html: `
-        <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
-          <div style="background:#2c5a9e;padding:24px;border-radius:12px 12px 0 0;">
-            <h1 style="color:white;margin:0;font-size:24px;">🐾 The Canine Gym</h1>
-          </div>
-          <div style="background:white;padding:24px;border:1px solid #eee;">
-            <h2 style="color:#2c5a9e;">Hi ${owner.name}! A new month has started. 🎉</h2>
-            <p style="color:#555;">The leaderboard has reset and it's anyone's game. Book a session this week and get your dog on the board early!</p>
-            <a href="https://app.thecaninegym.com/leaderboard" style="display:block;background:#f88124;color:white;text-align:center;padding:14px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px;margin:24px 0;">
-              View the New Leaderboard →
-            </a>
-            <p style="color:#999;font-size:13px;">Book a session at thecaninegym.com</p>
-          </div>
-          <div style="background:#f5f5f5;padding:16px;border-radius:0 0 12px 12px;text-align:center;">
-            <p style="color:#999;font-size:12px;margin:0;">The Canine Gym · Hamilton County, IN</p>
-          </div>
-        </div>
-      `
+      html: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet"/></head><body style="margin:0;padding:0;background:#f0f2f7;font-family:'Montserrat',Arial,sans-serif;">
+  <div style="max-width:600px;margin:32px auto;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.10);">
+    <div style="background:white;padding:28px 32px;text-align:center;border-bottom:3px solid ${ORANGE};">
+      <img src="${LOGO_URL}" alt="The Canine Gym" style="height:70px;width:auto;display:block;margin:0 auto 12px;"/>
+      <div style="display:inline-block;background:${DARK_BLUE};border-radius:20px;padding:4px 16px;"><span style="color:rgba(255,255,255,0.9);font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;">New Month</span></div>
+    </div>
+    <div style="background:white;padding:36px 32px;">
+      <h2 style="color:${BLUE};font-size:22px;font-weight:800;margin:0 0 10px;font-family:'Montserrat',Arial,sans-serif;">Hi ${owner.name}! A new month has started. 🎉</h2>
+      <p style="color:#555;font-size:14px;line-height:1.7;margin:0 0 16px;font-family:'Montserrat',Arial,sans-serif;">The leaderboard has reset and it's anyone's game. Book a session this week and get your dog on the board early!</p>
+      <a href="https://app.thecaninegym.com/leaderboard" style="display:block;background:${ORANGE};color:white;text-align:center;padding:15px 24px;border-radius:10px;text-decoration:none;font-weight:700;font-size:15px;font-family:'Montserrat',Arial,sans-serif;margin-top:8px;">View the New Leaderboard →</a>
+    </div>
+    <div style="background:${DARK_BLUE};padding:20px 32px;text-align:center;">
+      <p style="color:rgba(255,255,255,0.4);font-size:12px;margin:0;font-family:'Montserrat',Arial,sans-serif;">© ${new Date().getFullYear()} The Canine Gym &nbsp;·&nbsp; Hamilton County, IN &nbsp;·&nbsp; <a href="https://www.thecaninegym.com" style="color:rgba(255,255,255,0.5);text-decoration:none;">thecaninegym.com</a></p>
+    </div>
+  </div>
+</body></html>`
     })
   }
 
