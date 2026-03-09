@@ -60,6 +60,23 @@ export default function LogSession() {
     } else {
       await supabase.from('bookings').update({ status: 'completed' }).eq('dog_id', dogId).eq('booking_date', sessionDate).eq('status', 'confirmed')
     }
+
+    // Decrement sessions_remaining on active membership
+    const selectedDogDataForMembership = dogs.find(d => d.id === dogId)
+    if (selectedDogDataForMembership?.owner_id) {
+      const { data: activeMembership } = await supabase
+        .from('memberships')
+        .select('id, sessions_remaining')
+        .eq('owner_id', selectedDogDataForMembership.owner_id)
+        .eq('status', 'active')
+        .single()
+      if (activeMembership && activeMembership.sessions_remaining > 0) {
+        await supabase.from('memberships')
+          .update({ sessions_remaining: activeMembership.sessions_remaining - 1 })
+          .eq('id', activeMembership.id)
+      }
+    }
+
     const newAchievements = await checkAchievements(dogId)
     const selectedDogData = dogs.find(d => d.id === dogId)
     const { data: ownerData } = await supabase.from('owners').select('name, email').eq('id', selectedDogData?.owner_id).single()
