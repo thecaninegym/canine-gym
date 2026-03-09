@@ -3,290 +3,257 @@ import { NextResponse } from 'next/server'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
+const LOGO_URL = 'https://www.thecaninegym.com/logo.png'
+const BLUE = '#2c5a9e'
+const ORANGE = '#f88124'
+const DARK_BLUE = '#001840'
+
+function emailWrapper(headerLabel: string, bodyContent: string) {
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet"/></head><body style="margin:0;padding:0;background:#f0f2f7;font-family:'Montserrat',Arial,sans-serif;">
+  <div style="max-width:600px;margin:32px auto;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.10);">
+    <div style="background:linear-gradient(135deg,${DARK_BLUE} 0%,${BLUE} 100%);padding:28px 32px;text-align:center;">
+      <img src="${LOGO_URL}" alt="The Canine Gym" style="height:52px;width:auto;display:block;margin:0 auto 12px;"/>
+      ${headerLabel ? `<div style="display:inline-block;background:rgba(255,255,255,0.12);border-radius:20px;padding:4px 16px;"><span style="color:rgba(255,255,255,0.85);font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;">${headerLabel}</span></div>` : ''}
+    </div>
+    <div style="background:white;padding:36px 32px;">${bodyContent}</div>
+    <div style="background:${DARK_BLUE};padding:20px 32px;text-align:center;">
+      <p style="color:rgba(255,255,255,0.4);font-size:12px;margin:0;font-family:'Montserrat',Arial,sans-serif;">© ${new Date().getFullYear()} The Canine Gym &nbsp;·&nbsp; Hamilton County, IN &nbsp;·&nbsp; <a href="https://www.thecaninegym.com" style="color:rgba(255,255,255,0.5);text-decoration:none;">thecaninegym.com</a></p>
+    </div>
+  </div>
+</body></html>`
+}
+
+function btn(text: string, href: string, color = ORANGE) {
+  return `<a href="${href}" style="display:block;background:${color};color:white;text-align:center;padding:15px 24px;border-radius:10px;text-decoration:none;font-weight:700;font-size:15px;font-family:'Montserrat',Arial,sans-serif;margin-top:8px;">${text} →</a>`
+}
+
+function infoBox(rows: string[], bg = '#f0f2f7', border = '') {
+  return `<div style="background:${bg};${border ? `border:1.5px solid ${border};` : ''}border-radius:12px;padding:20px 24px;margin:20px 0;">${rows.join('')}</div>`
+}
+
+function row(label: string, value: string) {
+  return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.06);"><span style="color:#888;font-size:13px;font-weight:600;font-family:'Montserrat',Arial,sans-serif;">${label}</span><span style="color:#1a1a2e;font-size:14px;font-weight:700;font-family:'Montserrat',Arial,sans-serif;">${value}</span></div>`
+}
+
+function h1(text: string, color = BLUE) {
+  return `<h2 style="color:${color};font-size:22px;font-weight:800;margin:0 0 10px;font-family:'Montserrat',Arial,sans-serif;">${text}</h2>`
+}
+
+function p(text: string) {
+  return `<p style="color:#555;font-size:14px;line-height:1.7;margin:0 0 16px;font-family:'Montserrat',Arial,sans-serif;">${text}</p>`
+}
+
+function alert(text: string, bg: string, border: string, color: string) {
+  return `<div style="background:${bg};border:1.5px solid ${border};border-radius:10px;padding:16px 20px;margin:20px 0;"><p style="margin:0;color:${color};font-size:13px;font-weight:600;font-family:'Montserrat',Arial,sans-serif;">${text}</p></div>`
+}
+
 export async function POST(request: Request) {
   const { type, to, data } = await request.json()
-
   let subject = ''
   let html = ''
 
   if (type === 'welcome') {
-    subject = `Welcome to The Canine Gym, ${data.ownerName}! 🐾`
-    html = `
-      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
-        <div style="background:#2c5a9e;padding:24px;border-radius:12px 12px 0 0;">
-          <h1 style="color:white;margin:0;font-size:24px;">🐾 The Canine Gym</h1>
-          <p style="color:rgba(255,255,255,0.8);margin:4px 0 0 0;">Welcome to the pack!</p>
-        </div>
-        <div style="background:white;padding:32px;border:1px solid #eee;">
-          <h2 style="color:#2c5a9e;">Hi ${data.ownerName}, welcome to The Canine Gym! 🎉</h2>
-          <p style="color:#555;line-height:1.6;">We're so excited to have you and ${data.dogName} join our community. The run comes to you — we'll be at your door ready to give ${data.dogName} an amazing workout.</p>
-          <div style="background:#f5f5f5;padding:20px;border-radius:8px;margin:24px 0;">
-            <p style="margin:0 0 8px 0;font-weight:bold;color:#333;">Getting started:</p>
-            <p style="margin:0 0 6px 0;color:#555;">✅ Log in to your dashboard to track ${data.dogName}'s progress</p>
-            <p style="margin:0 0 6px 0;color:#555;">📅 Book your first session at a time that works for you</p>
-            <p style="margin:0 0 6px 0;color:#555;">🏆 Earn achievements and compete on the leaderboard</p>
-            <p style="margin:0;color:#555;">📸 Share ${data.dogName}'s stats with friends and family</p>
-          </div>
-          <a href="https://app.thecaninegym.com" style="display:block;background:#f88124;color:white;text-align:center;padding:14px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px;">
-            Go to My Dashboard →
-          </a>
-        </div>
-        <div style="background:#f5f5f5;padding:16px;border-radius:0 0 12px 12px;text-align:center;">
-          <p style="color:#999;font-size:12px;margin:0;">The Canine Gym · Hamilton County, IN · thecaninegym.com</p>
-        </div>
-      </div>
-    `
+    subject = `Welcome to The Canine Gym, ${data.ownerName}!`
+    html = emailWrapper('Welcome to the Pack', `
+      ${h1(`Hi ${data.ownerName}, you're in! 🎉`)}
+      ${p(`We're thrilled to have you and <strong>${data.dogName}</strong> join The Canine Gym. Your dog deserves the best workout — and now they've got it, delivered right to your driveway.`)}
+      ${infoBox([
+        `<p style="color:#1a1a2e;font-size:14px;font-weight:700;margin:0 0 12px;font-family:'Montserrat',Arial,sans-serif;">Here's how to get started:</p>`,
+        `<p style="color:#555;font-size:13px;margin:0 0 8px;font-family:'Montserrat',Arial,sans-serif;">📋 <strong>Upload vaccine records</strong> for ${data.dogName} to get cleared to run</p>`,
+        `<p style="color:#555;font-size:13px;margin:0 0 8px;font-family:'Montserrat',Arial,sans-serif;">📅 <strong>Book your first session</strong> — pick a time that works for you</p>`,
+        `<p style="color:#555;font-size:13px;margin:0 0 8px;font-family:'Montserrat',Arial,sans-serif;">🏆 <strong>Track progress</strong> — sessions, milestones, and leaderboard rankings</p>`,
+        `<p style="color:#555;font-size:13px;margin:0;font-family:'Montserrat',Arial,sans-serif;">📸 <strong>Share ${data.dogName}'s stats</strong> with friends and family</p>`,
+      ])}
+      ${btn('Go to My Dashboard', 'https://app.thecaninegym.com/dashboard')}
+    `)
   }
 
   if (type === 'booking_confirmation') {
-    subject = `Session booked for ${data.dogName} — ${data.date} 📅`
-    html = `
-      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
-        <div style="background:#2c5a9e;padding:24px;border-radius:12px 12px 0 0;">
-          <h1 style="color:white;margin:0;font-size:24px;">🐾 The Canine Gym</h1>
-          <p style="color:rgba(255,255,255,0.8);margin:4px 0 0 0;">Booking Confirmed</p>
-        </div>
-        <div style="background:white;padding:32px;border:1px solid #eee;">
-          <h2 style="color:#2c5a9e;">You're booked, ${data.ownerName}! ✅</h2>
-          <p style="color:#555;">Here's your session details:</p>
-          <div style="background:#f5f5f5;padding:20px;border-radius:8px;margin:24px 0;">
-            <p style="margin:0 0 8px 0;color:#333;font-size:16px;">🐾 <strong>${data.dogName}</strong></p>
-            <p style="margin:0 0 8px 0;color:#333;font-size:16px;">📅 <strong>${data.date}</strong></p>
-            <p style="margin:0;color:#333;font-size:16px;">⏰ <strong>${data.time}</strong></p>
-          </div>
-          <div style="background:#fff3e0;border:1px solid #f88124;padding:16px;border-radius:8px;margin-bottom:24px;">
-            <p style="margin:0;color:#f88124;font-size:14px;"><strong>Cancellation Policy:</strong> Please cancel at least 48 hours in advance to avoid a cancellation fee. If your dog is sick, no fee applies.</p>
-          </div>
-          <a href="https://app.thecaninegym.com/dashboard" style="display:block;background:#f88124;color:white;text-align:center;padding:14px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px;">
-            View My Dashboard →
-          </a>
-        </div>
-        <div style="background:#f5f5f5;padding:16px;border-radius:0 0 12px 12px;text-align:center;">
-          <p style="color:#999;font-size:12px;margin:0;">The Canine Gym · Hamilton County, IN · thecaninegym.com</p>
-        </div>
-      </div>
-    `
+    subject = `Session confirmed for ${data.dogName} — ${data.date}`
+    html = emailWrapper('Booking Confirmed', `
+      ${h1(`You're all set, ${data.ownerName}! ✅`)}
+      ${p(`${data.dogName}'s session is locked in. We'll come to you — just be ready to hand over one very excited dog.`)}
+      ${infoBox([row('Dog', data.dogName), row('Date', data.date), row('Time', data.time)])}
+      ${alert(`Cancellation Policy: Please cancel at least 48 hours in advance to avoid a fee. If your dog is sick, reach out and we'll waive it — no questions asked.`, '#fff4e6', ORANGE, '#b85c00')}
+      ${btn('View My Dashboard', 'https://app.thecaninegym.com/dashboard')}
+    `)
   }
 
   if (type === 'reminder') {
-    subject = `Reminder: ${data.dogName}'s session is tomorrow at ${data.time} 🐾`
-    html = `
-      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
-        <div style="background:#2c5a9e;padding:24px;border-radius:12px 12px 0 0;">
-          <h1 style="color:white;margin:0;font-size:24px;">🐾 The Canine Gym</h1>
-          <p style="color:rgba(255,255,255,0.8);margin:4px 0 0 0;">Session Reminder</p>
-        </div>
-        <div style="background:white;padding:32px;border:1px solid #eee;">
-          <h2 style="color:#2c5a9e;">See you tomorrow, ${data.ownerName}! 👋</h2>
-          <p style="color:#555;">Just a friendly reminder that ${data.dogName} has a session scheduled for tomorrow.</p>
-          <div style="background:#f5f5f5;padding:20px;border-radius:8px;margin:24px 0;">
-            <p style="margin:0 0 8px 0;color:#333;font-size:16px;">🐾 <strong>${data.dogName}</strong></p>
-            <p style="margin:0 0 8px 0;color:#333;font-size:16px;">📅 <strong>${data.date}</strong></p>
-            <p style="margin:0;color:#333;font-size:16px;">⏰ <strong>${data.time}</strong></p>
-          </div>
-          <p style="color:#555;font-size:14px;">Need to cancel? Please do so as soon as possible to avoid a cancellation fee.</p>
-          <a href="https://app.thecaninegym.com/dashboard" style="display:block;background:#f88124;color:white;text-align:center;padding:14px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px;">
-            View My Dashboard →
-          </a>
-        </div>
-        <div style="background:#f5f5f5;padding:16px;border-radius:0 0 12px 12px;text-align:center;">
-          <p style="color:#999;font-size:12px;margin:0;">The Canine Gym · Hamilton County, IN · thecaninegym.com</p>
-        </div>
-      </div>
-    `
+    subject = `Reminder: ${data.dogName}'s session is tomorrow at ${data.time}`
+    html = emailWrapper('Session Reminder', `
+      ${h1(`See you tomorrow, ${data.ownerName}! 👋`)}
+      ${p(`Just a heads up — ${data.dogName} is on the schedule for tomorrow. We'll be pulling up to your place ready to go.`)}
+      ${infoBox([row('Dog', data.dogName), row('Date', data.date), row('Time', data.time)])}
+      ${p(`Need to cancel or reschedule? Please do it as soon as possible through your dashboard so we can open the slot for another pup.`)}
+      ${btn('View My Dashboard', 'https://app.thecaninegym.com/dashboard')}
+    `)
   }
 
   if (type === 'admin_notification') {
     subject = `${data.action}: ${data.dogName} — ${data.date}`
-    html = `
-      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
-        <div style="background:#2c5a9e;padding:24px;border-radius:12px 12px 0 0;">
-          <h1 style="color:white;margin:0;font-size:24px;">🐾 The Canine Gym — Admin</h1>
-        </div>
-        <div style="background:white;padding:32px;border:1px solid #eee;">
-          <h2 style="color:#2c5a9e;">${data.action}</h2>
-          <div style="background:#f5f5f5;padding:20px;border-radius:8px;">
-            <p style="margin:0 0 8px 0;color:#333;">🐾 <strong>${data.dogName}</strong></p>
-            <p style="margin:0 0 8px 0;color:#333;">👤 Owner: <strong>${data.ownerName}</strong></p>
-            <p style="margin:0 0 8px 0;color:#333;">📅 <strong>${data.date}</strong></p>
-            <p style="margin:0 0 8px 0;color:#333;">⏰ <strong>${data.time}</strong></p>
-            ${data.reason ? `<p style="margin:0;color:#dc3545;">Reason: ${data.reason}</p>` : ''}
-            ${data.fee ? `<p style="margin:8px 0 0 0;color:#dc3545;font-weight:bold;">💰 Cancellation fee applies</p>` : ''}
-          </div>
-          <a href="https://app.thecaninegym.com/admin/schedule" style="display:block;background:#2c5a9e;color:white;text-align:center;padding:14px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px;margin-top:24px;">
-            View Schedule →
-          </a>
-        </div>
-      </div>
-    `
+    html = emailWrapper('Admin Notification', `
+      ${h1(data.action)}
+      ${infoBox([
+        row('Dog', data.dogName),
+        row('Owner', data.ownerName),
+        row('Date', data.date),
+        row('Time', data.time),
+        data.reason ? `<div style="padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.06);"><span style="color:#dc3545;font-size:13px;font-weight:600;font-family:'Montserrat',Arial,sans-serif;">Reason: ${data.reason}</span></div>` : '',
+        data.fee ? `<div style="padding:8px 0;"><span style="color:#dc3545;font-size:13px;font-weight:700;font-family:'Montserrat',Arial,sans-serif;">⚠️ Cancellation fee applies</span></div>` : '',
+      ])}
+      ${btn('View Schedule', 'https://app.thecaninegym.com/admin/schedule', BLUE)}
+    `)
   }
 
   if (type === 'receipt_alacarte') {
-    subject = `Your receipt from The Canine Gym — ${data.date}`
-    html = `
-      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
-        <div style="background:#2c5a9e;padding:24px;border-radius:12px 12px 0 0;">
-          <h1 style="color:white;margin:0;font-size:24px;">🐾 The Canine Gym</h1>
-          <p style="color:rgba(255,255,255,0.8);margin:4px 0 0 0;">Payment Receipt</p>
-        </div>
-        <div style="background:white;padding:32px;border:1px solid #eee;">
-          <h2 style="color:#2c5a9e;">Payment Confirmed, ${data.ownerName}!</h2>
-          <p style="color:#555;">Thanks for booking — here's your receipt.</p>
-          <div style="background:#f5f5f5;padding:20px;border-radius:8px;margin:24px 0;">
-            <p style="margin:0 0 12px 0;color:#333;font-size:15px;font-weight:bold;border-bottom:1px solid #ddd;padding-bottom:12px;">Receipt Summary</p>
-            <p style="margin:0 0 8px 0;color:#333;">🐾 <strong>${data.dogName}</strong></p>
-            <p style="margin:0 0 8px 0;color:#333;">📅 <strong>${data.date}</strong></p>
-            <p style="margin:0 0 8px 0;color:#333;">⏰ <strong>${data.time}</strong></p>
-            <p style="margin:0 0 8px 0;color:#333;">📋 <strong>A la Carte Session</strong></p>
-            <div style="border-top:1px solid #ddd;margin-top:12px;padding-top:12px;">
-              <p style="margin:0;color:#2c5a9e;font-size:18px;font-weight:bold;">Total Paid: ${data.amount}</p>
-            </div>
-          </div>
-          <div style="background:#fff3e0;border:1px solid #f88124;padding:16px;border-radius:8px;margin-bottom:24px;">
-            <p style="margin:0;color:#f88124;font-size:14px;"><strong>Cancellation Policy:</strong> Cancel at least 48 hours in advance for a full refund. Late cancellations receive a 50% refund. No fee if your dog is sick.</p>
-          </div>
-          <a href="https://app.thecaninegym.com/dashboard" style="display:block;background:#f88124;color:white;text-align:center;padding:14px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px;">
-            View My Dashboard →
-          </a>
-        </div>
-        <div style="background:#f5f5f5;padding:16px;border-radius:0 0 12px 12px;text-align:center;">
-          <p style="color:#999;font-size:12px;margin:0;">The Canine Gym · Hamilton County, IN · thecaninegym.com</p>
-        </div>
-      </div>
-    `
+    subject = `Payment confirmed — ${data.dogName}'s session on ${data.date}`
+    html = emailWrapper('Payment Receipt', `
+      ${h1(`Payment confirmed, ${data.ownerName}!`)}
+      ${p(`Thanks for booking with The Canine Gym. Here's your receipt — keep it for your records.`)}
+      ${infoBox([
+        row('Dog', data.dogName),
+        row('Date', data.date),
+        row('Time', data.time),
+        row('Session Type', 'À La Carte'),
+        `<div style="padding:12px 0 4px;"><span style="color:${BLUE};font-size:18px;font-weight:800;font-family:'Montserrat',Arial,sans-serif;">Total Paid: ${data.amount}</span></div>`,
+      ])}
+      ${alert(`Cancellation Policy: Cancel at least 48 hours in advance for a full refund. Late cancellations receive a 50% refund. Dog sick? Reach out — we'll always work with you.`, '#fff4e6', ORANGE, '#b85c00')}
+      ${btn('View My Dashboard', 'https://app.thecaninegym.com/dashboard')}
+    `)
   }
 
   if (type === 'receipt_membership') {
-    subject = `Membership confirmed — The Canine Gym`
-    html = `
-      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
-        <div style="background:#2c5a9e;padding:24px;border-radius:12px 12px 0 0;">
-          <h1 style="color:white;margin:0;font-size:24px;">🐾 The Canine Gym</h1>
-          <p style="color:rgba(255,255,255,0.8);margin:4px 0 0 0;">Membership Receipt</p>
-        </div>
-        <div style="background:white;padding:32px;border:1px solid #eee;">
-          <h2 style="color:#2c5a9e;">You're a member, ${data.ownerName}!</h2>
-          <p style="color:#555;">Your membership is now active. Here's your receipt.</p>
-          <div style="background:#f5f5f5;padding:20px;border-radius:8px;margin:24px 0;">
-            <p style="margin:0 0 12px 0;color:#333;font-size:15px;font-weight:bold;border-bottom:1px solid #ddd;padding-bottom:12px;">Membership Summary</p>
-            <p style="margin:0 0 8px 0;color:#333;">📋 <strong>${data.planName} Plan</strong></p>
-            <p style="margin:0 0 8px 0;color:#333;">🐾 <strong>Covers: ${data.dogNames}</strong></p>
-            <p style="margin:0 0 8px 0;color:#333;">📅 <strong>${data.sessionsPerMonth} sessions per month</strong></p>
-            <p style="margin:0 0 8px 0;color:#333;">🔄 <strong>Renews monthly</strong></p>
-            <div style="border-top:1px solid #ddd;margin-top:12px;padding-top:12px;">
-              <p style="margin:0;color:#2c5a9e;font-size:18px;font-weight:bold;">Total Paid: ${data.amount}</p>
-            </div>
-          </div>
-          <a href="https://app.thecaninegym.com/membership" style="display:block;background:#f88124;color:white;text-align:center;padding:14px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px;margin-bottom:12px;">
-            Manage Membership →
-          </a>
-          <a href="https://app.thecaninegym.com/book" style="display:block;background:#2c5a9e;color:white;text-align:center;padding:14px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px;">
-            Book Your First Session →
-          </a>
-        </div>
-        <div style="background:#f5f5f5;padding:16px;border-radius:0 0 12px 12px;text-align:center;">
-          <p style="color:#999;font-size:12px;margin:0;">The Canine Gym · Hamilton County, IN · thecaninegym.com</p>
-        </div>
-      </div>
-    `
+    subject = `Membership confirmed — Welcome to the pack, ${data.ownerName}!`
+    html = emailWrapper('Membership Receipt', `
+      ${h1(`You're a member, ${data.ownerName}! 🎉`)}
+      ${p(`Your membership is live. Sessions are at your fingertips — book whenever works for you and we'll come to you.`)}
+      ${infoBox([
+        row('Plan', data.planName),
+        row('Dogs Covered', data.dogNames),
+        row('Sessions Per Month', data.sessionsPerMonth),
+        row('Billing', 'Renews monthly'),
+        `<div style="padding:12px 0 4px;"><span style="color:${BLUE};font-size:18px;font-weight:800;font-family:'Montserrat',Arial,sans-serif;">Total Paid: ${data.amount}</span></div>`,
+      ])}
+      ${btn('Book Your First Session', 'https://app.thecaninegym.com/book')}
+      <div style="margin-top:8px;">${btn('Manage Membership', 'https://app.thecaninegym.com/membership', BLUE)}</div>
+    `)
   }
 
   if (type === 'membership_cancelled_client') {
     subject = `Your Canine Gym membership has been cancelled`
-    html = `
-      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
-        <div style="background:#2c5a9e;padding:24px;border-radius:12px 12px 0 0;">
-          <h1 style="color:white;margin:0;font-size:24px;">🐾 The Canine Gym</h1>
-          <p style="color:rgba(255,255,255,0.8);margin:4px 0 0 0;">Membership Cancellation</p>
-        </div>
-        <div style="background:white;padding:32px;border:1px solid #eee;">
-          <h2 style="color:#2c5a9e;">Hi ${data.ownerName}, your membership has been cancelled.</h2>
-          <p style="color:#555;line-height:1.6;">We're sorry to see you go! Here's a summary of your cancellation:</p>
-          <div style="background:#f5f5f5;padding:20px;border-radius:8px;margin:24px 0;">
-            <p style="margin:0 0 8px 0;color:#333;">📋 <strong>${data.planName} Plan</strong> — Cancelled</p>
-            <p style="margin:0 0 8px 0;color:#333;">📅 Access continues until <strong>${data.periodEnd}</strong></p>
-            <p style="margin:0;color:#333;">🐾 <strong>${data.sessionsRemaining}</strong> sessions remaining this month</p>
-          </div>
-          <div style="background:#fff3e0;border:1px solid #f88124;padding:16px;border-radius:8px;margin-bottom:24px;">
-            <p style="margin:0;color:#f88124;font-size:14px;">You can still book and use your remaining sessions until <strong>${data.periodEnd}</strong>. After that date your membership will fully expire.</p>
-          </div>
-          <a href="https://app.thecaninegym.com/dashboard" style="display:block;background:#f88124;color:white;text-align:center;padding:14px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px;margin-bottom:12px;">
-            View My Dashboard →
-          </a>
-          <a href="https://app.thecaninegym.com/membership" style="display:block;background:#2c5a9e;color:white;text-align:center;padding:14px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px;">
-            Resubscribe →
-          </a>
-        </div>
-        <div style="background:#f5f5f5;padding:16px;border-radius:0 0 12px 12px;text-align:center;">
-          <p style="color:#999;font-size:12px;margin:0;">The Canine Gym · Hamilton County, IN · thecaninegym.com</p>
-        </div>
-      </div>
-    `
+    html = emailWrapper('Membership Cancelled', `
+      ${h1(`Hi ${data.ownerName}, your membership has been cancelled.`)}
+      ${p(`We're sorry to see you go! Your access doesn't end right away — here's what you need to know.`)}
+      ${infoBox([
+        row('Plan', `${data.planName} — Cancelled`),
+        row('Access Until', data.periodEnd),
+        row('Sessions Remaining', `${data.sessionsRemaining} this month`),
+      ])}
+      ${alert(`You can still book and use your remaining sessions until <strong>${data.periodEnd}</strong>. After that your membership will fully expire.`, '#fff4e6', ORANGE, '#b85c00')}
+      ${btn('Book Remaining Sessions', 'https://app.thecaninegym.com/book')}
+      <div style="margin-top:8px;">${btn('Reactivate Membership', 'https://app.thecaninegym.com/membership', BLUE)}</div>
+      ${p(`Changed your mind? We'd love to have you back. You can reactivate any time from your membership page.`)}
+    `)
   }
 
   if (type === 'membership_cancelled_admin') {
     subject = `Membership cancelled: ${data.ownerName} — ${data.planName}`
-    html = `
-      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
-        <div style="background:#2c5a9e;padding:24px;border-radius:12px 12px 0 0;">
-          <h1 style="color:white;margin:0;font-size:24px;">🐾 The Canine Gym — Admin</h1>
-        </div>
-        <div style="background:white;padding:32px;border:1px solid #eee;">
-          <h2 style="color:#dc3545;">Membership Cancelled</h2>
-          <div style="background:#f5f5f5;padding:20px;border-radius:8px;">
-            <p style="margin:0 0 8px 0;color:#333;">👤 <strong>${data.ownerName}</strong></p>
-            <p style="margin:0 0 8px 0;color:#333;">✉️ ${data.ownerEmail}</p>
-            <p style="margin:0 0 8px 0;color:#333;">📋 <strong>${data.planName} Plan</strong></p>
-            <p style="margin:0 0 8px 0;color:#333;">📅 Access until <strong>${data.periodEnd}</strong></p>
-            <p style="margin:0;color:#333;">🐾 <strong>${data.sessionsRemaining}</strong> sessions remaining</p>
-          </div>
-          <a href="https://app.thecaninegym.com/admin/memberships" style="display:block;background:#2c5a9e;color:white;text-align:center;padding:14px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px;margin-top:24px;">
-            View Memberships →
-          </a>
-        </div>
-      </div>
-    `
+    html = emailWrapper('Membership Cancelled', `
+      ${h1('Membership Cancelled', '#dc3545')}
+      ${infoBox([
+        row('Owner', data.ownerName),
+        row('Email', data.ownerEmail),
+        row('Plan', data.planName),
+        row('Access Until', data.periodEnd),
+        row('Sessions Remaining', `${data.sessionsRemaining}`),
+      ])}
+      ${btn('View Memberships', 'https://app.thecaninegym.com/admin/memberships', BLUE)}
+    `)
   }
-  
+
   if (type === 'vaccine_uploaded') {
-    subject = `🔬 Vaccine record submitted: ${data.dogName} (${data.ownerName})`
-    html = `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;"><div style="background:#2c5a9e;padding:24px;border-radius:12px 12px 0 0;"><h1 style="color:white;margin:0;font-size:24px;">🐾 The Canine Gym — Admin</h1></div><div style="background:white;padding:32px;border:1px solid #eee;"><h2 style="color:#856404;">New Vaccine Record Submitted</h2><div style="background:#fff3cd;border:1px solid #ffc107;padding:20px;border-radius:8px;margin-bottom:24px;"><p style="margin:0 0 8px 0;color:#333;">🐾 <strong>${data.dogName}</strong></p><p style="margin:0 0 8px 0;color:#333;">👤 Owner: <strong>${data.ownerName}</strong></p><p style="margin:0;color:#333;">✉️ ${data.ownerEmail}</p></div><a href="https://app.thecaninegym.com/admin/dogs/vaccines" style="display:block;background:#2c5a9e;color:white;text-align:center;padding:14px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px;">Review Vaccine Records →</a></div></div>`
+    subject = `Vaccine record submitted: ${data.dogName} (${data.ownerName})`
+    html = emailWrapper('Vaccine Record Submitted', `
+      ${h1('New Vaccine Record Needs Review', '#856404')}
+      ${p('A client has submitted vaccine records for their dog. Please review and approve or reject from the admin panel.')}
+      ${infoBox([row('Dog', data.dogName), row('Owner', data.ownerName), row('Email', data.ownerEmail)], '#fffbea', '#ffc107')}
+      ${btn('Review Vaccine Records', 'https://app.thecaninegym.com/admin/dogs/vaccines', BLUE)}
+    `)
   }
 
   if (type === 'vaccine_approved') {
-    subject = `✅ ${data.dogName}'s vaccine records have been approved!`
-    html = `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;"><div style="background:#2c5a9e;padding:24px;border-radius:12px 12px 0 0;"><h1 style="color:white;margin:0;font-size:24px;">🐾 The Canine Gym</h1></div><div style="background:white;padding:32px;border:1px solid #eee;"><h2 style="color:#28a745;">Great news, ${data.ownerName}! ✅</h2><p style="color:#555;line-height:1.6;">We've reviewed and approved <strong>${data.dogName}</strong>'s vaccine records. You're all set to book sessions!</p><div style="background:#d4edda;border:1px solid #c3e6cb;padding:20px;border-radius:8px;margin:24px 0;"><p style="margin:0;color:#155724;font-weight:bold;">🐾 ${data.dogName} is cleared to run!</p></div><a href="https://app.thecaninegym.com/book" style="display:block;background:#f88124;color:white;text-align:center;padding:14px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px;">Book a Session Now →</a></div><div style="background:#f5f5f5;padding:16px;border-radius:0 0 12px 12px;text-align:center;"><p style="color:#999;font-size:12px;margin:0;">The Canine Gym · Hamilton County, IN · thecaninegym.com</p></div></div>`
+    subject = `${data.dogName}'s vaccine records are approved — you're cleared to run!`
+    html = emailWrapper('Vaccines Approved', `
+      ${h1(`Great news, ${data.ownerName}! ✅`)}
+      ${p(`We've reviewed and approved <strong>${data.dogName}</strong>'s vaccine records. Everything checks out — you're officially cleared to book sessions.`)}
+      ${infoBox([`<p style="color:#155724;font-size:14px;font-weight:700;margin:0;font-family:'Montserrat',Arial,sans-serif;">🐾 ${data.dogName} is cleared to run!</p>`], '#d4edda', '#c3e6cb')}
+      ${btn('Book a Session Now', 'https://app.thecaninegym.com/book')}
+    `)
   }
 
   if (type === 'vaccine_rejected') {
     subject = `Action needed: ${data.dogName}'s vaccine records`
-    html = `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;"><div style="background:#2c5a9e;padding:24px;border-radius:12px 12px 0 0;"><h1 style="color:white;margin:0;font-size:24px;">🐾 The Canine Gym</h1></div><div style="background:white;padding:32px;border:1px solid #eee;"><h2 style="color:#dc3545;">Hi ${data.ownerName}, we need a better photo.</h2><p style="color:#555;line-height:1.6;">We weren't able to approve the vaccine records submitted for <strong>${data.dogName}</strong>.</p><div style="background:#f8d7da;border:1px solid #f5c6cb;padding:20px;border-radius:8px;margin:24px 0;"><p style="margin:0 0 4px 0;color:#721c24;font-weight:bold;">Reason:</p><p style="margin:0;color:#721c24;">${data.reason}</p></div><a href="https://app.thecaninegym.com/dogs" style="display:block;background:#f88124;color:white;text-align:center;padding:14px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px;">Re-upload Vaccine Records →</a></div><div style="background:#f5f5f5;padding:16px;border-radius:0 0 12px 12px;text-align:center;"><p style="color:#999;font-size:12px;margin:0;">The Canine Gym · Hamilton County, IN · thecaninegym.com</p></div></div>`
+    html = emailWrapper('Vaccine Records — Action Needed', `
+      ${h1(`Hi ${data.ownerName}, we need a little help.`, '#dc3545')}
+      ${p(`We weren't able to approve the vaccine records submitted for <strong>${data.dogName}</strong>. No worries — it's an easy fix.`)}
+      ${infoBox([
+        `<p style="color:#721c24;font-size:13px;font-weight:700;margin:0 0 6px;font-family:'Montserrat',Arial,sans-serif;">Reason:</p>`,
+        `<p style="color:#721c24;font-size:14px;margin:0;font-family:'Montserrat',Arial,sans-serif;">${data.reason}</p>`,
+      ], '#f8d7da', '#f5c6cb')}
+      ${p(`Please take a clear, well-lit photo of the full vaccine certificate and re-upload from your dog's profile page.`)}
+      ${btn('Re-upload Vaccine Records', 'https://app.thecaninegym.com/dogs')}
+    `)
   }
 
   if (type === 'vaccine_expiring') {
-    const listItems = data.expiringFields.map((f: any) => `<p style="margin:0 0 8px 0;color:#333;">💉 <strong>${f.label}</strong> — expires ${f.date} (${f.daysLeft} days)</p>`).join('')
-    subject = `⚠️ ${data.dogName}'s vaccines are expiring soon`
-    html = `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;"><div style="background:#2c5a9e;padding:24px;border-radius:12px 12px 0 0;"><h1 style="color:white;margin:0;font-size:24px;">🐾 The Canine Gym</h1></div><div style="background:white;padding:32px;border:1px solid #eee;"><h2 style="color:#856404;">Hi ${data.ownerName}, ${data.dogName}'s vaccines need attention.</h2><p style="color:#555;line-height:1.6;">The following vaccine(s) are expiring within 30 days. Please visit your vet and upload updated records.</p><div style="background:#fff3cd;border:1px solid #ffc107;padding:20px;border-radius:8px;margin:24px 0;">${listItems}</div><a href="https://app.thecaninegym.com/dogs" style="display:block;background:#f88124;color:white;text-align:center;padding:14px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px;margin-bottom:12px;">Update Vaccine Records →</a></div><div style="background:#f5f5f5;padding:16px;border-radius:0 0 12px 12px;text-align:center;"><p style="color:#999;font-size:12px;margin:0;">The Canine Gym · Hamilton County, IN · thecaninegym.com</p></div></div>`
+    const listItems = data.expiringFields.map((f: any) => row(`💉 ${f.label}`, `Expires ${f.date} (${f.daysLeft} days)`)).join('')
+    subject = `Heads up: ${data.dogName}'s vaccines are expiring soon`
+    html = emailWrapper('Vaccine Expiry Notice', `
+      ${h1(`${data.dogName}'s vaccines need attention, ${data.ownerName}.`, '#856404')}
+      ${p(`The following vaccine(s) are expiring within the next 30 days. To keep ${data.dogName} cleared to run, please visit your vet and upload updated records before they expire.`)}
+      ${infoBox([listItems], '#fffbea', '#ffc107')}
+      ${p(`Uploading is quick — just snap a clear photo of the updated certificate from your dog's profile.`)}
+      ${btn('Update Vaccine Records', 'https://app.thecaninegym.com/dogs')}
+    `)
   }
 
   if (type === 'vaccine_expiring_admin') {
-    const listItems = data.expiringFields.map((f: any) => `<p style="margin:0 0 8px 0;color:#333;">💉 <strong>${f.label}</strong> — expires ${f.date} (${f.daysLeft} days)</p>`).join('')
-    subject = `⚠️ Vaccine expiry alert: ${data.dogName} (${data.ownerName})`
-    html = `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;"><div style="background:#2c5a9e;padding:24px;border-radius:12px 12px 0 0;"><h1 style="color:white;margin:0;font-size:24px;">🐾 The Canine Gym — Admin</h1></div><div style="background:white;padding:32px;border:1px solid #eee;"><h2 style="color:#856404;">Vaccine Expiry Alert</h2><div style="background:#f5f5f5;padding:16px;border-radius:8px;margin-bottom:16px;"><p style="margin:0 0 6px 0;color:#333;">🐾 <strong>${data.dogName}</strong></p><p style="margin:0 0 6px 0;color:#333;">👤 ${data.ownerName}</p><p style="margin:0;color:#333;">✉️ ${data.ownerEmail}</p></div><div style="background:#fff3cd;border:1px solid #ffc107;padding:20px;border-radius:8px;">${listItems}</div><p style="color:#555;margin-top:16px;font-size:14px;">The client has been notified automatically.</p><a href="https://app.thecaninegym.com/admin/dogs/vaccines" style="display:block;background:#2c5a9e;color:white;text-align:center;padding:14px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px;margin-top:16px;">View Vaccine Records →</a></div></div>`
+    const listItems = data.expiringFields.map((f: any) => row(`💉 ${f.label}`, `Expires ${f.date} (${f.daysLeft} days)`)).join('')
+    subject = `Vaccine expiry alert: ${data.dogName} (${data.ownerName})`
+    html = emailWrapper('Vaccine Expiry Alert', `
+      ${h1('Vaccine Expiry Alert', '#856404')}
+      ${infoBox([row('Dog', data.dogName), row('Owner', data.ownerName), row('Email', data.ownerEmail)])}
+      ${infoBox([listItems], '#fffbea', '#ffc107')}
+      ${p('The client has been automatically notified and asked to upload updated records.')}
+      ${btn('View Vaccine Records', 'https://app.thecaninegym.com/admin/dogs/vaccines', BLUE)}
+    `)
   }
 
   if (type === 'vaccine_expired') {
-    const listItems = data.expiredFields.map((f: any) => `<p style="margin:0 0 8px 0;color:#333;">💉 <strong>${f.label}</strong> — expired ${f.date}</p>`).join('')
-    subject = `❌ ${data.dogName}'s vaccines have expired — booking paused`
-    html = `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;"><div style="background:#2c5a9e;padding:24px;border-radius:12px 12px 0 0;"><h1 style="color:white;margin:0;font-size:24px;">🐾 The Canine Gym</h1></div><div style="background:white;padding:32px;border:1px solid #eee;"><h2 style="color:#dc3545;">Hi ${data.ownerName}, ${data.dogName}'s vaccines have expired.</h2><p style="color:#555;line-height:1.6;">The following vaccines are now expired. We've temporarily paused ${data.dogName}'s ability to book until updated records are uploaded and approved.</p><div style="background:#f8d7da;border:1px solid #f5c6cb;padding:20px;border-radius:8px;margin:24px 0;">${listItems}</div><a href="https://app.thecaninegym.com/dogs" style="display:block;background:#f88124;color:white;text-align:center;padding:14px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px;">Upload Updated Records →</a></div><div style="background:#f5f5f5;padding:16px;border-radius:0 0 12px 12px;text-align:center;"><p style="color:#999;font-size:12px;margin:0;">The Canine Gym · Hamilton County, IN · thecaninegym.com</p></div></div>`
+    const listItems = data.expiredFields.map((f: any) => row(`💉 ${f.label}`, `Expired ${f.date}`)).join('')
+    subject = `Action required: ${data.dogName}'s vaccines have expired`
+    html = emailWrapper('Vaccines Expired', `
+      ${h1(`${data.dogName}'s vaccines have expired, ${data.ownerName}.`, '#dc3545')}
+      ${p(`We've temporarily paused ${data.dogName}'s ability to book sessions until updated records are uploaded and approved. This is to keep all dogs in our community safe.`)}
+      ${infoBox([listItems], '#f8d7da', '#f5c6cb')}
+      ${p(`Please visit your vet, get updated records, and upload a clear photo from your dog's profile. Once approved, booking will resume immediately.`)}
+      ${btn('Upload Updated Records', 'https://app.thecaninegym.com/dogs')}
+    `)
   }
 
   if (type === 'vaccine_expired_admin') {
-    const listItems = data.expiredFields.map((f: any) => `<p style="margin:0 0 8px 0;color:#333;">💉 <strong>${f.label}</strong> — expired ${f.date}</p>`).join('')
-    subject = `❌ Vaccines expired: ${data.dogName} (${data.ownerName}) — status reset to pending`
-    html = `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;"><div style="background:#2c5a9e;padding:24px;border-radius:12px 12px 0 0;"><h1 style="color:white;margin:0;font-size:24px;">🐾 The Canine Gym — Admin</h1></div><div style="background:white;padding:32px;border:1px solid #eee;"><h2 style="color:#dc3545;">Vaccines Expired — Booking Blocked</h2><div style="background:#f5f5f5;padding:16px;border-radius:8px;margin-bottom:16px;"><p style="margin:0 0 6px 0;color:#333;">🐾 <strong>${data.dogName}</strong></p><p style="margin:0 0 6px 0;color:#333;">👤 ${data.ownerName}</p><p style="margin:0;color:#333;">✉️ ${data.ownerEmail}</p></div><div style="background:#f8d7da;border:1px solid #f5c6cb;padding:20px;border-radius:8px;">${listItems}</div><p style="color:#555;margin-top:16px;font-size:14px;">Vaccine status has been automatically reset to pending. The client has been notified and must re-upload before booking.</p><a href="https://app.thecaninegym.com/admin/dogs/vaccines" style="display:block;background:#2c5a9e;color:white;text-align:center;padding:14px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px;margin-top:16px;">View Vaccine Records →</a></div></div>`
+    const listItems = data.expiredFields.map((f: any) => row(`💉 ${f.label}`, `Expired ${f.date}`)).join('')
+    subject = `Vaccines expired: ${data.dogName} (${data.ownerName}) — booking blocked`
+    html = emailWrapper('Vaccines Expired — Booking Blocked', `
+      ${h1('Vaccines Expired — Booking Blocked', '#dc3545')}
+      ${infoBox([row('Dog', data.dogName), row('Owner', data.ownerName), row('Email', data.ownerEmail)])}
+      ${infoBox([listItems], '#f8d7da', '#f5c6cb')}
+      ${p('Vaccine status has been automatically reset to pending. The client has been notified and must re-upload and get approved before they can book again.')}
+      ${btn('View Vaccine Records', 'https://app.thecaninegym.com/admin/dogs/vaccines', BLUE)}
+    `)
   }
-  
+
   try {
     await resend.emails.send({
       from: 'The Canine Gym <info@thecaninegym.com>',
