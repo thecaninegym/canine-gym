@@ -108,7 +108,7 @@ export default function ClientDashboard() {
   ]
 
   if (loading) return (
-  <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #001a4d 0%, #003087 100%)' }}>
+  <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #001840 0%, #2c5a9e 100%)' }}>
     <style>{`
       @keyframes run { 0%,100% { transform: translateY(0px) scaleX(1); } 25% { transform: translateY(-10px) scaleX(1); } 75% { transform: translateY(-4px) scaleX(1); } }
       @keyframes paw1 { 0%,60%,100% { opacity: 0; } 30%,50% { opacity: 1; } }
@@ -128,7 +128,7 @@ export default function ClientDashboard() {
 )
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', fontFamily: "'Segoe UI', system-ui, sans-serif" }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', fontFamily: "'Montserrat', system-ui, sans-serif" }}>
       <style>{`
         @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes spin { to { transform: rotate(360deg); } }
@@ -147,7 +147,7 @@ export default function ClientDashboard() {
         @media (max-width: 700px) {
           .nav-links-desktop { display: none; }
           .nav-hamburger { display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.1); border: none; color: white; cursor: pointer; border-radius: 8px; width: 40px; height: 40px; }
-          .mobile-menu { display: flex; flex-direction: column; gap: 4px; position: absolute; top: 64px; left: 0; right: 0; background: linear-gradient(135deg, #001a4d 0%, #003087 100%); padding: 12px 16px; z-index: 99; border-top: 1px solid rgba(255,255,255,0.08); box-shadow: 0 8px 24px rgba(0,0,0,0.25); }
+          .mobile-menu { display: flex; flex-direction: column; gap: 4px; position: absolute; top: 64px; left: 0; right: 0; background: linear-gradient(135deg, #001840 0%, #2c5a9e 100%); padding: 12px 16px; z-index: 99; border-top: 1px solid rgba(255,255,255,0.08); box-shadow: 0 8px 24px rgba(0,0,0,0.25); }
           .mobile-menu a, .mobile-menu button { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 10px; color: rgba(255,255,255,0.9) !important; font-size: 14px !important; font-weight: 600; text-decoration: none; background: rgba(255,255,255,0.05); border: none; cursor: pointer; width: 100%; }
 
           /* Hero card stacks on mobile */
@@ -188,12 +188,9 @@ export default function ClientDashboard() {
       `}</style>
 
       {/* Nav */}
-      <nav style={{ background: 'linear-gradient(135deg, #001a4d 0%, #003087 100%)', padding: '0 24px', height: '64px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 20px rgba(0,0,0,0.2)' }}>
+      <nav style={{ background: 'linear-gradient(135deg, #001840 0%, #2c5a9e 100%)', padding: '0 24px', height: '64px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 20px rgba(0,0,0,0.2)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ width: '36px', height: '36px', background: 'rgba(255,107,53,0.2)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <PawPrint size={20} color="#FF6B35" />
-          </div>
-          <span style={{ color: 'white', fontSize: '17px', fontWeight: '700', letterSpacing: '-0.3px' }}>The Canine Gym</span>
+          <img src="/logo-white.png" alt="The Canine Gym" style={{ height: '40px', width: 'auto' }} />
         </div>
 
         {/* Desktop nav */}
@@ -209,7 +206,7 @@ export default function ClientDashboard() {
               {item.icon} {item.label}
             </a>
           ))}
-          <button onClick={handleLogout} style={{ backgroundColor: '#FF6B35', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', marginLeft: '8px', transition: 'all 0.15s' }}>
+          <button onClick={handleLogout} style={{ backgroundColor: '#f88124', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', marginLeft: '8px', transition: 'all 0.15s' }}>
             <LogOut size={14} /> Logout
           </button>
         </div>
@@ -237,7 +234,7 @@ export default function ClientDashboard() {
               {item.icon} {item.label}
             </a>
           ))}
-          <button onClick={() => { setMobileMenuOpen(false); handleLogout() }} style={{ color: '#FF6B35 !important' as any }}>
+          <button onClick={() => { setMobileMenuOpen(false); handleLogout() }} style={{ color: '#f88124 !important' as any }}>
             <LogOut size={16} /> Logout
           </button>
         </div>
@@ -248,9 +245,9 @@ export default function ClientDashboard() {
         {/* ONBOARDING STATE */}
         {!hasAddress || !hasDogs || !hasWaiver ? (
           <div style={{ maxWidth: '580px', margin: '0 auto', animation: 'fadeUp 0.4s ease' }}>
-            <div style={{ background: 'linear-gradient(135deg, #001a4d, #003087)', borderRadius: '20px', padding: '40px', marginBottom: '16px', textAlign: 'center' }}>
+            <div style={{ background: 'linear-gradient(135deg, #001840, #2c5a9e)', borderRadius: '20px', padding: '40px', marginBottom: '16px', textAlign: 'center' }}>
               <div style={{ width: '80px', height: '80px', background: 'rgba(255,107,53,0.15)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
-                <PawPrint size={40} color="#FF6B35" />
+                <PawPrint size={40} color="#f88124" />
               </div>
               <h2 style={{ color: 'white', margin: '0 0 8px', fontSize: '26px', fontWeight: '800' }}>Welcome to The Canine Gym!</h2>
               <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '15px', margin: '0 0 32px', lineHeight: '1.6' }}>The run comes to you. Complete these steps to book your first session.</p>
@@ -272,20 +269,20 @@ export default function ClientDashboard() {
                     </div>
                   ) : (
                     <a key={item.step} href={item.href} style={{ display: 'flex', alignItems: 'center', gap: '14px', background: 'rgba(255,255,255,0.07)', padding: '18px', borderRadius: '14px', textDecoration: 'none', border: '1.5px solid rgba(255,107,53,0.5)', transition: 'all 0.2s' }}>
-                      <div style={{ width: '44px', height: '44px', background: '#FF6B35', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <div style={{ width: '44px', height: '44px', background: '#f88124', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         <span style={{ color: 'white' }}>{item.icon}</span>
                       </div>
                       <div style={{ flex: 1 }}>
                         <p style={{ margin: '0 0 3px', fontWeight: '700', color: 'white', fontSize: '15px' }}>Step {item.step} — {item.title}</p>
                         <p style={{ margin: 0, color: 'rgba(255,255,255,0.55)', fontSize: '13px' }}>{item.subtitle}</p>
                       </div>
-                      <ChevronRight size={20} color="#FF6B35" />
+                      <ChevronRight size={20} color="#f88124" />
                     </a>
                   )
                 ))}
               </div>
               {hasAddress && hasDogs && hasWaiver && (
-                <a href="/book" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '24px', backgroundColor: '#FF6B35', color: 'white', padding: '14px 32px', borderRadius: '12px', textDecoration: 'none', fontWeight: '700', fontSize: '16px' }}>
+                <a href="/book" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '24px', backgroundColor: '#f88124', color: 'white', padding: '14px 32px', borderRadius: '12px', textDecoration: 'none', fontWeight: '700', fontSize: '16px' }}>
                   <Calendar size={18} /> Book Your First Session
                 </a>
               )}
@@ -301,14 +298,14 @@ export default function ClientDashboard() {
                 {dogs.map(dog => (
                   <button key={dog.id} onClick={() => handleDogSelect(dog)} className="dog-tab"
                     style={{ padding: '10px 18px', borderRadius: '40px', border: 'none', cursor: 'pointer', fontWeight: '700', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px', transition: 'all 0.2s', flexShrink: 0,
-                      backgroundColor: selectedDog?.id === dog.id ? '#003087' : 'white',
-                      color: selectedDog?.id === dog.id ? 'white' : '#003087',
+                      backgroundColor: selectedDog?.id === dog.id ? '#2c5a9e' : 'white',
+                      color: selectedDog?.id === dog.id ? 'white' : '#2c5a9e',
                     }}>
                     {dog.photo_url ? (
                       <img src={dog.photo_url} alt={dog.name} style={{ width: '26px', height: '26px', borderRadius: '50%', objectFit: 'cover' }} />
                     ) : (
-                      <div style={{ width: '26px', height: '26px', borderRadius: '50%', background: selectedDog?.id === dog.id ? 'rgba(255,255,255,0.2)' : '#e8edf5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <PawPrint size={13} color={selectedDog?.id === dog.id ? 'white' : '#003087'} />
+                      <div style={{ width: '26px', height: '26px', borderRadius: '50%', background: selectedDog?.id === dog.id ? 'rgba(255,255,255,0.2)' : '#eef2fb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <PawPrint size={13} color={selectedDog?.id === dog.id ? 'white' : '#2c5a9e'} />
                       </div>
                     )}
                     {dog.name}
@@ -322,7 +319,7 @@ export default function ClientDashboard() {
               <div style={{ animation: 'fadeUp 0.35s ease' }}>
 
                 {/* DOG HERO CARD */}
-                <div style={{ borderRadius: '20px', overflow: 'hidden', marginBottom: '20px', boxShadow: '0 8px 32px rgba(0,48,135,0.18)', position: 'relative', background: 'linear-gradient(135deg, #001a4d 0%, #003087 100%)' }}>
+                <div style={{ borderRadius: '20px', overflow: 'hidden', marginBottom: '20px', boxShadow: '0 8px 32px rgba(0,48,135,0.18)', position: 'relative', background: 'linear-gradient(135deg, #001840 0%, #2c5a9e 100%)' }}>
                   <div style={{ position: 'absolute', right: '-20px', bottom: '-30px', opacity: 0.04, pointerEvents: 'none' }}>
                     <PawPrint size={220} color="white" />
                   </div>
@@ -359,7 +356,7 @@ export default function ClientDashboard() {
                       </div>
                     </div>
                     <div className="hero-actions" style={{ display: 'flex', flexDirection: 'column', gap: '10px', flexShrink: 0 }}>
-                      <a href="/book" className="action-btn" style={{ backgroundColor: '#FF6B35', color: 'white', padding: '11px 20px', borderRadius: '12px', textDecoration: 'none', fontWeight: '700', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '7px', transition: 'all 0.2s', boxShadow: '0 4px 16px rgba(255,107,53,0.4)', whiteSpace: 'nowrap' }}>
+                      <a href="/book" className="action-btn" style={{ backgroundColor: '#f88124', color: 'white', padding: '11px 20px', borderRadius: '12px', textDecoration: 'none', fontWeight: '700', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '7px', transition: 'all 0.2s', boxShadow: '0 4px 16px rgba(255,107,53,0.4)', whiteSpace: 'nowrap' }}>
                         <Calendar size={15} /> Book Session
                       </a>
                       <button onClick={() => setShowShareModal(true)}
@@ -390,7 +387,7 @@ export default function ClientDashboard() {
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                         <a href={`/api/session-card?dog=${encodeURIComponent(selectedDog.name)}&sessions=${totalSessions}&miles=${totalMiles}&calories=${totalCalories}&city=${encodeURIComponent(selectedDog.leaderboard_settings?.city || '')}&photo=${encodeURIComponent(selectedDog.photo_url || '')}`} download={`${selectedDog.name}-stats.png`}
-                          style={{ background: 'linear-gradient(135deg, #003087, #0052cc)', color: 'white', padding: '13px 20px', borderRadius: '12px', textDecoration: 'none', fontWeight: '700', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                          style={{ background: 'linear-gradient(135deg, #2c5a9e, #2c5a9e)', color: 'white', padding: '13px 20px', borderRadius: '12px', textDecoration: 'none', fontWeight: '700', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                           Save Image
                         </a>
@@ -413,15 +410,15 @@ export default function ClientDashboard() {
 
                   if (!dogIsCovered) {
                     return (
-                      <div style={{ background: '#f8f9ff', borderRadius: '16px', padding: '16px 20px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '14px', border: '1.5px dashed #d0d8ee', flexWrap: 'wrap' }}>
-                        <div style={{ width: '38px', height: '38px', background: '#e8edf5', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <div style={{ background: '#f8f9ff', borderRadius: '16px', padding: '16px 20px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '14px', border: '1.5px dashed #c8d4f0', flexWrap: 'wrap' }}>
+                        <div style={{ width: '38px', height: '38px', background: '#eef2fb', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                           <CreditCard size={18} color="#8a9bc0" />
                         </div>
                         <div style={{ flex: 1, minWidth: '160px' }}>
                           <p style={{ margin: '0 0 2px', color: '#5a6a8a', fontWeight: '700', fontSize: '14px' }}>{selectedDog.name} isn't on a membership</p>
                           <p style={{ margin: 0, color: '#9aaac8', fontSize: '13px' }}>Your {membership.plan} plan covers: {coveredDogs.map(d => d.name).join(', ')}</p>
                         </div>
-                        <a href="/membership" style={{ color: '#003087', fontWeight: '700', fontSize: '13px', textDecoration: 'none', background: 'white', padding: '8px 14px', borderRadius: '8px', border: '1.5px solid #d0d8ee', flexShrink: 0 }}>
+                        <a href="/membership" style={{ color: '#2c5a9e', fontWeight: '700', fontSize: '13px', textDecoration: 'none', background: 'white', padding: '8px 14px', borderRadius: '8px', border: '1.5px solid #c8d4f0', flexShrink: 0 }}>
                           Add {selectedDog.name} →
                         </a>
                       </div>
@@ -429,7 +426,7 @@ export default function ClientDashboard() {
                   }
 
                   return (
-                    <div style={{ background: isCancelled ? 'linear-gradient(135deg, #4a5568, #6c757d)' : 'linear-gradient(135deg, #003087, #0052cc)', borderRadius: '16px', padding: '20px 24px', marginBottom: '20px', boxShadow: '0 4px 20px rgba(0,48,135,0.2)', position: 'relative', overflow: 'hidden' }}>
+                    <div style={{ background: isCancelled ? 'linear-gradient(135deg, #4a5568, #6c757d)' : 'linear-gradient(135deg, #2c5a9e, #2c5a9e)', borderRadius: '16px', padding: '20px 24px', marginBottom: '20px', boxShadow: '0 4px 20px rgba(0,48,135,0.2)', position: 'relative', overflow: 'hidden' }}>
                       <div style={{ position: 'absolute', right: '-10px', top: '-10px', opacity: 0.07, pointerEvents: 'none' }}><CreditCard size={120} color="white" /></div>
                       <div className="membership-inner" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
                         <div style={{ width: '48px', height: '48px', background: 'rgba(255,255,255,0.12)', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -476,9 +473,9 @@ export default function ClientDashboard() {
                 {/* STAT CARDS */}
                 <div className="stat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px', marginBottom: '20px' }}>
                   {[
-                    { label: 'Total Sessions', value: totalSessions, icon: <PawPrint size={22} />, color: '#003087', bg: '#e8edf5' },
-                    { label: 'Total Miles', value: totalMiles, icon: <Navigation size={22} />, color: '#003087', bg: '#e8edf5' },
-                    { label: 'Calories Burned', value: totalCalories.toLocaleString(), icon: <Flame size={22} />, color: '#FF6B35', bg: '#fff0ea' },
+                    { label: 'Total Sessions', value: totalSessions, icon: <PawPrint size={22} />, color: '#2c5a9e', bg: '#eef2fb' },
+                    { label: 'Total Miles', value: totalMiles, icon: <Navigation size={22} />, color: '#2c5a9e', bg: '#eef2fb' },
+                    { label: 'Calories Burned', value: totalCalories.toLocaleString(), icon: <Flame size={22} />, color: '#f88124', bg: '#fff0ea' },
                   ].map(stat => (
                     <div key={stat.label} className="stat-card" style={{ backgroundColor: 'white', padding: '18px', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '14px' }}>
                       <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: stat.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: stat.color, flexShrink: 0 }}>
@@ -496,11 +493,11 @@ export default function ClientDashboard() {
                 {upcomingBookings.length > 0 && (
                   <div style={{ backgroundColor: 'white', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', overflow: 'hidden', marginBottom: '20px' }}>
                     <div className="card-header" style={{ padding: '18px 24px', borderBottom: '1px solid #f0f2f7', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <div style={{ width: '34px', height: '34px', background: '#e8edf5', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Calendar size={17} color="#003087" />
+                      <div style={{ width: '34px', height: '34px', background: '#eef2fb', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Calendar size={17} color="#2c5a9e" />
                       </div>
                       <h3 style={{ margin: 0, color: '#1a1a2e', fontSize: '16px', fontWeight: '700' }}>Upcoming Sessions</h3>
-                      <span style={{ marginLeft: 'auto', background: '#003087', color: 'white', borderRadius: '20px', padding: '2px 10px', fontSize: '12px', fontWeight: '700' }}>{upcomingBookings.length}</span>
+                      <span style={{ marginLeft: 'auto', background: '#2c5a9e', color: 'white', borderRadius: '20px', padding: '2px 10px', fontSize: '12px', fontWeight: '700' }}>{upcomingBookings.length}</span>
                     </div>
                     {upcomingBookings.map((booking, i) => {
                       const bookingDate = new Date(booking.booking_date + 'T12:00:00')
@@ -512,7 +509,7 @@ export default function ClientDashboard() {
                         <div key={booking.id} className="booking-row" style={{ padding: '16px 20px', borderBottom: i < upcomingBookings.length - 1 ? '1px solid #f0f2f7' : 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
                             <div style={{ width: '46px', height: '46px', background: '#f0f2f7', borderRadius: '12px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                              <span style={{ fontSize: '16px', fontWeight: '800', color: '#003087', lineHeight: 1 }}>{bookingDate.getDate()}</span>
+                              <span style={{ fontSize: '16px', fontWeight: '800', color: '#2c5a9e', lineHeight: 1 }}>{bookingDate.getDate()}</span>
                               <span style={{ fontSize: '10px', color: '#888', textTransform: 'uppercase', letterSpacing: '0.3px' }}>{bookingDate.toLocaleDateString('en-US', { month: 'short' })}</span>
                             </div>
                             <div>
@@ -522,7 +519,7 @@ export default function ClientDashboard() {
                               <p style={{ margin: 0, fontSize: '13px', color: '#888', display: 'flex', alignItems: 'center', gap: '4px' }}>
                                 <Clock size={12} /> {hour}:00 {ampm} – {hour}:30 {ampm}
                               </p>
-                              {!canCancelFree && <p style={{ margin: '4px 0 0', fontSize: '11px', color: '#FF6B35', fontWeight: '600' }}>⚠️ Less than 48hrs — cancellation fee may apply</p>}
+                              {!canCancelFree && <p style={{ margin: '4px 0 0', fontSize: '11px', color: '#f88124', fontWeight: '600' }}>⚠️ Less than 48hrs — cancellation fee may apply</p>}
                             </div>
                           </div>
                           <a href={`/cancel?booking=${booking.id}`} className="cancel-btn"
@@ -539,7 +536,7 @@ export default function ClientDashboard() {
                 <div style={{ backgroundColor: 'white', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', overflow: 'hidden', marginBottom: '20px' }}>
                   <div className="card-header" style={{ padding: '18px 24px', borderBottom: '1px solid #f0f2f7', display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <div style={{ width: '34px', height: '34px', background: '#fff5e6', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <Trophy size={17} color="#FF6B35" />
+                      <Trophy size={17} color="#f88124" />
                     </div>
                     <h3 style={{ margin: 0, color: '#1a1a2e', fontSize: '16px', fontWeight: '700' }}>Achievements</h3>
                     <span style={{ marginLeft: 'auto', fontSize: '13px', color: '#888' }}>{achievements.length}<span style={{ color: '#ccc' }}>/{allAchievements.length}</span></span>
@@ -553,7 +550,7 @@ export default function ClientDashboard() {
                             const earned = achievements.find(e => e.achievement_key === a.key)
                             return (
                               <button key={a.key} onClick={() => setSelectedAchievement({ ...a, earned })}
-                                style={{ background: 'linear-gradient(135deg, #FF6B35, #ff8c5a)', color: 'white', padding: '8px 14px', borderRadius: '10px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', border: 'none', boxShadow: '0 3px 10px rgba(255,107,53,0.3)', transition: 'all 0.2s' }}>
+                                style={{ background: 'linear-gradient(135deg, #f88124, #f9a04e)', color: 'white', padding: '8px 14px', borderRadius: '10px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', border: 'none', boxShadow: '0 3px 10px rgba(255,107,53,0.3)', transition: 'all 0.2s' }}>
                                 <span style={{ fontSize: '15px' }}>{a.icon}</span> {a.label}
                               </button>
                             )
@@ -594,7 +591,7 @@ export default function ClientDashboard() {
                         </div>
                       )}
                       <button onClick={() => setSelectedAchievement(null)}
-                        style={{ padding: '11px 28px', background: '#003087', color: 'white', border: 'none', borderRadius: '12px', cursor: 'pointer', fontWeight: '700', fontSize: '15px' }}>
+                        style={{ padding: '11px 28px', background: '#2c5a9e', color: 'white', border: 'none', borderRadius: '12px', cursor: 'pointer', fontWeight: '700', fontSize: '15px' }}>
                         Close
                       </button>
                     </div>
@@ -604,8 +601,8 @@ export default function ClientDashboard() {
                 {/* RECENT SESSIONS */}
                 <div style={{ backgroundColor: 'white', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', overflow: 'hidden', marginBottom: '20px' }}>
                   <div className="card-header" style={{ padding: '18px 24px', borderBottom: '1px solid #f0f2f7', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <div style={{ width: '34px', height: '34px', background: '#e8edf5', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <Activity size={17} color="#003087" />
+                    <div style={{ width: '34px', height: '34px', background: '#eef2fb', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Activity size={17} color="#2c5a9e" />
                     </div>
                     <h3 style={{ margin: 0, color: '#1a1a2e', fontSize: '16px', fontWeight: '700' }}>Recent Sessions</h3>
                   </div>
@@ -621,7 +618,7 @@ export default function ClientDashboard() {
                         style={{ padding: '16px 20px', borderBottom: i < sessions.length - 1 ? '1px solid #f0f2f7' : 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', transition: 'background 0.15s' }}>
                         <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
                           <div style={{ width: '42px', height: '42px', background: '#f0f2f7', borderRadius: '12px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                            <span style={{ fontSize: '14px', fontWeight: '800', color: '#003087', lineHeight: 1 }}>{new Date(session.session_date).getDate()}</span>
+                            <span style={{ fontSize: '14px', fontWeight: '800', color: '#2c5a9e', lineHeight: 1 }}>{new Date(session.session_date).getDate()}</span>
                             <span style={{ fontSize: '9px', color: '#888', textTransform: 'uppercase' }}>{new Date(session.session_date).toLocaleDateString('en-US', { month: 'short' })}</span>
                           </div>
                           <div>
@@ -638,7 +635,7 @@ export default function ClientDashboard() {
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
                           {session.activity_score && (
-                            <div style={{ background: 'linear-gradient(135deg, #FF6B35, #ff8c5a)', color: 'white', padding: '4px 12px', borderRadius: '20px', fontSize: '13px', fontWeight: '700', boxShadow: '0 2px 8px rgba(255,107,53,0.3)' }}>
+                            <div style={{ background: 'linear-gradient(135deg, #f88124, #f9a04e)', color: 'white', padding: '4px 12px', borderRadius: '20px', fontSize: '13px', fontWeight: '700', boxShadow: '0 2px 8px rgba(255,107,53,0.3)' }}>
                               {session.activity_score}
                             </div>
                           )}
@@ -654,10 +651,10 @@ export default function ClientDashboard() {
                   <div style={{ backgroundColor: 'white', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', overflow: 'hidden', marginBottom: '20px' }}>
                     <div className="card-header" style={{ padding: '18px 24px', borderBottom: '1px solid #f0f2f7', display: 'flex', alignItems: 'center', gap: '10px' }}>
                       <div style={{ width: '34px', height: '34px', background: '#fff0ea', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Users size={17} color="#FF6B35" />
+                        <Users size={17} color="#f88124" />
                       </div>
                       <h3 style={{ margin: 0, color: '#1a1a2e', fontSize: '16px', fontWeight: '700' }}>Friends Activity</h3>
-                      <span style={{ marginLeft: 'auto', background: '#FF6B35', color: 'white', borderRadius: '20px', padding: '2px 10px', fontSize: '12px', fontWeight: '700' }}>Last 7 days</span>
+                      <span style={{ marginLeft: 'auto', background: '#f88124', color: 'white', borderRadius: '20px', padding: '2px 10px', fontSize: '12px', fontWeight: '700' }}>Last 7 days</span>
                     </div>
                     {friendsActivity.map((item, i) => {
                       const daysDiff = Math.floor((Date.now() - new Date(item.session_date).getTime()) / (1000 * 60 * 60 * 24))

@@ -46,15 +46,13 @@ export default function AllDogs() {
   )
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', fontFamily: "'Segoe UI', system-ui, sans-serif" }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', fontFamily: "'Montserrat', system-ui, sans-serif" }}>
       <style>{`@keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } } * { box-sizing: border-box; }`}</style>
 
-      <nav style={{ background: 'linear-gradient(135deg, #001a4d 0%, #003087 100%)', padding: '0 24px', height: '64px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 20px rgba(0,0,0,0.2)' }}>
+      <nav style={{ background: 'linear-gradient(135deg, #001840 0%, #2c5a9e 100%)', padding: '0 24px', height: '64px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 20px rgba(0,0,0,0.2)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ width: '36px', height: '36px', background: 'rgba(255,107,53,0.2)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <PawPrint size={20} color="#FF6B35" />
-          </div>
-          <span style={{ color: 'white', fontSize: '17px', fontWeight: '700' }}>The Canine Gym <span style={{ color: 'rgba(255,255,255,0.45)', fontWeight: '500' }}>· Admin</span></span>
+          <img src="/logo-white.png" alt="The Canine Gym" style={{ height: '40px', width: 'auto' }} />
+          <span style={{ color: 'rgba(255,255,255,0.45)', fontWeight: '500', fontSize: '15px' }}>· Admin</span>
         </div>
         <a href="/admin" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none', fontWeight: '600', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)' }}>
           <ArrowLeft size={15} /> Dashboard
@@ -72,12 +70,12 @@ export default function AllDogs() {
             <a href="/admin/dogs/vaccines" style={{ background: pendingCount > 0 ? '#fff3cd' : 'white', color: pendingCount > 0 ? '#856404' : '#555', border: pendingCount > 0 ? '2px solid #ffc107' : '1.5px solid #e5e8f0', padding: '9px 16px', borderRadius: '10px', textDecoration: 'none', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <Shield size={14} /> Vaccine Reviews
               {pendingCount > 0 && (
-                <span style={{ background: '#FF6B35', color: 'white', borderRadius: '50%', width: '18px', height: '18px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: '700' }}>
+                <span style={{ background: '#f88124', color: 'white', borderRadius: '50%', width: '18px', height: '18px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: '700' }}>
                   {pendingCount}
                 </span>
               )}
             </a>
-            <a href="/admin/dogs/new" style={{ background: 'linear-gradient(135deg, #FF6B35, #ff8c5a)', color: 'white', padding: '10px 18px', borderRadius: '10px', textDecoration: 'none', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 4px 12px rgba(255,107,53,0.3)' }}>
+            <a href="/admin/dogs/new" style={{ background: 'linear-gradient(135deg, #f88124, #f9a04e)', color: 'white', padding: '10px 18px', borderRadius: '10px', textDecoration: 'none', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', boxShadow: '0 4px 12px rgba(255,107,53,0.3)' }}>
               <Plus size={15} /> Add Dog
             </a>
           </div>
@@ -136,10 +134,10 @@ export default function AllDogs() {
                   </div>
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <a href="/admin/dogs/vaccines"
-                      style={{ background: badge.label === 'Pending Review' ? '#fff3cd' : '#f0f4ff', color: badge.label === 'Pending Review' ? '#856404' : '#003087', padding: '8px 14px', borderRadius: '10px', textDecoration: 'none', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px', border: badge.label === 'Pending Review' ? '1.5px solid #ffc107' : '1.5px solid #d0d8ee' }}>
+                      style={{ background: badge.label === 'Pending Review' ? '#fff3cd' : '#eef2fb', color: badge.label === 'Pending Review' ? '#856404' : '#2c5a9e', padding: '8px 14px', borderRadius: '10px', textDecoration: 'none', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px', border: badge.label === 'Pending Review' ? '1.5px solid #ffc107' : '1.5px solid #c8d4f0' }}>
                       <Shield size={13} /> Vaccines
                     </a>
-                    <a href={`/admin/sessions/new?dog=${dog.id}`} style={{ background: 'linear-gradient(135deg, #FF6B35, #ff8c5a)', color: 'white', padding: '8px 16px', borderRadius: '10px', textDecoration: 'none', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px', boxShadow: '0 3px 10px rgba(255,107,53,0.25)' }}>
+                    <a href={`/admin/sessions/new?dog=${dog.id}`} style={{ background: 'linear-gradient(135deg, #f88124, #f9a04e)', color: 'white', padding: '8px 16px', borderRadius: '10px', textDecoration: 'none', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px', boxShadow: '0 3px 10px rgba(255,107,53,0.25)' }}>
                       <Activity size={13} /> Log Session
                     </a>
                   </div>

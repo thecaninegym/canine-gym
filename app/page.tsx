@@ -59,7 +59,7 @@ await supabase.from('owners').insert([{ name: fullName, email, phone }])
   const switchMode = (newMode: 'login' | 'signup' | 'reset') => { setMode(newMode); setError(null); setResetSent(false) }
 
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #001a4d 0%, #003087 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', fontFamily: "'Segoe UI', system-ui, sans-serif", position: 'relative', overflow: 'hidden' }}>
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #001840 0%, #2c5a9e 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', fontFamily: "'Montserrat', system-ui, sans-serif", position: 'relative', overflow: 'hidden' }}>
       <style>{`
         @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
         input:-webkit-autofill { -webkit-box-shadow: 0 0 0px 1000px rgba(0,48,135,0.8) inset !important; -webkit-text-fill-color: white !important; }
@@ -77,7 +77,7 @@ await supabase.from('owners').insert([{ name: fullName, email, phone }])
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <div style={{ width: '64px', height: '64px', background: 'rgba(255,107,53,0.2)', borderRadius: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
-            <PawPrint size={32} color="#FF6B35" />
+            <PawPrint size={32} color="#f88124" />
           </div>
           <h1 style={{ color: 'white', fontSize: '26px', fontWeight: '800', margin: '0 0 4px', letterSpacing: '-0.5px' }}>The Canine Gym</h1>
           <p style={{ color: 'rgba(255,255,255,0.55)', margin: 0, fontSize: '14px' }}>The run comes to you.</p>
@@ -91,7 +91,7 @@ await supabase.from('owners').insert([{ name: fullName, email, phone }])
             <h2 style={{ color: 'white', margin: '0 0 10px', fontWeight: '800', fontSize: '20px' }}>Welcome to the pack!</h2>
             <p style={{ color: 'rgba(255,255,255,0.6)', marginBottom: '24px', fontSize: '14px', lineHeight: 1.6 }}>Your account has been created. You can log in now!</p>
             <button onClick={() => { setMode('login'); setSignupSuccess(false) }}
-              style={{ width: '100%', padding: '13px', background: 'linear-gradient(135deg, #FF6B35, #ff8c5a)', color: 'white', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: 'pointer' }}>
+              style={{ width: '100%', padding: '13px', background: 'linear-gradient(135deg, #f88124, #f9a04e)', color: 'white', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: 'pointer' }}>
               Go to Login
             </button>
           </div>
@@ -125,13 +125,13 @@ await supabase.from('owners').insert([{ name: fullName, email, phone }])
                 </div>
                 <div style={{ marginBottom: '22px', textAlign: 'right' }}>
                   <button type="button" onClick={() => switchMode('reset')}
-                    style={{ background: 'none', border: 'none', color: '#FF6B35', fontSize: '13px', cursor: 'pointer', padding: 0, fontWeight: '600' }}>
+                    style={{ background: 'none', border: 'none', color: '#f88124', fontSize: '13px', cursor: 'pointer', padding: 0, fontWeight: '600' }}>
                     Forgot password?
                   </button>
                 </div>
                 {error && <div style={{ background: 'rgba(220,53,69,0.15)', border: '1.5px solid rgba(220,53,69,0.3)', color: '#ff8a94', padding: '10px 14px', borderRadius: '10px', marginBottom: '14px', fontSize: '13px', fontWeight: '600' }}>{error}</div>}
                 <button type="submit" disabled={loading}
-                  style={{ width: '100%', padding: '13px', background: 'linear-gradient(135deg, #FF6B35, #ff8c5a)', color: 'white', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: 'pointer', boxShadow: '0 4px 16px rgba(255,107,53,0.35)' }}>
+                  style={{ width: '100%', padding: '13px', background: 'linear-gradient(135deg, #f88124, #f9a04e)', color: 'white', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: 'pointer', boxShadow: '0 4px 16px rgba(255,107,53,0.35)' }}>
                   {loading ? 'Logging in…' : 'Log In'}
                 </button>
               </form>
@@ -168,7 +168,7 @@ await supabase.from('owners').insert([{ name: fullName, email, phone }])
                 </div>
                 {error && <div style={{ background: 'rgba(220,53,69,0.15)', border: '1.5px solid rgba(220,53,69,0.3)', color: '#ff8a94', padding: '10px 14px', borderRadius: '10px', marginBottom: '14px', fontSize: '13px', fontWeight: '600' }}>{error}</div>}
                 <button type="submit" disabled={loading}
-                  style={{ width: '100%', padding: '13px', background: 'linear-gradient(135deg, #FF6B35, #ff8c5a)', color: 'white', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: 'pointer', boxShadow: '0 4px 16px rgba(255,107,53,0.35)' }}>
+                  style={{ width: '100%', padding: '13px', background: 'linear-gradient(135deg, #f88124, #f9a04e)', color: 'white', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: 'pointer', boxShadow: '0 4px 16px rgba(255,107,53,0.35)' }}>
                   {loading ? 'Creating Account…' : 'Create Account'}
                 </button>
               </form>
@@ -200,7 +200,7 @@ await supabase.from('owners').insert([{ name: fullName, email, phone }])
                   </div>
                   {error && <div style={{ background: 'rgba(220,53,69,0.15)', border: '1.5px solid rgba(220,53,69,0.3)', color: '#ff8a94', padding: '10px 14px', borderRadius: '10px', marginBottom: '14px', fontSize: '13px', fontWeight: '600' }}>{error}</div>}
                   <button type="submit" disabled={loading}
-                    style={{ width: '100%', padding: '13px', background: 'linear-gradient(135deg, #FF6B35, #ff8c5a)', color: 'white', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: 'pointer', marginBottom: '10px', boxShadow: '0 4px 16px rgba(255,107,53,0.35)' }}>
+                    style={{ width: '100%', padding: '13px', background: 'linear-gradient(135deg, #f88124, #f9a04e)', color: 'white', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: 'pointer', marginBottom: '10px', boxShadow: '0 4px 16px rgba(255,107,53,0.35)' }}>
                     {loading ? 'Sending…' : 'Send Reset Link'}
                   </button>
                   <button type="button" onClick={() => switchMode('login')}

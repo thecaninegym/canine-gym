@@ -20,21 +20,19 @@ export default function ViewWaiver() {
   }, [id])
 
   if (loading) return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Segoe UI', system-ui, sans-serif" }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Montserrat', system-ui, sans-serif" }}>
       <p style={{ color: '#aaa' }}>Loading...</p>
     </div>
   )
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', fontFamily: "'Segoe UI', system-ui, sans-serif" }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', fontFamily: "'Montserrat', system-ui, sans-serif" }}>
       <style>{`@keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } } * { box-sizing: border-box; }`}</style>
 
-      <nav style={{ background: 'linear-gradient(135deg, #001a4d 0%, #003087 100%)', padding: '0 24px', height: '64px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 20px rgba(0,0,0,0.2)' }}>
+      <nav style={{ background: 'linear-gradient(135deg, #001840 0%, #2c5a9e 100%)', padding: '0 24px', height: '64px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 20px rgba(0,0,0,0.2)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ width: '36px', height: '36px', background: 'rgba(255,107,53,0.2)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <PawPrint size={20} color="#FF6B35" />
-          </div>
-          <span style={{ color: 'white', fontSize: '17px', fontWeight: '700' }}>The Canine Gym <span style={{ color: 'rgba(255,255,255,0.45)', fontWeight: '500' }}>· Admin</span></span>
+          <img src="/logo-white.png" alt="The Canine Gym" style={{ height: '40px', width: 'auto' }} />
+          <span style={{ color: 'rgba(255,255,255,0.45)', fontWeight: '500', fontSize: '15px' }}>· Admin</span>
         </div>
         <a href="/admin/owners" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none', fontWeight: '600', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)' }}>
           <ArrowLeft size={15} /> All Owners
@@ -43,7 +41,7 @@ export default function ViewWaiver() {
 
       <div style={{ padding: '32px 24px', maxWidth: '760px', margin: '0 auto', animation: 'fadeUp 0.35s ease' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-          <div style={{ width: '42px', height: '42px', background: 'linear-gradient(135deg, #001a4d, #003087)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: '42px', height: '42px', background: 'linear-gradient(135deg, #001840, #2c5a9e)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <ShieldCheck size={22} color="white" />
           </div>
           <div>
@@ -76,7 +74,7 @@ export default function ViewWaiver() {
 
               {/* Waiver document */}
               <div style={{ background: 'white', padding: '40px', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5', lineHeight: '1.8', color: '#444', fontSize: '14px' }}>
-                <h3 style={{ color: '#003087', marginTop: 0, fontSize: '16px', fontWeight: '800', letterSpacing: '0.3px' }}>THE CANINE GYM — LIABILITY WAIVER AND SERVICE AGREEMENT</h3>
+                <h3 style={{ color: '#2c5a9e', marginTop: 0, fontSize: '16px', fontWeight: '800', letterSpacing: '0.3px' }}>THE CANINE GYM — LIABILITY WAIVER AND SERVICE AGREEMENT</h3>
                 <p>This Liability Waiver and Service Agreement ("Agreement") is entered into between The Canine Gym ("Company") and the undersigned client ("Client") as of the date of signing.</p>
 
                 {[
@@ -92,7 +90,7 @@ export default function ViewWaiver() {
                   { num: '10', title: 'ENTIRE AGREEMENT', text: "This Agreement constitutes the entire agreement between the parties and supersedes all prior negotiations, representations, or agreements. By signing below, Client acknowledges that they have read, understood, and agree to be bound by all terms of this Agreement." },
                 ].map(({ num, title, text }) => (
                   <div key={num}>
-                    <h4 style={{ color: '#003087', margin: '24px 0 8px', fontSize: '13px', fontWeight: '800', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>{num}. {title}</h4>
+                    <h4 style={{ color: '#2c5a9e', margin: '24px 0 8px', fontSize: '13px', fontWeight: '800', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>{num}. {title}</h4>
                     <p style={{ margin: 0 }}>{text}</p>
                   </div>
                 ))}
@@ -100,7 +98,7 @@ export default function ViewWaiver() {
                 {/* Signature block */}
                 <div style={{ borderTop: '2px solid #eef0f5', marginTop: '36px', paddingTop: '28px' }}>
                   <p style={{ margin: '0 0 6px', color: '#888', fontSize: '12px', fontWeight: '700', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>Electronic Signature</p>
-                  <p style={{ margin: '0 0 6px', fontSize: '24px', color: '#003087', fontStyle: 'italic', fontFamily: 'Georgia, serif' }}>{owner.waiver_name}</p>
+                  <p style={{ margin: '0 0 6px', fontSize: '24px', color: '#2c5a9e', fontStyle: 'italic', fontFamily: 'Georgia, serif' }}>{owner.waiver_name}</p>
                   <p style={{ margin: 0, fontSize: '13px', color: '#aaa' }}>
                     Signed electronically on {new Date(owner.waiver_signed_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} · {owner.email}
                   </p>

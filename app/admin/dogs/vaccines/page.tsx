@@ -78,7 +78,7 @@ export default function AdminVaccineReview() {
   const reviewed = vaccines.filter(v => v.status !== 'pending')
 
   if (loading) return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Segoe UI', system-ui, sans-serif" }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Montserrat', system-ui, sans-serif" }}>
       <p style={{ color: '#888' }}>Loading...</p>
     </div>
   )
@@ -127,9 +127,9 @@ export default function AdminVaccineReview() {
           <p style={{ fontWeight: '700', color: '#555', fontSize: '12px', margin: '0 0 8px' }}>Submitted Photo</p>
           {vaccine.photo_url?.toLowerCase().includes('.pdf') ? (
             <a href={vaccine.photo_url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-              <div style={{ width: '100%', maxWidth: '400px', height: '120px', border: '2px solid #003087', borderRadius: '12px', background: '#f0f4ff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer' }}>
+              <div style={{ width: '100%', maxWidth: '400px', height: '120px', border: '2px solid #2c5a9e', borderRadius: '12px', background: '#eef2fb', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer' }}>
                 <div style={{ fontSize: '32px' }}>📄</div>
-                <span style={{ color: '#003087', fontWeight: '700', fontSize: '13px' }}>Click to open PDF</span>
+                <span style={{ color: '#2c5a9e', fontWeight: '700', fontSize: '13px' }}>Click to open PDF</span>
               </div>
             </a>
           ) : (
@@ -200,7 +200,7 @@ export default function AdminVaccineReview() {
         )}
         {!isPending && vaccine.status === 'approved' && (
           <button onClick={() => handleApprove(vaccine)} disabled={saving === vaccine.id}
-            style={{ padding: '10px 20px', background: 'linear-gradient(135deg, #003087, #0052cc)', color: 'white', border: 'none', borderRadius: '10px', fontWeight: '700', cursor: 'pointer', fontSize: '14px' }}>
+            style={{ padding: '10px 20px', background: 'linear-gradient(135deg, #2c5a9e, #2c5a9e)', color: 'white', border: 'none', borderRadius: '10px', fontWeight: '700', cursor: 'pointer', fontSize: '14px' }}>
             {saving === vaccine.id ? 'Saving...' : 'Update Expiry Dates'}
           </button>
         )}
@@ -209,13 +209,13 @@ export default function AdminVaccineReview() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', fontFamily: "'Segoe UI', system-ui, sans-serif" }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', fontFamily: "'Montserrat', system-ui, sans-serif" }}>
       <style>{`@keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } } * { box-sizing: border-box; }`}</style>
 
-      <nav style={{ background: 'linear-gradient(135deg, #001a4d 0%, #003087 100%)', padding: '0 24px', height: '64px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 20px rgba(0,0,0,0.2)' }}>
+      <nav style={{ background: 'linear-gradient(135deg, #001840 0%, #2c5a9e 100%)', padding: '0 24px', height: '64px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 20px rgba(0,0,0,0.2)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ width: '36px', height: '36px', background: 'rgba(255,107,53,0.2)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><PawPrint size={20} color="#FF6B35" /></div>
-          <span style={{ color: 'white', fontSize: '17px', fontWeight: '700' }}>The Canine Gym <span style={{ color: 'rgba(255,255,255,0.45)', fontWeight: '500' }}>· Admin</span></span>
+          <img src="/logo-white.png" alt="The Canine Gym" style={{ height: '40px', width: 'auto' }} />
+          <span style={{ color: 'rgba(255,255,255,0.45)', fontWeight: '500', fontSize: '15px' }}>· Admin</span>
         </div>
         <a href="/admin/dogs" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none', fontWeight: '600', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)' }}>
           <ArrowLeft size={15} /> All Dogs
@@ -224,7 +224,7 @@ export default function AdminVaccineReview() {
 
       <div style={{ padding: '32px 24px', maxWidth: '900px', margin: '0 auto', animation: 'fadeUp 0.35s ease' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '28px' }}>
-          <div style={{ width: '42px', height: '42px', background: 'linear-gradient(135deg, #001a4d, #003087)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: '42px', height: '42px', background: 'linear-gradient(135deg, #001840, #2c5a9e)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <ShieldCheck size={22} color="white" />
           </div>
           <div>

@@ -112,9 +112,9 @@ export default function BookSession() {
   const allSelectedApproved = selectedDogIds.every(id => vaccineStatus[id] === 'approved')
 
   if (loading) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #001a4d 0%, #003087 100%)' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #001840 0%, #2c5a9e 100%)' }}>
       <div style={{ textAlign: 'center' }}>
-        <div style={{ width: '48px', height: '48px', border: '3px solid rgba(255,255,255,0.2)', borderTopColor: '#FF6B35', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }} />
+        <div style={{ width: '48px', height: '48px', border: '3px solid rgba(255,255,255,0.2)', borderTopColor: '#f88124', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }} />
         <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '15px' }}>Loading…</p>
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
@@ -122,19 +122,16 @@ export default function BookSession() {
   )
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', fontFamily: "'Segoe UI', system-ui, sans-serif" }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', fontFamily: "'Montserrat', system-ui, sans-serif" }}>
       <style>{`
         @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
         * { box-sizing: border-box; }
       `}</style>
 
       {/* Nav */}
-      <nav style={{ background: 'linear-gradient(135deg, #001a4d 0%, #003087 100%)', padding: '0 24px', height: '64px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 20px rgba(0,0,0,0.2)' }}>
+      <nav style={{ background: 'linear-gradient(135deg, #001840 0%, #2c5a9e 100%)', padding: '0 24px', height: '64px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 20px rgba(0,0,0,0.2)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ width: '36px', height: '36px', background: 'rgba(255,107,53,0.2)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <PawPrint size={20} color="#FF6B35" />
-          </div>
-          <span style={{ color: 'white', fontSize: '17px', fontWeight: '700', letterSpacing: '-0.3px' }}>The Canine Gym</span>
+          <img src="/logo-white.png" alt="The Canine Gym" style={{ height: '40px', width: 'auto' }} />
         </div>
         <a href="/dashboard" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none', fontWeight: '600', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)' }}>
           <ArrowLeft size={15} /> Dashboard
@@ -146,7 +143,7 @@ export default function BookSession() {
         {/* Page Header */}
         <div style={{ marginBottom: '24px' }}>
           <h2 style={{ color: '#1a1a2e', margin: '0 0 4px', fontSize: '22px', fontWeight: '800' }}>Book a Session</h2>
-          <p style={{ color: '#888', margin: 0, fontSize: '13px' }}>Available times in <strong style={{ color: '#003087' }}>{ownerCity}</strong></p>
+          <p style={{ color: '#888', margin: 0, fontSize: '13px' }}>Available times in <strong style={{ color: '#2c5a9e' }}>{ownerCity}</strong></p>
         </div>
 
         {/* All dogs blocked */}
@@ -173,7 +170,7 @@ export default function BookSession() {
             <p style={{ color: '#888', margin: '0 0 24px', fontSize: '14px' }}>
               {selectedDate?.dayName}, {new Date(selectedDate?.dateStr + 'T12:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric' })} at {formatHour(selectedSlot!)}
             </p>
-            <a href="/dashboard" style={{ background: 'linear-gradient(135deg, #003087, #0052cc)', color: 'white', padding: '12px 28px', borderRadius: '12px', textDecoration: 'none', fontWeight: '700', fontSize: '14px', display: 'inline-block' }}>
+            <a href="/dashboard" style={{ background: 'linear-gradient(135deg, #2c5a9e, #2c5a9e)', color: 'white', padding: '12px 28px', borderRadius: '12px', textDecoration: 'none', fontWeight: '700', fontSize: '14px', display: 'inline-block' }}>
               Back to Dashboard
             </a>
           </div>
@@ -183,8 +180,8 @@ export default function BookSession() {
             {dogs.length > 0 && (
               <div style={{ background: 'white', borderRadius: '16px', padding: '24px', marginBottom: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-                  <div style={{ width: '34px', height: '34px', background: '#e8edf5', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <PawPrint size={17} color="#003087" />
+                  <div style={{ width: '34px', height: '34px', background: '#eef2fb', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <PawPrint size={17} color="#2c5a9e" />
                   </div>
                   <span style={{ fontWeight: '800', color: '#1a1a2e', fontSize: '15px' }}>Which dog(s)?</span>
                 </div>
@@ -196,7 +193,7 @@ export default function BookSession() {
                     return (
                       <div key={dog.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '5px' }}>
                         <button onClick={() => toggleDog(dog.id)} disabled={!isApproved}
-                          style={{ padding: '9px 18px', borderRadius: '10px', border: '1.5px solid', fontWeight: '700', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '7px', cursor: isApproved ? 'pointer' : 'not-allowed', opacity: isApproved ? 1 : 0.55, transition: 'all 0.15s', borderColor: isSelected ? '#003087' : isApproved ? '#e5e8f0' : '#ffc5c5', background: isSelected ? 'linear-gradient(135deg, #003087, #0052cc)' : isApproved ? 'white' : '#fff5f5', color: isSelected ? 'white' : '#1a1a2e' }}>
+                          style={{ padding: '9px 18px', borderRadius: '10px', border: '1.5px solid', fontWeight: '700', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '7px', cursor: isApproved ? 'pointer' : 'not-allowed', opacity: isApproved ? 1 : 0.55, transition: 'all 0.15s', borderColor: isSelected ? '#2c5a9e' : isApproved ? '#e5e8f0' : '#ffc5c5', background: isSelected ? 'linear-gradient(135deg, #2c5a9e, #2c5a9e)' : isApproved ? 'white' : '#fff5f5', color: isSelected ? 'white' : '#1a1a2e' }}>
                           {dog.photo_url
                             ? <img src={dog.photo_url} alt={dog.name} style={{ width: '24px', height: '24px', borderRadius: '6px', objectFit: 'cover' }} />
                             : <PawPrint size={15} />}
@@ -219,8 +216,8 @@ export default function BookSession() {
             {selectedDogIds.length > 0 && allSelectedApproved && (
               <div style={{ background: 'white', borderRadius: '16px', padding: '24px', marginBottom: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-                  <div style={{ width: '34px', height: '34px', background: '#e8edf5', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Calendar size={17} color="#003087" />
+                  <div style={{ width: '34px', height: '34px', background: '#eef2fb', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Calendar size={17} color="#2c5a9e" />
                   </div>
                   <span style={{ fontWeight: '800', color: '#1a1a2e', fontSize: '15px' }}>Pick a date</span>
                 </div>
@@ -229,7 +226,7 @@ export default function BookSession() {
                     const isSelected = selectedDate?.dateStr === dateObj.dateStr
                     return (
                       <button key={dateObj.dateStr} onClick={() => handleDateSelect(dateObj)}
-                        style={{ padding: '12px', borderRadius: '12px', border: '1.5px solid', cursor: 'pointer', textAlign: 'center', transition: 'all 0.15s', borderColor: isSelected ? '#003087' : '#e5e8f0', background: isSelected ? 'linear-gradient(135deg, #003087, #0052cc)' : 'white', color: isSelected ? 'white' : '#1a1a2e' }}>
+                        style={{ padding: '12px', borderRadius: '12px', border: '1.5px solid', cursor: 'pointer', textAlign: 'center', transition: 'all 0.15s', borderColor: isSelected ? '#2c5a9e' : '#e5e8f0', background: isSelected ? 'linear-gradient(135deg, #2c5a9e, #2c5a9e)' : 'white', color: isSelected ? 'white' : '#1a1a2e' }}>
                         <div style={{ fontWeight: '800', fontSize: '13px' }}>{dateObj.dayName}</div>
                         <div style={{ fontSize: '12px', opacity: 0.75, marginTop: '2px' }}>{new Date(dateObj.dateStr + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
                       </button>
@@ -244,7 +241,7 @@ export default function BookSession() {
               <div style={{ background: 'white', borderRadius: '16px', padding: '24px', marginBottom: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
                   <div style={{ width: '34px', height: '34px', background: '#fff5e6', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Clock size={17} color="#FF6B35" />
+                    <Clock size={17} color="#f88124" />
                   </div>
                   <span style={{ fontWeight: '800', color: '#1a1a2e', fontSize: '15px' }}>Pick a time</span>
                 </div>
@@ -255,7 +252,7 @@ export default function BookSession() {
                         const isSelected = selectedSlot === hour
                         return (
                           <button key={hour} onClick={() => setSelectedSlot(hour)}
-                            style={{ padding: '12px', borderRadius: '12px', border: '1.5px solid', cursor: 'pointer', fontWeight: '700', fontSize: '13px', transition: 'all 0.15s', borderColor: isSelected ? '#FF6B35' : '#e5e8f0', background: isSelected ? 'linear-gradient(135deg, #FF6B35, #ff8c5a)' : 'white', color: isSelected ? 'white' : '#1a1a2e' }}>
+                            style={{ padding: '12px', borderRadius: '12px', border: '1.5px solid', cursor: 'pointer', fontWeight: '700', fontSize: '13px', transition: 'all 0.15s', borderColor: isSelected ? '#f88124' : '#e5e8f0', background: isSelected ? 'linear-gradient(135deg, #f88124, #f9a04e)' : 'white', color: isSelected ? 'white' : '#1a1a2e' }}>
                             {formatHour(hour)}
                           </button>
                         )
@@ -268,7 +265,7 @@ export default function BookSession() {
             {/* Confirm button */}
             {selectedDate && selectedSlot !== null && selectedDogIds.length > 0 && allSelectedApproved && (
               <button onClick={handleBook} disabled={booking}
-                style={{ width: '100%', padding: '15px', background: 'linear-gradient(135deg, #FF6B35, #ff8c5a)', color: 'white', border: 'none', borderRadius: '14px', fontSize: '16px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', boxShadow: '0 4px 16px rgba(255,107,53,0.4)' }}>
+                style={{ width: '100%', padding: '15px', background: 'linear-gradient(135deg, #f88124, #f9a04e)', color: 'white', border: 'none', borderRadius: '14px', fontSize: '16px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', boxShadow: '0 4px 16px rgba(255,107,53,0.4)' }}>
                 <CheckCircle size={20} />
                 {booking ? 'Booking…' : `Confirm — ${selectedDate.dayName}, ${formatHour(selectedSlot)}`}
               </button>

@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
 
   return new ImageResponse(
     (
-      <div style={{ width: '630px', height: '630px', background: 'linear-gradient(135deg, #001a4d 0%, #003087 60%, #004db3 100%)', display: 'flex', flexDirection: 'column', fontFamily: 'Arial, sans-serif', position: 'relative', overflow: 'hidden', alignItems: 'center' }}>
+      <div style={{ width: '630px', height: '630px', background: 'linear-gradient(135deg, #001840 0%, #2c5a9e 60%, #3d70c0 100%)', display: 'flex', flexDirection: 'column', fontFamily: 'Arial, sans-serif', position: 'relative', overflow: 'hidden', alignItems: 'center' }}>
 
         {/* Decorative circles */}
         <div style={{ position: 'absolute', top: -80, right: -80, width: '280px', height: '280px', borderRadius: '50%', background: 'rgba(255,107,53,0.1)', display: 'flex' }} />
@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
         {/* Achievement */}
         {achievement && (
           <div style={{ display: 'flex', marginTop: '20px' }}>
-            <div style={{ background: 'linear-gradient(135deg, #FF6B35, #ff8c5a)', borderRadius: '40px', padding: '10px 24px', fontSize: '18px', fontWeight: 'bold', color: 'white', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ background: 'linear-gradient(135deg, #f88124, #f9a04e)', borderRadius: '40px', padding: '10px 24px', fontSize: '18px', fontWeight: 'bold', color: 'white', display: 'flex', alignItems: 'center', gap: '8px' }}>
               🏆 {achievement}
             </div>
           </div>

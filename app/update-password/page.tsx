@@ -49,7 +49,7 @@ export default function UpdatePassword() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#003087', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#2c5a9e', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
       <div style={{ width: '100%', maxWidth: '420px' }}>
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <div style={{ fontSize: '48px', marginBottom: '8px' }}>🐾</div>
@@ -60,12 +60,12 @@ export default function UpdatePassword() {
           {success ? (
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: '48px', marginBottom: '16px' }}>✅</div>
-              <h2 style={{ color: '#003087', margin: '0 0 12px 0' }}>Password Updated!</h2>
+              <h2 style={{ color: '#2c5a9e', margin: '0 0 12px 0' }}>Password Updated!</h2>
               <p style={{ color: '#666', marginBottom: '0' }}>Redirecting you to login...</p>
             </div>
           ) : (
             <form onSubmit={handleUpdate}>
-              <h2 style={{ color: '#003087', margin: '0 0 8px 0' }}>Set New Password</h2>
+              <h2 style={{ color: '#2c5a9e', margin: '0 0 8px 0' }}>Set New Password</h2>
               <p style={{ color: '#666', fontSize: '14px', marginBottom: '24px' }}>Choose a new password for your account.</p>
               <div style={{ marginBottom: '16px' }}>
                 <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>New Password</label>
@@ -79,7 +79,7 @@ export default function UpdatePassword() {
               </div>
               {error && <p style={{ color: 'red', marginBottom: '16px', fontSize: '14px', textAlign: 'center' }}>{error}</p>}
               <button type="submit" disabled={loading}
-                style={{ width: '100%', padding: '14px', backgroundColor: '#FF6B35', color: 'white', border: 'none', borderRadius: '8px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>
+                style={{ width: '100%', padding: '14px', backgroundColor: '#f88124', color: 'white', border: 'none', borderRadius: '8px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' }}>
                 {loading ? 'Updating...' : 'Update Password'}
               </button>
             </form>

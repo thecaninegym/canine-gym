@@ -178,9 +178,9 @@ export default function MyDogs() {
   }
 
   if (loading) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #001a4d 0%, #003087 100%)' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #001840 0%, #2c5a9e 100%)' }}>
       <div style={{ textAlign: 'center' }}>
-        <div style={{ width: '48px', height: '48px', border: '3px solid rgba(255,255,255,0.2)', borderTopColor: '#FF6B35', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }} />
+        <div style={{ width: '48px', height: '48px', border: '3px solid rgba(255,255,255,0.2)', borderTopColor: '#f88124', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }} />
         <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '15px' }}>Loading…</p>
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
@@ -188,11 +188,11 @@ export default function MyDogs() {
   )
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', fontFamily: "'Segoe UI', system-ui, sans-serif" }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', fontFamily: "'Montserrat', system-ui, sans-serif" }}>
       <style>{`
         @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
         .dog-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.1) !important; }
-        input:focus, select:focus { border-color: #003087 !important; box-shadow: 0 0 0 3px rgba(0,48,135,0.08); }
+        input:focus, select:focus { border-color: #2c5a9e !important; box-shadow: 0 0 0 3px rgba(0,48,135,0.08); }
         * { box-sizing: border-box; }
         @media (max-width: 480px) {
   .dog-header { flex-direction: column; gap: 12px; }
@@ -202,12 +202,9 @@ export default function MyDogs() {
       `}</style>
 
       {/* Nav */}
-      <nav style={{ background: 'linear-gradient(135deg, #001a4d 0%, #003087 100%)', padding: '0 24px', height: '64px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 20px rgba(0,0,0,0.2)' }}>
+      <nav style={{ background: 'linear-gradient(135deg, #001840 0%, #2c5a9e 100%)', padding: '0 24px', height: '64px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 20px rgba(0,0,0,0.2)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ width: '36px', height: '36px', background: 'rgba(255,107,53,0.2)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <PawPrint size={20} color="#FF6B35" />
-          </div>
-          <span style={{ color: 'white', fontSize: '17px', fontWeight: '700', letterSpacing: '-0.3px' }}>The Canine Gym</span>
+          <img src="/logo-white.png" alt="The Canine Gym" style={{ height: '40px', width: 'auto' }} />
         </div>
         <a href="/dashboard" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none', fontWeight: '600', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)' }}>
           <ArrowLeft size={15} /> Dashboard
@@ -224,7 +221,7 @@ export default function MyDogs() {
           </div>
           {!addingDog && (
             <button onClick={() => { setAddingDog(true); setEditingDog(null); setSuccess(false); setError(null) }}
-              style={{ background: 'linear-gradient(135deg, #FF6B35, #ff8c5a)', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '12px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '7px', fontSize: '14px', boxShadow: '0 4px 14px rgba(255,107,53,0.35)' }}>
+              style={{ background: 'linear-gradient(135deg, #f88124, #f9a04e)', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '12px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '7px', fontSize: '14px', boxShadow: '0 4px 14px rgba(255,107,53,0.35)' }}>
               <Plus size={16} /> Add Dog
             </button>
           )}
@@ -259,7 +256,7 @@ export default function MyDogs() {
                 <div style={{ width: '96px', height: '96px', borderRadius: '20px', background: '#f0f2f7', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '10px', overflow: 'hidden', border: '2px solid #e5e8f0' }}>
                   {newPhotoPreview ? <img src={newPhotoPreview} alt="preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <PawPrint size={36} color="#ccc" />}
                 </div>
-                <label style={{ cursor: 'pointer', color: '#003087', fontSize: '13px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '5px', background: '#e8edf5', padding: '6px 14px', borderRadius: '20px' }}>
+                <label style={{ cursor: 'pointer', color: '#2c5a9e', fontSize: '13px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '5px', background: '#eef2fb', padding: '6px 14px', borderRadius: '20px' }}>
                   <Camera size={13} /> Add Photo
                   <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleNewDogPhoto} />
                 </label>
@@ -304,7 +301,7 @@ export default function MyDogs() {
               </div>
 
               <button type="submit" disabled={saving}
-                style={{ width: '100%', padding: '13px', background: 'linear-gradient(135deg, #003087, #0052cc)', color: 'white', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: 'pointer', boxShadow: '0 4px 14px rgba(0,48,135,0.25)' }}>
+                style={{ width: '100%', padding: '13px', background: 'linear-gradient(135deg, #2c5a9e, #2c5a9e)', color: 'white', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: 'pointer', boxShadow: '0 4px 14px rgba(0,48,135,0.25)' }}>
                 {saving ? 'Adding…' : 'Add Dog'}
               </button>
             </form>
@@ -317,7 +314,7 @@ export default function MyDogs() {
             <PawPrint size={48} color="#dde0ea" style={{ marginBottom: '14px' }} />
             <p style={{ color: '#bbb', marginBottom: '20px', fontSize: '15px' }}>No dogs added yet.</p>
             <button onClick={() => setAddingDog(true)}
-              style={{ background: 'linear-gradient(135deg, #FF6B35, #ff8c5a)', color: 'white', border: 'none', padding: '12px 28px', borderRadius: '12px', fontWeight: '700', cursor: 'pointer', fontSize: '15px' }}>
+              style={{ background: 'linear-gradient(135deg, #f88124, #f9a04e)', color: 'white', border: 'none', padding: '12px 28px', borderRadius: '12px', fontWeight: '700', cursor: 'pointer', fontSize: '15px' }}>
               Add Your First Dog
             </button>
           </div>
@@ -387,7 +384,7 @@ export default function MyDogs() {
                     <div style={{ width: '88px', height: '88px', borderRadius: '18px', background: '#f0f2f7', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '10px', overflow: 'hidden', border: '2px solid #e5e8f0' }}>
                       {editingDog.photo_url ? <img src={editingDog.photo_url} alt={editingDog.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <PawPrint size={32} color="#ccc" />}
                     </div>
-                    <label style={{ cursor: 'pointer', color: '#003087', fontSize: '13px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '5px', background: '#e8edf5', padding: '6px 14px', borderRadius: '20px' }}>
+                    <label style={{ cursor: 'pointer', color: '#2c5a9e', fontSize: '13px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '5px', background: '#eef2fb', padding: '6px 14px', borderRadius: '20px' }}>
                       <Camera size={13} /> {uploadingPhoto ? 'Uploading…' : 'Change Photo'}
                       <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handlePhotoUpload} disabled={uploadingPhoto} />
                     </label>
@@ -434,7 +431,7 @@ export default function MyDogs() {
                   {error && <p style={{ color: '#dc3545', marginBottom: '12px', fontSize: '13px', fontWeight: '600' }}>{error}</p>}
                   <div style={{ display: 'flex', gap: '10px' }}>
                     <button type="submit" disabled={saving}
-                      style={{ flex: 1, padding: '12px', background: 'linear-gradient(135deg, #003087, #0052cc)', color: 'white', border: 'none', borderRadius: '12px', fontWeight: '700', cursor: 'pointer', fontSize: '14px', boxShadow: '0 4px 14px rgba(0,48,135,0.2)' }}>
+                      style={{ flex: 1, padding: '12px', background: 'linear-gradient(135deg, #2c5a9e, #2c5a9e)', color: 'white', border: 'none', borderRadius: '12px', fontWeight: '700', cursor: 'pointer', fontSize: '14px', boxShadow: '0 4px 14px rgba(0,48,135,0.2)' }}>
                       {saving ? 'Saving…' : 'Save Changes'}
                     </button>
                     <button type="button" onClick={() => setEditingDog(null)}
@@ -449,8 +446,8 @@ export default function MyDogs() {
               {!isEditing && (
                 <div style={{ marginTop: '18px', borderTop: '1.5px solid #f0f2f7', paddingTop: '18px' }}>
                   <div style={{ fontWeight: '800', color: '#1a1a2e', fontSize: '13px', margin: '0 0 12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-  <div style={{ width: '26px', height: '26px', background: '#e8edf5', borderRadius: '7px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-    <Shield size={14} color="#003087" />
+  <div style={{ width: '26px', height: '26px', background: '#eef2fb', borderRadius: '7px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <Shield size={14} color="#2c5a9e" />
   </div>
   Vaccine Records
 </div>
@@ -498,17 +495,17 @@ export default function MyDogs() {
                         {vaccinePreviews[dog.id] ? (
                           <div style={{ marginBottom: '12px' }}>
                             {vaccineFiles[dog.id]?.type === 'application/pdf' ? (
-                              <div style={{ width: '220px', height: '110px', border: '2px solid #003087', borderRadius: '12px', background: '#f0f4ff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                              <div style={{ width: '220px', height: '110px', border: '2px solid #2c5a9e', borderRadius: '12px', background: '#eef2fb', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                                 <div style={{ fontSize: '28px' }}>📄</div>
-                                <span style={{ color: '#003087', fontWeight: '700', fontSize: '13px' }}>PDF Selected</span>
+                                <span style={{ color: '#2c5a9e', fontWeight: '700', fontSize: '13px' }}>PDF Selected</span>
                               </div>
                             ) : (
-                              <img src={vaccinePreviews[dog.id]} alt="preview" style={{ width: '220px', height: '150px', objectFit: 'cover', borderRadius: '12px', border: '2px solid #003087', display: 'block' }} />
+                              <img src={vaccinePreviews[dog.id]} alt="preview" style={{ width: '220px', height: '150px', objectFit: 'cover', borderRadius: '12px', border: '2px solid #2c5a9e', display: 'block' }} />
                             )}
                             <p style={{ color: '#888', fontSize: '12px', margin: '6px 0 0' }}>{vaccineFiles[dog.id]?.name}</p>
                           </div>
                         ) : (
-                          <label style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '220px', height: '130px', border: '2px dashed #d0d8ee', borderRadius: '12px', background: '#f8f9ff', marginBottom: '12px', gap: '8px' }}>
+                          <label style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '220px', height: '130px', border: '2px dashed #c8d4f0', borderRadius: '12px', background: '#f8f9ff', marginBottom: '12px', gap: '8px' }}>
                             <Upload size={26} color="#aab" />
                             <span style={{ color: '#888', fontSize: '13px', fontWeight: '600' }}>Click to choose file</span>
                             <span style={{ color: '#bbb', fontSize: '11px' }}>JPG, PNG or PDF</span>
@@ -526,7 +523,7 @@ export default function MyDogs() {
                           )}
                           {vaccineFiles[dog.id] && (
                             <button onClick={() => handleVaccineUpload(dog.id, dog.name)} disabled={uploadingVaccine === dog.id}
-                              style={{ background: 'linear-gradient(135deg, #003087, #0052cc)', color: 'white', border: 'none', padding: '8px 18px', borderRadius: '10px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              style={{ background: 'linear-gradient(135deg, #2c5a9e, #2c5a9e)', color: 'white', border: 'none', padding: '8px 18px', borderRadius: '10px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}>
                               {uploadingVaccine === dog.id ? 'Uploading…' : <><Shield size={13} /> Submit Vaccines</>}
                             </button>
                           )}
@@ -550,7 +547,7 @@ export default function MyDogs() {
                           </label>
                           {vaccineFiles[dog.id] && (
                             <button onClick={() => handleVaccineUpload(dog.id, dog.name)} disabled={uploadingVaccine === dog.id}
-                              style={{ background: 'linear-gradient(135deg, #003087, #0052cc)', color: 'white', border: 'none', padding: '7px 14px', borderRadius: '10px', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}>
+                              style={{ background: 'linear-gradient(135deg, #2c5a9e, #2c5a9e)', color: 'white', border: 'none', padding: '7px 14px', borderRadius: '10px', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}>
                               {uploadingVaccine === dog.id ? 'Uploading…' : 'Submit'}
                             </button>
                           )}
@@ -563,7 +560,7 @@ export default function MyDogs() {
                   {dog.vet_clinic && (
                     <div style={{ marginTop: '14px', borderTop: '1.5px solid #f0f2f7', paddingTop: '12px' }}>
                       <span style={{ color: '#666', fontSize: '13px', display: 'inline-flex', alignItems: 'center', gap: '5px', background: '#f0f2f7', padding: '4px 10px', borderRadius: '8px' }}>
-                        <MapPin size={12} color="#003087" /> {dog.vet_clinic}
+                        <MapPin size={12} color="#2c5a9e" /> {dog.vet_clinic}
                       </span>
                     </div>
                   )}

@@ -97,7 +97,7 @@ export default function AdminSchedule() {
   }
 
   const getStatusColor = (status: string) => {
-    if (status === 'confirmed') return '#003087'
+    if (status === 'confirmed') return '#2c5a9e'
     if (status === 'completed') return '#28a745'
     if (status === 'cancelled') return '#dc3545'
     if (status === 'no_show') return '#ffc107'
@@ -118,7 +118,7 @@ export default function AdminSchedule() {
   ]
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', fontFamily: "'Segoe UI', system-ui, sans-serif" }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', fontFamily: "'Montserrat', system-ui, sans-serif" }}>
       <style>{`
   @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
   * { box-sizing: border-box; }
@@ -130,10 +130,10 @@ export default function AdminSchedule() {
   }
 `}</style>
 
-      <nav style={{ background: 'linear-gradient(135deg, #001a4d 0%, #003087 100%)', padding: '0 24px', height: '64px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 20px rgba(0,0,0,0.2)' }}>
+      <nav style={{ background: 'linear-gradient(135deg, #001840 0%, #2c5a9e 100%)', padding: '0 24px', height: '64px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 20px rgba(0,0,0,0.2)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ width: '36px', height: '36px', background: 'rgba(255,107,53,0.2)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><PawPrint size={20} color="#FF6B35" /></div>
-          <span style={{ color: 'white', fontSize: '17px', fontWeight: '700' }}>The Canine Gym <span style={{ color: 'rgba(255,255,255,0.45)', fontWeight: '500' }}>· Admin</span></span>
+          <img src="/logo-white.png" alt="The Canine Gym" style={{ height: '40px', width: 'auto' }} />
+          <span style={{ color: 'rgba(255,255,255,0.45)', fontWeight: '500', fontSize: '15px' }}>· Admin</span>
         </div>
         <a href="/admin" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none', fontWeight: '600', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)' }}>
           <ArrowLeft size={15} /> Dashboard
@@ -149,7 +149,7 @@ export default function AdminSchedule() {
           <div style={{ display: 'flex', background: 'white', borderRadius: '10px', padding: '4px', gap: '4px', border: '1.5px solid #eef0f5' }}>
             {viewButtons.map(({ key, label, icon }) => (
               <button key={key} onClick={() => setView(key as any)}
-                style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', background: view === key ? 'linear-gradient(135deg, #001a4d, #003087)' : 'transparent', color: view === key ? 'white' : '#666', transition: 'all 0.15s' }}>
+                style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', background: view === key ? 'linear-gradient(135deg, #001840, #2c5a9e)' : 'transparent', color: view === key ? 'white' : '#666', transition: 'all 0.15s' }}>
                 {icon} {label}
               </button>
             ))}
@@ -165,10 +165,10 @@ export default function AdminSchedule() {
               const isToday = dateStr === new Date().toISOString().split('T')[0]
               return (
                 <button key={dateStr} onClick={() => setSelectedDate(dateStr)}
-                  style={{ padding: '10px 14px', borderRadius: '10px', border: '1.5px solid', cursor: 'pointer', textAlign: 'center', flexShrink: 0, borderColor: isSelected ? '#003087' : '#e5e8f0', background: isSelected ? 'linear-gradient(135deg, #001a4d, #003087)' : 'white', color: isSelected ? 'white' : '#333' }}>
+                  style={{ padding: '10px 14px', borderRadius: '10px', border: '1.5px solid', cursor: 'pointer', textAlign: 'center', flexShrink: 0, borderColor: isSelected ? '#2c5a9e' : '#e5e8f0', background: isSelected ? 'linear-gradient(135deg, #001840, #2c5a9e)' : 'white', color: isSelected ? 'white' : '#333' }}>
                   <div style={{ fontWeight: '700', fontSize: '12px' }}>{DAYS[d.getDay()].slice(0, 3)}</div>
                   <div style={{ fontSize: '11px', opacity: 0.85 }}>{d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
-                  {isToday && <div style={{ fontSize: '10px', color: isSelected ? 'rgba(255,255,255,0.7)' : '#FF6B35', fontWeight: '700' }}>TODAY</div>}
+                  {isToday && <div style={{ fontSize: '10px', color: isSelected ? 'rgba(255,255,255,0.7)' : '#f88124', fontWeight: '700' }}>TODAY</div>}
                 </button>
               )
             })}
@@ -191,7 +191,7 @@ export default function AdminSchedule() {
   <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <Clock size={16} color="#FF6B35" />
+                          <Clock size={16} color="#f88124" />
                           <span style={{ fontSize: '18px', fontWeight: '800', color: '#1a1a2e' }}>{formatHour(booking.slot_hour)}</span>
                         </div>
                         <span style={{ background: getStatusColor(booking.status), color: 'white', padding: '2px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: '700', textTransform: 'uppercase' as const }}>{booking.status}</span>
@@ -216,7 +216,7 @@ export default function AdminSchedule() {
                         <p style={{ margin: '0 0 3px', fontSize: '13px', color: '#888', display: 'flex', alignItems: 'center', gap: '6px' }}><Mail size={12} color="#ccc" /> {booking.dogs?.owners?.email}</p>
                         {booking.dogs?.owners?.address && (
                           <a href={`https://maps.google.com/?q=${encodeURIComponent(`${booking.dogs.owners.address}, ${booking.dogs.owners.city}, IN ${booking.dogs.owners.zip}`)}`} target="_blank"
-                            style={{ fontSize: '13px', color: '#003087', fontWeight: '700', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            style={{ fontSize: '13px', color: '#2c5a9e', fontWeight: '700', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}>
                             <MapPin size={12} /> {booking.dogs.owners.address}, {booking.dogs.owners.city}, IN {booking.dogs.owners.zip}
                           </a>
                         )}
@@ -227,7 +227,7 @@ export default function AdminSchedule() {
                       {booking.status === 'confirmed' && (
                         <>
                           <a href={`/admin/sessions/new?dog=${booking.dogs?.id}&booking=${booking.id}&hour=${booking.slot_hour}&date=${booking.booking_date}`}
-                            style={{ padding: '9px 16px', background: 'linear-gradient(135deg, #FF6B35, #ff8c5a)', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '13px', textDecoration: 'none', textAlign: 'center', display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center', boxShadow: '0 3px 10px rgba(255,107,53,0.25)' }}>
+                            style={{ padding: '9px 16px', background: 'linear-gradient(135deg, #f88124, #f9a04e)', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '13px', textDecoration: 'none', textAlign: 'center', display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center', boxShadow: '0 3px 10px rgba(255,107,53,0.25)' }}>
                             <ClipboardList size={14} /> Log Session
                           </a>
                           <button onClick={() => handleComplete(booking.id)}
@@ -275,10 +275,10 @@ export default function AdminSchedule() {
                   const d = new Date(dateStr + 'T12:00:00')
                   const isToday = dateStr === new Date().toISOString().split('T')[0]
                   return (
-                    <div key={dateStr} style={{ padding: '12px 8px', textAlign: 'center', background: isToday ? '#f0f4ff' : '#f8f9fc', borderLeft: '1px solid #eef0f5' }}>
-                      <div style={{ fontWeight: '700', fontSize: '12px', color: isToday ? '#003087' : '#555' }}>{DAYS[d.getDay()].slice(0, 3)}</div>
-                      <div style={{ fontSize: '11px', color: isToday ? '#003087' : '#888' }}>{d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
-                      {isToday && <div style={{ fontSize: '10px', color: '#FF6B35', fontWeight: '700' }}>TODAY</div>}
+                    <div key={dateStr} style={{ padding: '12px 8px', textAlign: 'center', background: isToday ? '#eef2fb' : '#f8f9fc', borderLeft: '1px solid #eef0f5' }}>
+                      <div style={{ fontWeight: '700', fontSize: '12px', color: isToday ? '#2c5a9e' : '#555' }}>{DAYS[d.getDay()].slice(0, 3)}</div>
+                      <div style={{ fontSize: '11px', color: isToday ? '#2c5a9e' : '#888' }}>{d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
+                      {isToday && <div style={{ fontSize: '10px', color: '#f88124', fontWeight: '700' }}>TODAY</div>}
                     </div>
                   )
                 })}
@@ -320,7 +320,7 @@ export default function AdminSchedule() {
                 { key: 'week', label: 'Week Overview', icon: <Map size={15} /> },
               ].map(({ key, label, icon }) => (
                 <button key={key} onClick={() => setMapMode(key as any)}
-                  style={{ padding: '9px 20px', borderRadius: '10px', border: '1.5px solid', cursor: 'pointer', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', borderColor: mapMode === key ? '#003087' : '#e5e8f0', background: mapMode === key ? 'linear-gradient(135deg, #001a4d, #003087)' : 'white', color: mapMode === key ? 'white' : '#555' }}>
+                  style={{ padding: '9px 20px', borderRadius: '10px', border: '1.5px solid', cursor: 'pointer', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', borderColor: mapMode === key ? '#2c5a9e' : '#e5e8f0', background: mapMode === key ? 'linear-gradient(135deg, #001840, #2c5a9e)' : 'white', color: mapMode === key ? 'white' : '#555' }}>
                   {icon} {label}
                 </button>
               ))}
@@ -338,7 +338,7 @@ export default function AdminSchedule() {
                     <div style={{ padding: '16px 20px', borderBottom: '1px solid #eef0f5', display: 'flex', alignItems: 'center', gap: '16px' }}>
                       <h3 style={{ margin: 0, color: '#1a1a2e', fontWeight: '800', fontSize: '16px' }}>Today's Stops ({getUniqueStops(bookings).length})</h3>
                       {travelTime && travelTime.totalMinutes > 0 && (
-                        <span style={{ background: '#f0f4ff', color: '#003087', padding: '4px 12px', borderRadius: '20px', fontSize: '13px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span style={{ background: '#eef2fb', color: '#2c5a9e', padding: '4px 12px', borderRadius: '20px', fontSize: '13px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '6px' }}>
                           <Car size={13} /> {travelTime.totalMinutes} min total driving
                         </span>
                       )}
@@ -350,8 +350,8 @@ export default function AdminSchedule() {
                       return Object.entries(grouped).map(([hour, slotBookings]) => (
                         <div key={hour}>
                           <div style={{ padding: '10px 20px', background: '#f8f9fc', borderBottom: '1px solid #eef0f5', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <Clock size={13} color="#FF6B35" />
-                            <span style={{ fontWeight: '700', color: '#FF6B35', fontSize: '13px' }}>{formatHour(Number(hour))}</span>
+                            <Clock size={13} color="#f88124" />
+                            <span style={{ fontWeight: '700', color: '#f88124', fontSize: '13px' }}>{formatHour(Number(hour))}</span>
                           </div>
                           {slotBookings.map(booking => (
                             <div key={booking.id} style={{ padding: '14px 20px', borderBottom: '1px solid #eef0f5', display: 'flex', alignItems: 'center', gap: '14px' }}>
@@ -365,7 +365,7 @@ export default function AdminSchedule() {
                                 <p style={{ margin: 0, fontSize: '13px', color: '#888', display: 'flex', alignItems: 'center', gap: '4px' }}><MapPin size={11} color="#ccc" /> {booking.dogs?.owners?.address}, {booking.dogs?.owners?.city}</p>
                               </div>
                               <a href={`https://maps.google.com/?q=${encodeURIComponent(`${booking.dogs.owners.address}, ${booking.dogs.owners.city}, IN`)}`} target="_blank"
-                                style={{ fontSize: '13px', color: '#003087', fontWeight: '700', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                style={{ fontSize: '13px', color: '#2c5a9e', fontWeight: '700', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
                                 <Navigation size={13} /> Directions
                               </a>
                             </div>
@@ -380,11 +380,11 @@ export default function AdminSchedule() {
                       const routeUrl = uniqueStops.map(b => encodeURIComponent(`${b.dogs?.owners?.address}, ${b.dogs?.owners?.city}, IN`)).join('/')
                       return (
                         <div style={{ padding: '36px', textAlign: 'center' }}>
-                          <Map size={48} color="#003087" style={{ marginBottom: '16px' }} />
+                          <Map size={48} color="#2c5a9e" style={{ marginBottom: '16px' }} />
                           <h3 style={{ color: '#1a1a2e', margin: '0 0 8px', fontWeight: '800' }}>{uniqueStops.length} stops today</h3>
                           <p style={{ color: '#888', marginBottom: '24px', fontSize: '14px' }}>{uniqueStops.map(b => `${b.dogs?.owners?.address}, ${b.dogs?.owners?.city}`).join(' → ')}</p>
                           <a href={`https://www.google.com/maps/dir/${routeUrl}`} target="_blank"
-                            style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'linear-gradient(135deg, #FF6B35, #ff8c5a)', color: 'white', padding: '14px 32px', borderRadius: '12px', textDecoration: 'none', fontWeight: '700', fontSize: '15px', boxShadow: '0 4px 14px rgba(255,107,53,0.35)' }}>
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'linear-gradient(135deg, #f88124, #f9a04e)', color: 'white', padding: '14px 32px', borderRadius: '12px', textDecoration: 'none', fontWeight: '700', fontSize: '15px', boxShadow: '0 4px 14px rgba(255,107,53,0.35)' }}>
                             <Navigation size={18} /> Open Full Route in Google Maps
                           </a>
                         </div>
@@ -398,7 +398,7 @@ export default function AdminSchedule() {
             {mapMode === 'week' && (
               <div style={{ background: 'white', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5', overflow: 'hidden' }}>
                 <div style={{ padding: '16px 20px', borderBottom: '1px solid #eef0f5', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Map size={17} color="#003087" />
+                  <Map size={17} color="#2c5a9e" />
                   <h3 style={{ margin: 0, color: '#1a1a2e', fontWeight: '800', fontSize: '16px' }}>Week's Clients ({weekBookings.filter(b => b.status === 'confirmed' && b.dogs?.owners?.address).length} bookings)</h3>
                 </div>
                 {weekDates.map(dateStr => {
@@ -408,7 +408,7 @@ export default function AdminSchedule() {
                   return (
                     <div key={dateStr}>
                       <div style={{ padding: '10px 20px', background: '#f8f9fc', borderBottom: '1px solid #eef0f5', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <Calendar size={13} color="#003087" />
+                        <Calendar size={13} color="#2c5a9e" />
                         <span style={{ fontWeight: '700', color: '#1a1a2e', fontSize: '13px' }}>{DAYS[d.getDay()]} — {d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
                       </div>
                       {dayB.map(booking => (
@@ -423,7 +423,7 @@ export default function AdminSchedule() {
                             <p style={{ margin: 0, fontSize: '12px', color: '#888', display: 'flex', alignItems: 'center', gap: '4px' }}><MapPin size={11} color="#ccc" /> {booking.dogs?.owners?.address}, {booking.dogs?.owners?.city}</p>
                           </div>
                           <a href={`https://maps.google.com/?q=${encodeURIComponent(`${booking.dogs.owners.address}, ${booking.dogs.owners.city}, IN`)}`} target="_blank"
-                            style={{ fontSize: '13px', color: '#003087', fontWeight: '700', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            style={{ fontSize: '13px', color: '#2c5a9e', fontWeight: '700', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
                             <Navigation size={13} /> Directions
                           </a>
                         </div>

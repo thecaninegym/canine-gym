@@ -38,8 +38,8 @@ export default function AdminMemberships() {
 
   const getPlanColor = (plan: string) => {
     if (plan === 'starter') return '#6c757d'
-    if (plan === 'active') return '#FF6B35'
-    if (plan === 'athlete') return '#003087'
+    if (plan === 'active') return '#f88124'
+    if (plan === 'athlete') return '#2c5a9e'
     return '#666'
   }
 
@@ -66,25 +66,25 @@ export default function AdminMemberships() {
   }, 0)
 
   const summaryCards = [
-    { label: 'Active Members', value: activeMemberships.length, color: '#003087', icon: <Users size={20} color="white" />, bg: 'linear-gradient(135deg, #001a4d, #003087)' },
+    { label: 'Active Members', value: activeMemberships.length, color: '#2c5a9e', icon: <Users size={20} color="white" />, bg: 'linear-gradient(135deg, #001840, #2c5a9e)' },
     { label: 'Monthly Revenue', value: `$${totalRevenue.toLocaleString()}`, color: '#28a745', icon: <DollarSign size={20} color="white" />, bg: 'linear-gradient(135deg, #1a7a2e, #28a745)' },
     { label: 'Starter Plans', value: activeMemberships.filter(m => m.plan === 'starter').length, color: '#6c757d', icon: <CreditCard size={20} color="white" />, bg: 'linear-gradient(135deg, #495057, #6c757d)' },
-    { label: 'Active Plans', value: activeMemberships.filter(m => m.plan === 'active').length, color: '#FF6B35', icon: <CreditCard size={20} color="white" />, bg: 'linear-gradient(135deg, #FF6B35, #ff8c5a)' },
-    { label: 'Athlete Plans', value: activeMemberships.filter(m => m.plan === 'athlete').length, color: '#003087', icon: <CreditCard size={20} color="white" />, bg: 'linear-gradient(135deg, #001a4d, #003087)' },
+    { label: 'Active Plans', value: activeMemberships.filter(m => m.plan === 'active').length, color: '#f88124', icon: <CreditCard size={20} color="white" />, bg: 'linear-gradient(135deg, #f88124, #f9a04e)' },
+    { label: 'Athlete Plans', value: activeMemberships.filter(m => m.plan === 'athlete').length, color: '#2c5a9e', icon: <CreditCard size={20} color="white" />, bg: 'linear-gradient(135deg, #001840, #2c5a9e)' },
   ]
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', fontFamily: "'Segoe UI', system-ui, sans-serif" }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', fontFamily: "'Montserrat', system-ui, sans-serif" }}>
       <style>{`@keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } } * { box-sizing: border-box; }  @media (max-width: 560px) {
   .membership-row { flex-direction: column; align-items: stretch; }
   .membership-sessions { width: 100%; }
   .membership-sessions > div { width: 100%; }
 }`} </style>
 
-      <nav style={{ background: 'linear-gradient(135deg, #001a4d 0%, #003087 100%)', padding: '0 24px', height: '64px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 20px rgba(0,0,0,0.2)' }}>
+      <nav style={{ background: 'linear-gradient(135deg, #001840 0%, #2c5a9e 100%)', padding: '0 24px', height: '64px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 20px rgba(0,0,0,0.2)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ width: '36px', height: '36px', background: 'rgba(255,107,53,0.2)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><PawPrint size={20} color="#FF6B35" /></div>
-          <span style={{ color: 'white', fontSize: '17px', fontWeight: '700' }}>The Canine Gym <span style={{ color: 'rgba(255,255,255,0.45)', fontWeight: '500' }}>· Admin</span></span>
+          <img src="/logo-white.png" alt="The Canine Gym" style={{ height: '40px', width: 'auto' }} />
+          <span style={{ color: 'rgba(255,255,255,0.45)', fontWeight: '500', fontSize: '15px' }}>· Admin</span>
         </div>
         <a href="/admin" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none', fontWeight: '600', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)' }}>
           <ArrowLeft size={15} /> Dashboard
@@ -93,7 +93,7 @@ export default function AdminMemberships() {
 
       <div style={{ padding: '32px 24px', maxWidth: '1100px', margin: '0 auto', animation: 'fadeUp 0.35s ease' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-          <div style={{ width: '42px', height: '42px', background: 'linear-gradient(135deg, #001a4d, #003087)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: '42px', height: '42px', background: 'linear-gradient(135deg, #001840, #2c5a9e)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <CreditCard size={22} color="white" />
           </div>
           <div>
@@ -118,7 +118,7 @@ export default function AdminMemberships() {
         {/* Members list */}
         <div style={{ background: 'white', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5', overflow: 'hidden' }}>
           <div style={{ padding: '16px 24px', borderBottom: '1px solid #eef0f5', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Users size={17} color="#003087" />
+            <Users size={17} color="#2c5a9e" />
             <h3 style={{ margin: 0, color: '#1a1a2e', fontWeight: '800', fontSize: '16px' }}>All Memberships ({memberships.length})</h3>
           </div>
           {loading ? (
@@ -154,9 +154,9 @@ export default function AdminMemberships() {
                   </div>
 
                   <div className="membership-sessions" style={{ textAlign: 'center', flexShrink: 0 }}>
-                    <div style={{ background: '#f0f4ff', padding: '14px 20px', borderRadius: '12px', marginBottom: '10px', border: '1.5px solid #d0d8ee' }}>
+                    <div style={{ background: '#eef2fb', padding: '14px 20px', borderRadius: '12px', marginBottom: '10px', border: '1.5px solid #c8d4f0' }}>
                       <p style={{ margin: '0 0 2px', fontSize: '11px', color: '#888', fontWeight: '700', textTransform: 'uppercase' as const }}>Sessions Left</p>
-                      <p style={{ margin: '0 0 6px', fontSize: '28px', fontWeight: '800', color: current === 0 ? '#dc3545' : '#003087' }}>{current}</p>
+                      <p style={{ margin: '0 0 6px', fontSize: '28px', fontWeight: '800', color: current === 0 ? '#dc3545' : '#2c5a9e' }}>{current}</p>
                       <p style={{ margin: '0 0 10px', fontSize: '11px', color: '#aaa' }}>of {membership.sessions_per_month}</p>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
                         <button onClick={() => handleAdjust(membership.id, -1, membership.sessions_per_month)}
@@ -171,7 +171,7 @@ export default function AdminMemberships() {
                     </div>
                     {isDirty && (
                       <button onClick={() => handleSave(membership)} disabled={saving[membership.id]}
-                        style={{ width: '100%', padding: '8px', background: 'linear-gradient(135deg, #003087, #0052cc)', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                        style={{ width: '100%', padding: '8px', background: 'linear-gradient(135deg, #2c5a9e, #2c5a9e)', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
                         <Save size={13} /> {saving[membership.id] ? 'Saving...' : 'Save'}
                       </button>
                     )}

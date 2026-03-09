@@ -94,13 +94,13 @@ export async function GET(request: Request) {
       subject: `🏆 New month, new leaderboard — who's taking #1?`,
       html: `
         <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
-          <div style="background:#003087;padding:24px;border-radius:12px 12px 0 0;">
+          <div style="background:#2c5a9e;padding:24px;border-radius:12px 12px 0 0;">
             <h1 style="color:white;margin:0;font-size:24px;">🐾 The Canine Gym</h1>
           </div>
           <div style="background:white;padding:24px;border:1px solid #eee;">
-            <h2 style="color:#003087;">Hi ${owner.name}! A new month has started. 🎉</h2>
+            <h2 style="color:#2c5a9e;">Hi ${owner.name}! A new month has started. 🎉</h2>
             <p style="color:#555;">The leaderboard has reset and it's anyone's game. Book a session this week and get your dog on the board early!</p>
-            <a href="https://app.thecaninegym.com/leaderboard" style="display:block;background:#FF6B35;color:white;text-align:center;padding:14px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px;margin:24px 0;">
+            <a href="https://app.thecaninegym.com/leaderboard" style="display:block;background:#f88124;color:white;text-align:center;padding:14px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px;margin:24px 0;">
               View the New Leaderboard →
             </a>
             <p style="color:#999;font-size:13px;">Book a session at thecaninegym.com</p>

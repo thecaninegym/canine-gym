@@ -157,7 +157,7 @@ export default function Leaderboard() {
   const monthName = new Date().toLocaleString('default', { month: 'long' })
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', fontFamily: "'Segoe UI', system-ui, sans-serif" }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', fontFamily: "'Montserrat', system-ui, sans-serif" }}>
       <style>{`
         @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
         .entry-row:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,0,0,0.1) !important; }
@@ -167,12 +167,9 @@ export default function Leaderboard() {
       `}</style>
 
       {/* Nav */}
-      <nav style={{ background: 'linear-gradient(135deg, #001a4d 0%, #003087 100%)', padding: '0 24px', height: '64px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 20px rgba(0,0,0,0.2)' }}>
+      <nav style={{ background: 'linear-gradient(135deg, #001840 0%, #2c5a9e 100%)', padding: '0 24px', height: '64px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 20px rgba(0,0,0,0.2)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ width: '36px', height: '36px', background: 'rgba(255,107,53,0.2)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <PawPrint size={20} color="#FF6B35" />
-          </div>
-          <span style={{ color: 'white', fontSize: '17px', fontWeight: '700', letterSpacing: '-0.3px' }}>The Canine Gym</span>
+          <img src="/logo-white.png" alt="The Canine Gym" style={{ height: '40px', width: 'auto' }} />
         </div>
         <a href="/dashboard" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none', fontWeight: '600', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)' }}>
           <ArrowLeft size={15} /> My Dashboard
@@ -180,7 +177,7 @@ export default function Leaderboard() {
       </nav>
 
       {/* Hero Banner */}
-      <div style={{ background: 'linear-gradient(135deg, #001a4d 0%, #003087 100%)', padding: '44px 24px 68px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ background: 'linear-gradient(135deg, #001840 0%, #2c5a9e 100%)', padding: '44px 24px 68px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%,-50%)', width: '320px', height: '320px', background: 'rgba(255,255,255,0.03)', borderRadius: '50%', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', right: '-40px', bottom: '-40px', opacity: 0.04, pointerEvents: 'none' }}>
           <Trophy size={240} color="white" />
@@ -203,7 +200,7 @@ export default function Leaderboard() {
           <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
             {['all', 'friends'].map(mode => (
               <button key={mode} onClick={() => setViewMode(mode as any)}
-                style={{ padding: '9px 20px', borderRadius: '10px', border: 'none', cursor: 'pointer', fontWeight: '700', fontSize: '13px', background: viewMode === mode ? 'linear-gradient(135deg, #FF6B35, #ff8c5a)' : '#f0f2f5', color: viewMode === mode ? 'white' : '#666', boxShadow: viewMode === mode ? '0 3px 10px rgba(255,107,53,0.3)' : 'none' }}>
+                style={{ padding: '9px 20px', borderRadius: '10px', border: 'none', cursor: 'pointer', fontWeight: '700', fontSize: '13px', background: viewMode === mode ? 'linear-gradient(135deg, #f88124, #f9a04e)' : '#f0f2f5', color: viewMode === mode ? 'white' : '#666', boxShadow: viewMode === mode ? '0 3px 10px rgba(255,107,53,0.3)' : 'none' }}>
                 {mode === 'all' ? '🌍 Everyone' : '👥 Friends'}
               </button>
             ))}
@@ -212,7 +209,7 @@ export default function Leaderboard() {
             {CATEGORIES.map(c => (
               <button key={c.key} onClick={() => setCategory(c.key)} className="cat-btn"
                 style={{ flex: 1, padding: '10px 8px', border: 'none', borderRadius: '12px', cursor: 'pointer', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', transition: 'all 0.15s',
-                  background: category === c.key ? 'linear-gradient(135deg, #003087, #0052cc)' : '#f0f2f7',
+                  background: category === c.key ? 'linear-gradient(135deg, #2c5a9e, #2c5a9e)' : '#f0f2f7',
                   color: category === c.key ? 'white' : '#666',
                   boxShadow: category === c.key ? '0 4px 12px rgba(0,48,135,0.25)' : 'none'
                 }}>
@@ -226,7 +223,7 @@ export default function Leaderboard() {
             {CITIES.map(c => (
               <button key={c} onClick={() => setCity(c)} className="city-btn"
                 style={{ padding: '5px 12px', borderRadius: '20px', cursor: 'pointer', fontSize: '12px', fontWeight: '600', transition: 'all 0.15s', border: 'none',
-                  background: city === c ? '#FF6B35' : '#f0f2f7',
+                  background: city === c ? '#f88124' : '#f0f2f7',
                   color: city === c ? 'white' : '#777',
                 }}>
                 {c}
@@ -239,7 +236,7 @@ export default function Leaderboard() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {loading ? (
             <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '52px', textAlign: 'center' }}>
-              <div style={{ width: '40px', height: '40px', border: '3px solid rgba(0,48,135,0.1)', borderTopColor: '#003087', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 14px' }} />
+              <div style={{ width: '40px', height: '40px', border: '3px solid rgba(0,48,135,0.1)', borderTopColor: '#2c5a9e', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 14px' }} />
               <p style={{ color: '#bbb', margin: 0, fontSize: '14px' }}>Loading rankings…</p>
               <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
             </div>
@@ -256,7 +253,7 @@ export default function Leaderboard() {
               const rank = getRankStyle(i)
               return (
                 <div key={entry.dog_id} onClick={() => openModal(entry)} className="entry-row"
-                  style={{ background: isMe ? 'linear-gradient(135deg, #e8edf5, #dce6f5)' : rank.bg, border: isMe ? '2px solid #003087' : rank.border, borderRadius: '16px', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '16px', cursor: 'pointer', transition: 'all 0.2s',
+                  style={{ background: isMe ? 'linear-gradient(135deg, #eef2fb, #d4e0f5)' : rank.bg, border: isMe ? '2px solid #2c5a9e' : rank.border, borderRadius: '16px', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '16px', cursor: 'pointer', transition: 'all 0.2s',
                     boxShadow: i < 3 ? '0 4px 16px rgba(0,0,0,0.08)' : '0 2px 8px rgba(0,0,0,0.04)'
                   }}>
                   {/* Rank */}
@@ -269,7 +266,7 @@ export default function Leaderboard() {
                     <img src={entry.photo_url} alt={entry.display_name} style={{ width: '46px', height: '46px', borderRadius: '12px', objectFit: 'cover', flexShrink: 0, border: '2px solid rgba(255,255,255,0.8)' }} />
                   ) : (
                     <div style={{ width: '46px', height: '46px', borderRadius: '12px', background: 'rgba(0,48,135,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      <PawPrint size={20} color="#003087" />
+                      <PawPrint size={20} color="#2c5a9e" />
                     </div>
                   )}
 
@@ -278,7 +275,7 @@ export default function Leaderboard() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '4px' }}>
                       <span style={{ fontWeight: '800', color: '#1a1a2e', fontSize: '15px' }}>{entry.display_name}</span>
                       {isMe && (
-                        <span style={{ background: 'linear-gradient(135deg, #003087, #0052cc)', color: 'white', fontSize: '10px', padding: '2px 8px', borderRadius: '20px', fontWeight: '700', letterSpacing: '0.3px' }}>YOU</span>
+                        <span style={{ background: 'linear-gradient(135deg, #2c5a9e, #2c5a9e)', color: 'white', fontSize: '10px', padding: '2px 8px', borderRadius: '20px', fontWeight: '700', letterSpacing: '0.3px' }}>YOU</span>
                       )}
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
@@ -291,8 +288,8 @@ export default function Leaderboard() {
                         <span style={{ fontSize: '12px', color: '#aaa' }}>{entry.breed}</span>
                       )}
                       {entry.achievement_count > 0 && (
-                        <span style={{ fontSize: '12px', color: '#FF6B35', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '3px' }}>
-                          <Star size={11} color="#FF6B35" fill="#FF6B35" /> {entry.achievement_count} badges
+                        <span style={{ fontSize: '12px', color: '#f88124', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '3px' }}>
+                          <Star size={11} color="#f88124" fill="#f88124" /> {entry.achievement_count} badges
                         </span>
                       )}
                     </div>
@@ -301,7 +298,7 @@ export default function Leaderboard() {
                   {/* Score */}
                   <div style={{ textAlign: 'right', flexShrink: 0 }}>
                     <div style={{ fontSize: '24px', fontWeight: '800', letterSpacing: '-0.5px', lineHeight: 1,
-                      color: i === 0 ? '#B8860B' : i === 1 ? '#777' : i === 2 ? '#8B4513' : '#003087'
+                      color: i === 0 ? '#B8860B' : i === 1 ? '#777' : i === 2 ? '#8B4513' : '#2c5a9e'
                     }}>
                       {getCategoryValue(entry)}
                     </div>
@@ -328,7 +325,7 @@ export default function Leaderboard() {
             style={{ background: 'white', borderRadius: '20px', width: '100%', maxWidth: '420px', overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.25)', animation: 'fadeUp 0.25s ease' }}>
 
             {/* Modal Header */}
-            <div style={{ background: 'linear-gradient(135deg, #001a4d, #003087)', padding: '28px 24px 24px', position: 'relative', textAlign: 'center' }}>
+            <div style={{ background: 'linear-gradient(135deg, #001840, #2c5a9e)', padding: '28px 24px 24px', position: 'relative', textAlign: 'center' }}>
               <button onClick={() => setSelectedEntry(null)}
                 style={{ position: 'absolute', top: '14px', right: '14px', background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'white' }}>
                 <X size={16} />
@@ -352,7 +349,7 @@ export default function Leaderboard() {
               {ownerId && selectedEntry.owner_id && selectedEntry.owner_id !== ownerId && (
                 <button
                   onClick={e => { e.stopPropagation(); isFollowingEntry(selectedEntry.owner_id) ? handleUnfollowFromModal(selectedEntry.owner_id) : handleFollowFromModal(selectedEntry.owner_id) }}
-                  style={{ marginTop: '14px', padding: '8px 24px', borderRadius: '20px', border: 'none', cursor: 'pointer', fontWeight: '700', fontSize: '13px', background: isFollowingEntry(selectedEntry.owner_id) ? 'rgba(255,255,255,0.15)' : '#FF6B35', color: 'white', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                  style={{ marginTop: '14px', padding: '8px 24px', borderRadius: '20px', border: 'none', cursor: 'pointer', fontWeight: '700', fontSize: '13px', background: isFollowingEntry(selectedEntry.owner_id) ? 'rgba(255,255,255,0.15)' : '#f88124', color: 'white', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
                   {isFollowingEntry(selectedEntry.owner_id) ? '✓ Following' : '+ Follow'}
                 </button>
               )}
@@ -362,9 +359,9 @@ export default function Leaderboard() {
             <div style={{ padding: '24px' }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', marginBottom: '24px' }}>
                 {[
-                  { label: 'Sessions', value: selectedEntry.session_count, icon: <Calendar size={16} color="#003087" />, bg: '#e8edf5' },
-                  { label: 'Miles', value: selectedEntry.total_miles, icon: <Navigation size={16} color="#003087" />, bg: '#e8edf5' },
-                  { label: 'Calories', value: selectedEntry.total_calories.toLocaleString(), icon: <Flame size={16} color="#FF6B35" />, bg: '#fff0ea' },
+                  { label: 'Sessions', value: selectedEntry.session_count, icon: <Calendar size={16} color="#2c5a9e" />, bg: '#eef2fb' },
+                  { label: 'Miles', value: selectedEntry.total_miles, icon: <Navigation size={16} color="#2c5a9e" />, bg: '#eef2fb' },
+                  { label: 'Calories', value: selectedEntry.total_calories.toLocaleString(), icon: <Flame size={16} color="#f88124" />, bg: '#fff0ea' },
                 ].map(stat => (
                   <div key={stat.label} style={{ background: '#f0f2f7', borderRadius: '14px', padding: '14px 10px', textAlign: 'center' }}>
                     <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: stat.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 8px' }}>{stat.icon}</div>
@@ -378,10 +375,10 @@ export default function Leaderboard() {
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
                   <div style={{ width: '28px', height: '28px', background: '#fff5e6', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Award size={15} color="#FF6B35" />
+                    <Award size={15} color="#f88124" />
                   </div>
                   <span style={{ fontWeight: '700', color: '#1a1a2e', fontSize: '14px' }}>Badges Earned</span>
-                  <span style={{ background: 'linear-gradient(135deg, #FF6B35, #ff8c5a)', color: 'white', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: '700' }}>{selectedEntry.achievement_count}</span>
+                  <span style={{ background: 'linear-gradient(135deg, #f88124, #f9a04e)', color: 'white', fontSize: '11px', padding: '2px 8px', borderRadius: '20px', fontWeight: '700' }}>{selectedEntry.achievement_count}</span>
                 </div>
                 {modalLoading ? (
                   <p style={{ color: '#bbb', fontSize: '13px', margin: 0 }}>Loading badges…</p>
@@ -390,7 +387,7 @@ export default function Leaderboard() {
                 ) : (
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', maxHeight: '160px', overflowY: 'auto' }}>
                     {modalAchievements.map((a, idx) => (
-                      <div key={idx} style={{ background: 'linear-gradient(135deg, #FF6B35, #ff8c5a)', color: 'white', padding: '6px 12px', borderRadius: '10px', fontSize: '12px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                      <div key={idx} style={{ background: 'linear-gradient(135deg, #f88124, #f9a04e)', color: 'white', padding: '6px 12px', borderRadius: '10px', fontSize: '12px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '5px' }}>
                         <Star size={11} color="white" fill="white" /> {formatAchievementLabel(a.achievement_key)}
                       </div>
                     ))}

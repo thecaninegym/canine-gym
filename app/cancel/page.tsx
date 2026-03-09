@@ -125,7 +125,7 @@ function CancelForm() {
   }
 
   if (loading) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#003087' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#2c5a9e' }}>
       <p style={{ color: 'white' }}>Loading...</p>
     </div>
   )
@@ -140,7 +140,7 @@ function CancelForm() {
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
-      <nav style={{ backgroundColor: '#003087', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <nav style={{ backgroundColor: '#2c5a9e', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <PawPrint size={24} color="white" />
           <h1 style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>The Canine Gym</h1>
@@ -153,13 +153,13 @@ function CancelForm() {
       <div style={{ padding: '32px', maxWidth: '600px', margin: '0 auto' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
           <XCircle size={28} color="#dc3545" />
-          <h2 style={{ color: '#003087', margin: 0 }}>Cancel Session</h2>
+          <h2 style={{ color: '#2c5a9e', margin: 0 }}>Cancel Session</h2>
         </div>
 
         {result ? (
           <div style={{ backgroundColor: 'white', padding: '32px', borderRadius: '12px', textAlign: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-            <CheckCircle size={52} color="#003087" style={{ marginBottom: '16px' }} />
-            <h3 style={{ color: '#003087', marginBottom: '16px' }}>Session Cancelled</h3>
+            <CheckCircle size={52} color="#2c5a9e" style={{ marginBottom: '16px' }} />
+            <h3 style={{ color: '#2c5a9e', marginBottom: '16px' }}>Session Cancelled</h3>
             {resultMessage && (
               <div style={{ backgroundColor: resultMessage.color, padding: '16px', borderRadius: '8px', marginBottom: '24px', display: 'flex', alignItems: 'flex-start', gap: '10px', textAlign: 'left' }}>
                 {resultMessage.icon}
@@ -169,11 +169,11 @@ function CancelForm() {
                 </div>
               </div>
             )}
-            <a href="/dashboard" style={{ backgroundColor: '#003087', color: 'white', padding: '12px 24px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold' }}>Back to Dashboard</a>
+            <a href="/dashboard" style={{ backgroundColor: '#2c5a9e', color: 'white', padding: '12px 24px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold' }}>Back to Dashboard</a>
           </div>
         ) : (
           <>
-            <div style={{ backgroundColor: '#003087', color: 'white', padding: '20px', borderRadius: '12px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ backgroundColor: '#2c5a9e', color: 'white', padding: '20px', borderRadius: '12px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
               <PawPrint size={24} color="white" />
               <div>
                 <p style={{ margin: '0 0 4px 0', fontWeight: 'bold', fontSize: '18px' }}>{booking.dogs?.name}</p>
@@ -239,7 +239,7 @@ function CancelForm() {
 
 export default function CancelPage() {
   return (
-    <Suspense fallback={<div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#003087' }}><p style={{ color: 'white' }}>Loading...</p></div>}>
+    <Suspense fallback={<div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#2c5a9e' }}><p style={{ color: 'white' }}>Loading...</p></div>}>
       <CancelForm />
     </Suspense>
   )

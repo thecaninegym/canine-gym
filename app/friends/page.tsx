@@ -106,14 +106,14 @@ export default function Friends() {
           </div>
           <div>
             <div style={{ fontWeight: '800', color: '#1a1a2e', fontSize: '14px' }}>{owner.name}</div>
-            {owner.gym_tag && <div style={{ color: '#FF6B35', fontSize: '12px', fontWeight: '700' }}>@{owner.gym_tag}</div>}
+            {owner.gym_tag && <div style={{ color: '#f88124', fontSize: '12px', fontWeight: '700' }}>@{owner.gym_tag}</div>}
             {owner.city && <div style={{ color: '#888', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '3px' }}><MapPin size={10} /> {owner.city}</div>}
             {dogs.length > 0 && <div style={{ color: '#aaa', fontSize: '12px' }}>🐾 {dogs.map((d: any) => d.name).join(', ')}</div>}
           </div>
         </div>
         {showFollowBtn && owner.id !== ownerId && (
           <button onClick={() => following_ ? handleUnfollow(owner.id) : handleFollow(owner.id)}
-            style={{ padding: '7px 16px', borderRadius: '10px', border: '1.5px solid', fontWeight: '700', fontSize: '13px', cursor: 'pointer', transition: 'all 0.15s', background: following_ ? '#f0f2f7' : 'linear-gradient(135deg, #003087, #0052cc)', color: following_ ? '#555' : 'white', borderColor: following_ ? '#e5e8f0' : 'transparent', display: 'flex', alignItems: 'center', gap: '5px' }}>
+            style={{ padding: '7px 16px', borderRadius: '10px', border: '1.5px solid', fontWeight: '700', fontSize: '13px', cursor: 'pointer', transition: 'all 0.15s', background: following_ ? '#f0f2f7' : 'linear-gradient(135deg, #2c5a9e, #2c5a9e)', color: following_ ? '#555' : 'white', borderColor: following_ ? '#e5e8f0' : 'transparent', display: 'flex', alignItems: 'center', gap: '5px' }}>
             {following_ ? <><UserCheck size={13} /> Following</> : <><UserPlus size={13} /> Follow</>}
           </button>
         )}
@@ -122,9 +122,9 @@ export default function Friends() {
   }
 
   if (loading) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #001a4d 0%, #003087 100%)' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #001840 0%, #2c5a9e 100%)' }}>
       <div style={{ textAlign: 'center' }}>
-        <div style={{ width: '48px', height: '48px', border: '3px solid rgba(255,255,255,0.2)', borderTopColor: '#FF6B35', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }} />
+        <div style={{ width: '48px', height: '48px', border: '3px solid rgba(255,255,255,0.2)', borderTopColor: '#f88124', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }} />
         <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '15px' }}>Loading…</p>
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
@@ -132,16 +132,13 @@ export default function Friends() {
   )
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', fontFamily: "'Segoe UI', system-ui, sans-serif" }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', fontFamily: "'Montserrat', system-ui, sans-serif" }}>
       <style>{`@keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } } * { box-sizing: border-box; }`}</style>
 
       {/* Nav */}
-      <nav style={{ background: 'linear-gradient(135deg, #001a4d 0%, #003087 100%)', padding: '0 24px', height: '64px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 20px rgba(0,0,0,0.2)' }}>
+      <nav style={{ background: 'linear-gradient(135deg, #001840 0%, #2c5a9e 100%)', padding: '0 24px', height: '64px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 20px rgba(0,0,0,0.2)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ width: '36px', height: '36px', background: 'rgba(255,107,53,0.2)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <PawPrint size={20} color="#FF6B35" />
-          </div>
-          <span style={{ color: 'white', fontSize: '17px', fontWeight: '700', letterSpacing: '-0.3px' }}>The Canine Gym</span>
+          <img src="/logo-white.png" alt="The Canine Gym" style={{ height: '40px', width: 'auto' }} />
         </div>
         <a href="/dashboard" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none', fontWeight: '600', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)' }}>
           <ArrowLeft size={15} /> Dashboard
@@ -170,7 +167,7 @@ export default function Friends() {
               />
             </div>
             <button onClick={handleSearch} disabled={searching}
-              style={{ padding: '10px 18px', background: 'linear-gradient(135deg, #003087, #0052cc)', color: 'white', border: 'none', borderRadius: '10px', fontWeight: '700', fontSize: '13px', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+              style={{ padding: '10px 18px', background: 'linear-gradient(135deg, #2c5a9e, #2c5a9e)', color: 'white', border: 'none', borderRadius: '10px', fontWeight: '700', fontSize: '13px', cursor: 'pointer', whiteSpace: 'nowrap' }}>
               {searching ? '…' : 'Search'}
             </button>
           </div>
@@ -193,7 +190,7 @@ export default function Friends() {
               { key: 'followers', label: `Followers (${followers.length})` },
             ].map(tab => (
               <button key={tab.key} onClick={() => setActiveTab(tab.key as any)}
-                style={{ flex: 1, padding: '14px 8px', border: 'none', background: 'none', fontWeight: '700', fontSize: '13px', cursor: 'pointer', color: activeTab === tab.key ? '#003087' : '#888', borderBottom: activeTab === tab.key ? '2.5px solid #003087' : '2.5px solid transparent', transition: 'all 0.15s' }}>
+                style={{ flex: 1, padding: '14px 8px', border: 'none', background: 'none', fontWeight: '700', fontSize: '13px', cursor: 'pointer', color: activeTab === tab.key ? '#2c5a9e' : '#888', borderBottom: activeTab === tab.key ? '2.5px solid #2c5a9e' : '2.5px solid transparent', transition: 'all 0.15s' }}>
                 {tab.label}
               </button>
             ))}

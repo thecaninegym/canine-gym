@@ -45,13 +45,13 @@ export async function GET(request: Request) {
       subject: `🎂 Happy Birthday ${dog.name}!`,
       html: `
         <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
-          <div style="background:linear-gradient(135deg,#001a4d,#003087);padding:28px;border-radius:12px 12px 0 0;text-align:center;">
+          <div style="background:linear-gradient(135deg,#001840,#2c5a9e);padding:28px;border-radius:12px 12px 0 0;text-align:center;">
             <p style="font-size:48px;margin:0;">🎂</p>
             <h1 style="color:white;margin:8px 0 0;font-size:26px;">Happy Birthday, ${dog.name}!</h1>
           </div>
           <div style="background:white;padding:28px;border:1px solid #eee;text-align:center;">
             <p style="color:#555;font-size:16px;line-height:1.7;">Today ${dog.name} turns <strong>${age} year${age !== 1 ? 's' : ''} old</strong> 🐾<br/>Celebrate with a session on the slatmill — the best birthday gift for a pup!</p>
-            <a href="https://app.thecaninegym.com/book" style="display:inline-block;background:linear-gradient(135deg,#FF6B35,#ff8c5a);color:white;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:bold;font-size:16px;margin:20px 0;">
+            <a href="https://app.thecaninegym.com/book" style="display:inline-block;background:linear-gradient(135deg,#f88124,#f9a04e);color:white;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:bold;font-size:16px;margin:20px 0;">
               🎉 Book a Birthday Session
             </a>
             <p style="color:#999;font-size:13px;">From all of us at The Canine Gym 🐾</p>
@@ -70,7 +70,7 @@ export async function GET(request: Request) {
       subject: `🎂 Birthday Today: ${dog.name}`,
       html: `
         <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
-          <div style="background:linear-gradient(135deg,#001a4d,#003087);padding:24px;border-radius:12px 12px 0 0;">
+          <div style="background:linear-gradient(135deg,#001840,#2c5a9e);padding:24px;border-radius:12px 12px 0 0;">
             <h1 style="color:white;margin:0;font-size:22px;">🎂 Birthday Alert</h1>
           </div>
           <div style="background:white;padding:24px;border:1px solid #eee;">

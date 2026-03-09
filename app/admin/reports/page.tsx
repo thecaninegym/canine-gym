@@ -103,22 +103,22 @@ export default function AdminReports() {
   )
 
   const metrics = [
-    { label: 'Bookings', value: currentBookings.length, change: bookingChange, icon: <Calendar size={18} color="white" />, bg: 'linear-gradient(135deg, #001a4d, #003087)' },
-    { label: 'Sessions Logged', value: currentSessions.length, change: sessionChange, icon: <Activity size={18} color="white" />, bg: 'linear-gradient(135deg, #001a4d, #003087)' },
-    { label: 'New Clients', value: currentNewClients.length, change: clientChange, icon: <User size={18} color="white" />, bg: 'linear-gradient(135deg, #001a4d, #003087)' },
-    { label: 'Active Members', value: activeMemberships.length, change: null, icon: <CreditCard size={18} color="white" />, bg: 'linear-gradient(135deg, #FF6B35, #ff8c5a)' },
-    { label: 'Total Clients', value: owners.length, change: null, icon: <Users size={18} color="white" />, bg: 'linear-gradient(135deg, #001a4d, #003087)' },
+    { label: 'Bookings', value: currentBookings.length, change: bookingChange, icon: <Calendar size={18} color="white" />, bg: 'linear-gradient(135deg, #001840, #2c5a9e)' },
+    { label: 'Sessions Logged', value: currentSessions.length, change: sessionChange, icon: <Activity size={18} color="white" />, bg: 'linear-gradient(135deg, #001840, #2c5a9e)' },
+    { label: 'New Clients', value: currentNewClients.length, change: clientChange, icon: <User size={18} color="white" />, bg: 'linear-gradient(135deg, #001840, #2c5a9e)' },
+    { label: 'Active Members', value: activeMemberships.length, change: null, icon: <CreditCard size={18} color="white" />, bg: 'linear-gradient(135deg, #f88124, #f9a04e)' },
+    { label: 'Total Clients', value: owners.length, change: null, icon: <Users size={18} color="white" />, bg: 'linear-gradient(135deg, #001840, #2c5a9e)' },
     { label: 'Monthly MRR', value: `$${membershipRevenue.toLocaleString()}`, change: null, icon: <DollarSign size={18} color="white" />, bg: 'linear-gradient(135deg, #1a7a2e, #28a745)' },
   ]
 
   if (loading) return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Segoe UI', system-ui, sans-serif" }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Montserrat', system-ui, sans-serif" }}>
       <p style={{ color: '#aaa' }}>Loading reports...</p>
     </div>
   )
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', fontFamily: "'Segoe UI', system-ui, sans-serif" }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', fontFamily: "'Montserrat', system-ui, sans-serif" }}>
       <style>{`
   @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
   * { box-sizing: border-box; }
@@ -127,10 +127,10 @@ export default function AdminReports() {
   }
 `}</style>
 
-      <nav style={{ background: 'linear-gradient(135deg, #001a4d 0%, #003087 100%)', padding: '0 24px', height: '64px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 20px rgba(0,0,0,0.2)' }}>
+      <nav style={{ background: 'linear-gradient(135deg, #001840 0%, #2c5a9e 100%)', padding: '0 24px', height: '64px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 20px rgba(0,0,0,0.2)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ width: '36px', height: '36px', background: 'rgba(255,107,53,0.2)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><PawPrint size={20} color="#FF6B35" /></div>
-          <span style={{ color: 'white', fontSize: '17px', fontWeight: '700' }}>The Canine Gym <span style={{ color: 'rgba(255,255,255,0.45)', fontWeight: '500' }}>· Admin</span></span>
+          <img src="/logo-white.png" alt="The Canine Gym" style={{ height: '40px', width: 'auto' }} />
+          <span style={{ color: 'rgba(255,255,255,0.45)', fontWeight: '500', fontSize: '15px' }}>· Admin</span>
         </div>
         <a href="/admin" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none', fontWeight: '600', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)' }}>
           <ArrowLeft size={15} /> Dashboard
@@ -140,7 +140,7 @@ export default function AdminReports() {
       <div style={{ padding: '32px 24px', maxWidth: '1100px', margin: '0 auto', animation: 'fadeUp 0.35s ease' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={{ width: '42px', height: '42px', background: 'linear-gradient(135deg, #001a4d, #003087)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ width: '42px', height: '42px', background: 'linear-gradient(135deg, #001840, #2c5a9e)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <BarChart2 size={22} color="white" />
             </div>
             <div>
@@ -150,11 +150,11 @@ export default function AdminReports() {
           </div>
           <div style={{ display: 'flex', background: 'white', borderRadius: '10px', padding: '4px', gap: '4px', border: '1.5px solid #eef0f5' }}>
             <button onClick={() => setPeriod('week')}
-              style={{ padding: '8px 18px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: '700', fontSize: '13px', background: period === 'week' ? 'linear-gradient(135deg, #001a4d, #003087)' : 'transparent', color: period === 'week' ? 'white' : '#888' }}>
+              style={{ padding: '8px 18px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: '700', fontSize: '13px', background: period === 'week' ? 'linear-gradient(135deg, #001840, #2c5a9e)' : 'transparent', color: period === 'week' ? 'white' : '#888' }}>
               Weekly
             </button>
             <button onClick={() => setPeriod('month')}
-              style={{ padding: '8px 18px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: '700', fontSize: '13px', background: period === 'month' ? 'linear-gradient(135deg, #001a4d, #003087)' : 'transparent', color: period === 'month' ? 'white' : '#888' }}>
+              style={{ padding: '8px 18px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: '700', fontSize: '13px', background: period === 'month' ? 'linear-gradient(135deg, #001840, #2c5a9e)' : 'transparent', color: period === 'month' ? 'white' : '#888' }}>
               Monthly
             </button>
           </div>
@@ -184,7 +184,7 @@ export default function AdminReports() {
   {/* Bookings by city */}
           <div style={{ background: 'white', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5', padding: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>
-              <MapPin size={17} color="#003087" />
+              <MapPin size={17} color="#2c5a9e" />
               <h3 style={{ color: '#1a1a2e', margin: 0, fontWeight: '800', fontSize: '15px' }}>Bookings by City</h3>
             </div>
             {citySorted.length === 0 ? (
@@ -196,7 +196,7 @@ export default function AdminReports() {
                   <span style={{ color: '#888', fontSize: '13px' }}>{count} booking{count !== 1 ? 's' : ''}</span>
                 </div>
                 <div style={{ background: '#f0f2f7', borderRadius: '6px', height: '8px', overflow: 'hidden' }}>
-                  <div style={{ background: 'linear-gradient(135deg, #003087, #0052cc)', height: '100%', width: `${(count / maxCityCount) * 100}%`, borderRadius: '6px', transition: 'width 0.3s' }} />
+                  <div style={{ background: 'linear-gradient(135deg, #2c5a9e, #2c5a9e)', height: '100%', width: `${(count / maxCityCount) * 100}%`, borderRadius: '6px', transition: 'width 0.3s' }} />
                 </div>
               </div>
             ))}
@@ -205,7 +205,7 @@ export default function AdminReports() {
           {/* Bookings by day */}
           <div style={{ background: 'white', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5', padding: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>
-              <Calendar size={17} color="#003087" />
+              <Calendar size={17} color="#2c5a9e" />
               <h3 style={{ color: '#1a1a2e', margin: 0, fontWeight: '800', fontSize: '15px' }}>Bookings by Day</h3>
             </div>
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: '8px', height: '120px' }}>
@@ -215,7 +215,7 @@ export default function AdminReports() {
                 return (
                   <div key={day} style={{ flex: 1, display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: '4px', height: '100%', justifyContent: 'flex-end' }}>
                     <span style={{ fontSize: '11px', color: '#888', fontWeight: '700' }}>{count > 0 ? count : ''}</span>
-                    <div style={{ width: '100%', background: count > 0 ? 'linear-gradient(to top, #003087, #0052cc)' : '#f0f2f7', borderRadius: '4px 4px 0 0', height: `${Math.max(height, count > 0 ? 8 : 4)}%`, transition: 'height 0.3s' }} />
+                    <div style={{ width: '100%', background: count > 0 ? 'linear-gradient(to top, #2c5a9e, #2c5a9e)' : '#f0f2f7', borderRadius: '4px 4px 0 0', height: `${Math.max(height, count > 0 ? 8 : 4)}%`, transition: 'height 0.3s' }} />
                     <span style={{ fontSize: '11px', color: '#888', fontWeight: '700' }}>{day}</span>
                   </div>
                 )
@@ -228,13 +228,13 @@ export default function AdminReports() {
   {/* Membership breakdown */}
           <div style={{ background: 'white', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5', padding: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>
-              <CreditCard size={17} color="#003087" />
+              <CreditCard size={17} color="#2c5a9e" />
               <h3 style={{ color: '#1a1a2e', margin: 0, fontWeight: '800', fontSize: '15px' }}>Membership Breakdown</h3>
             </div>
             {[
               { plan: 'Starter', count: activeMemberships.filter(m => m.plan === 'starter').length, color: '#6c757d', revenue: activeMemberships.filter(m => m.plan === 'starter').reduce((s, m) => s + (m.dog_count === 2 ? 324 : 180), 0) },
-              { plan: 'Active', count: activeMemberships.filter(m => m.plan === 'active').length, color: '#FF6B35', revenue: activeMemberships.filter(m => m.plan === 'active').reduce((s, m) => s + (m.dog_count === 2 ? 612 : 340), 0) },
-              { plan: 'Athlete', count: activeMemberships.filter(m => m.plan === 'athlete').length, color: '#003087', revenue: activeMemberships.filter(m => m.plan === 'athlete').reduce((s, m) => s + (m.dog_count === 2 ? 864 : 480), 0) },
+              { plan: 'Active', count: activeMemberships.filter(m => m.plan === 'active').length, color: '#f88124', revenue: activeMemberships.filter(m => m.plan === 'active').reduce((s, m) => s + (m.dog_count === 2 ? 612 : 340), 0) },
+              { plan: 'Athlete', count: activeMemberships.filter(m => m.plan === 'athlete').length, color: '#2c5a9e', revenue: activeMemberships.filter(m => m.plan === 'athlete').reduce((s, m) => s + (m.dog_count === 2 ? 864 : 480), 0) },
             ].map(({ plan, count, color, revenue }) => (
               <div key={plan} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', borderBottom: '1px solid #f0f2f7' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -254,7 +254,7 @@ export default function AdminReports() {
           {/* Longest clients */}
           <div style={{ background: 'white', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5', padding: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>
-              <Trophy size={17} color="#003087" />
+              <Trophy size={17} color="#2c5a9e" />
               <h3 style={{ color: '#1a1a2e', margin: 0, fontWeight: '800', fontSize: '15px' }}>Longest Clients</h3>
             </div>
             {longestClients.length === 0 ? (
@@ -262,7 +262,7 @@ export default function AdminReports() {
             ) : longestClients.map((client, i) => (
               <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid #f0f2f7' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <span style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'linear-gradient(135deg, #001a4d, #003087)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '800', flexShrink: 0 }}>{i + 1}</span>
+                  <span style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'linear-gradient(135deg, #001840, #2c5a9e)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '800', flexShrink: 0 }}>{i + 1}</span>
                   <span style={{ fontWeight: '700', color: '#1a1a2e', fontSize: '14px' }}>{client.name}</span>
                 </div>
                 <span style={{ color: '#888', fontSize: '13px' }}>{client.months} month{client.months !== 1 ? 's' : ''}</span>
@@ -274,12 +274,12 @@ export default function AdminReports() {
         {/* Booking health */}
         <div style={{ background: 'white', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5', padding: '24px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>
-            <Activity size={17} color="#003087" />
+            <Activity size={17} color="#2c5a9e" />
             <h3 style={{ color: '#1a1a2e', margin: 0, fontWeight: '800', fontSize: '15px' }}>Booking Health</h3>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '14px' }}>
             {[
-              { label: 'Confirmed', value: filterByPeriod(bookings, 'booking_date', current).filter(b => b.status === 'confirmed').length, color: '#003087', bg: '#f0f4ff', icon: <Clock size={22} color="#003087" /> },
+              { label: 'Confirmed', value: filterByPeriod(bookings, 'booking_date', current).filter(b => b.status === 'confirmed').length, color: '#2c5a9e', bg: '#eef2fb', icon: <Clock size={22} color="#2c5a9e" /> },
               { label: 'Completed', value: filterByPeriod(bookings, 'booking_date', current).filter(b => b.status === 'completed').length, color: '#28a745', bg: '#d4edda', icon: <CheckCircle size={22} color="#28a745" /> },
               { label: 'Cancelled', value: filterByPeriod(bookings, 'booking_date', current).filter(b => b.status === 'cancelled').length, color: '#dc3545', bg: '#f8d7da', icon: <XCircle size={22} color="#dc3545" /> },
               { label: 'No Shows', value: filterByPeriod(bookings, 'booking_date', current).filter(b => b.status === 'no_show').length, color: '#856404', bg: '#fff3cd', icon: <AlertTriangle size={22} color="#856404" /> },
