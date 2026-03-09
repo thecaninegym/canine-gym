@@ -19,7 +19,6 @@ const inputStyle = {
   outline: 'none',
   fontFamily: 'inherit',
   background: '#f8f9fc',
-  transition: 'border-color 0.15s, box-shadow 0.15s',
 }
 
 const labelStyle = {
@@ -29,7 +28,7 @@ const labelStyle = {
   color: '#4a5568',
   fontSize: '12px',
   textTransform: 'uppercase' as const,
-  letterSpacing: '0.5px',
+  letterSpacing: '0.6px',
 }
 
 function LoginContent() {
@@ -86,162 +85,209 @@ function LoginContent() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f0f2f7', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', fontFamily: "'Montserrat', system-ui, sans-serif", position: 'relative', overflow: 'hidden' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', fontFamily: "'Montserrat', system-ui, sans-serif" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .login-input:focus { border-color: #f88124 !important; box-shadow: 0 0 0 3px rgba(248,129,36,0.12) !important; background: white !important; }
-        input:-webkit-autofill { -webkit-box-shadow: 0 0 0px 1000px #f8f9fc inset !important; -webkit-text-fill-color: #001840 !important; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: translateX(0); } }
+        .login-input:focus { border-color: ${ORANGE} !important; box-shadow: 0 0 0 3px rgba(248,129,36,0.12) !important; background: white !important; outline: none; }
+        input:-webkit-autofill { -webkit-box-shadow: 0 0 0px 1000px #f8f9fc inset !important; -webkit-text-fill-color: ${DARK_BLUE} !important; }
         input::placeholder { color: #b0b8c8; }
         * { box-sizing: border-box; }
-        .tab-btn { transition: all 0.15s ease; }
-        .submit-btn { transition: transform 0.1s ease, box-shadow 0.1s ease; }
-        .submit-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(248,129,36,0.4) !important; }
-        .submit-btn:active:not(:disabled) { transform: translateY(0); }
+        .tab-btn { transition: all 0.15s ease; cursor: pointer; }
+        .submit-btn { transition: transform 0.1s ease, box-shadow 0.15s ease; cursor: pointer; }
+        .submit-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 22px rgba(248,129,36,0.45) !important; }
+        .submit-btn:active:not(:disabled) { transform: translateY(0px); }
+        .submit-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+        @media (max-width: 700px) {
+          .split-left { display: none !important; }
+          .split-right { min-height: 100vh !important; }
+        }
       `}</style>
 
-      <div style={{ position: 'absolute', top: -120, right: -120, width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(248,129,36,0.08) 0%, transparent 70%)', pointerEvents: 'none' }} />
-      <div style={{ position: 'absolute', bottom: -100, left: -100, width: '400px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(44,90,158,0.07) 0%, transparent 70%)', pointerEvents: 'none' }} />
+      {/* LEFT PANEL — dark navy, logo */}
+      <div className="split-left" style={{
+        width: '45%',
+        background: `linear-gradient(160deg, ${DARK_BLUE} 0%, #0a2a5e 100%)`,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '48px 40px',
+        position: 'relative',
+        overflow: 'hidden',
+        flexShrink: 0,
+      }}>
+        {/* Subtle decorative rings */}
+        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '500px', height: '500px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.04)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '340px', height: '340px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.06)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '3px', background: `linear-gradient(90deg, transparent, ${ORANGE}, transparent)` }} />
 
-      <div style={{ width: '100%', maxWidth: '420px', animation: 'fadeUp 0.4s ease' }}>
+        {/* Logo — black bg blends into dark panel */}
+        <img
+          src="/logo.png"
+          alt="The Canine Gym"
+          style={{ width: '82%', maxWidth: '300px', height: 'auto', display: 'block', position: 'relative', zIndex: 1 }}
+        />
 
-        {/* Full color logo on white pill */}
-        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-          <div style={{ display: 'inline-block', background: 'white', borderRadius: '20px', padding: '16px 32px', boxShadow: '0 4px 20px rgba(0,24,64,0.10)' }}>
-            <img src="/logo.png" alt="The Canine Gym" style={{ height: '72px', width: 'auto', display: 'block' }} />
-          </div>
+        <div style={{ marginTop: '40px', textAlign: 'center', position: 'relative', zIndex: 1 }}>
+          <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '12px', fontWeight: '600', letterSpacing: '1.5px', textTransform: 'uppercase', margin: 0 }}>
+            Hamilton County, Indiana
+          </p>
         </div>
+      </div>
 
-        {signupSuccess ? (
-          <div style={{ background: 'white', borderRadius: '20px', padding: '40px 32px', boxShadow: '0 8px 40px rgba(0,24,64,0.10)', textAlign: 'center' }}>
-            <div style={{ width: '64px', height: '64px', background: 'rgba(34,197,94,0.1)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-              <CheckCircle size={32} color="#22c55e" />
-            </div>
-            <h2 style={{ color: DARK_BLUE, margin: '0 0 10px', fontWeight: '800', fontSize: '20px' }}>Welcome to the pack!</h2>
-            <p style={{ color: '#718096', marginBottom: '24px', fontSize: '14px', lineHeight: 1.6 }}>Your account has been created. You can log in now!</p>
-            <button onClick={() => { setMode('login'); setSignupSuccess(false) }} className="submit-btn"
-              style={{ width: '100%', padding: '13px', background: 'linear-gradient(135deg, #f88124, #f9a04e)', color: 'white', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 4px 16px rgba(248,129,36,0.3)' }}>
-              Go to Login
-            </button>
-          </div>
-        ) : (
-          <div style={{ background: 'white', borderRadius: '20px', padding: '28px', boxShadow: '0 8px 40px rgba(0,24,64,0.10)' }}>
+      {/* RIGHT PANEL — white form */}
+      <div className="split-right" style={{
+        flex: 1,
+        background: '#f4f6fb',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '40px 32px',
+        minHeight: '100vh',
+      }}>
+        <div style={{ width: '100%', maxWidth: '400px', animation: 'fadeIn 0.4s ease' }}>
 
-            {mode !== 'reset' && (
-              <div style={{ display: 'flex', marginBottom: '24px', background: '#f0f2f7', borderRadius: '12px', padding: '4px', gap: '4px' }}>
-                <button onClick={() => switchMode('login')} className="tab-btn"
-                  style={{ flex: 1, padding: '10px', border: 'none', borderRadius: '9px', fontWeight: '700', cursor: 'pointer', fontSize: '14px', fontFamily: 'inherit', background: mode === 'login' ? 'white' : 'transparent', color: mode === 'login' ? DARK_BLUE : '#a0aec0', boxShadow: mode === 'login' ? '0 1px 6px rgba(0,0,0,0.08)' : 'none' }}>
-                  Log In
-                </button>
-                <button onClick={() => switchMode('signup')} className="tab-btn"
-                  style={{ flex: 1, padding: '10px', border: 'none', borderRadius: '9px', fontWeight: '700', cursor: 'pointer', fontSize: '14px', fontFamily: 'inherit', background: mode === 'signup' ? 'white' : 'transparent', color: mode === 'signup' ? DARK_BLUE : '#a0aec0', boxShadow: mode === 'signup' ? '0 1px 6px rgba(0,0,0,0.08)' : 'none' }}>
-                  Sign Up
-                </button>
+          {signupSuccess ? (
+            <div style={{ background: 'white', borderRadius: '20px', padding: '40px 32px', boxShadow: '0 4px 24px rgba(0,24,64,0.08)', textAlign: 'center' }}>
+              <div style={{ width: '64px', height: '64px', background: 'rgba(34,197,94,0.1)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+                <CheckCircle size={32} color="#22c55e" />
               </div>
-            )}
+              <h2 style={{ color: DARK_BLUE, margin: '0 0 10px', fontWeight: '800', fontSize: '20px' }}>Welcome to the pack!</h2>
+              <p style={{ color: '#718096', marginBottom: '24px', fontSize: '14px', lineHeight: 1.6 }}>Your account is ready. Log in to get started!</p>
+              <button onClick={() => { setMode('login'); setSignupSuccess(false) }} className="submit-btn"
+                style={{ width: '100%', padding: '13px', background: `linear-gradient(135deg, ${ORANGE}, #f9a04e)`, color: 'white', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', fontFamily: 'inherit', boxShadow: '0 4px 16px rgba(248,129,36,0.3)' }}>
+                Go to Login
+              </button>
+            </div>
+          ) : (
+            <div style={{ background: 'white', borderRadius: '20px', padding: '32px', boxShadow: '0 4px 24px rgba(0,24,64,0.08)' }}>
 
-            {mode === 'login' && (
-              <form onSubmit={handleLogin}>
-                <div style={{ marginBottom: '14px' }}>
-                  <label style={labelStyle}>Email</label>
-                  <input className="login-input" type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="you@email.com" style={inputStyle} />
-                </div>
-                <div style={{ marginBottom: '8px' }}>
-                  <label style={labelStyle}>Password</label>
-                  <input className="login-input" type="password" value={password} onChange={e => setPassword(e.target.value)} required placeholder="••••••••" style={inputStyle} />
-                </div>
-                <div style={{ marginBottom: '22px', textAlign: 'right' }}>
-                  <button type="button" onClick={() => switchMode('reset')}
-                    style={{ background: 'none', border: 'none', color: ORANGE, fontSize: '13px', cursor: 'pointer', padding: 0, fontWeight: '700', fontFamily: 'inherit' }}>
-                    Forgot password?
-                  </button>
-                </div>
-                {error && <div style={{ background: '#fff5f5', border: '1.5px solid #feb2b2', color: '#c53030', padding: '10px 14px', borderRadius: '10px', marginBottom: '14px', fontSize: '13px', fontWeight: '600' }}>{error}</div>}
-                <button type="submit" disabled={loading} className="submit-btn"
-                  style={{ width: '100%', padding: '13px', background: 'linear-gradient(135deg, #f88124, #f9a04e)', color: 'white', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: 'pointer', boxShadow: '0 4px 16px rgba(248,129,36,0.3)', fontFamily: 'inherit' }}>
-                  {loading ? 'Logging in…' : 'Log In →'}
-                </button>
-              </form>
-            )}
+              {/* Heading */}
+              <div style={{ marginBottom: '24px' }}>
+                <h1 style={{ color: DARK_BLUE, margin: '0 0 4px', fontWeight: '800', fontSize: '22px' }}>
+                  {mode === 'login' ? 'Welcome back!' : mode === 'signup' ? 'Create your account' : 'Reset your password'}
+                </h1>
+                <p style={{ color: '#a0aec0', fontSize: '13px', margin: 0, fontWeight: '500' }}>
+                  {mode === 'login' ? "Log in to manage your dog's sessions." : mode === 'signup' ? 'Join The Canine Gym today.' : "We'll send a reset link to your email."}
+                </p>
+              </div>
 
-            {mode === 'signup' && (
-              <form onSubmit={handleSignup}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '14px' }}>
-                  <div>
-                    <label style={labelStyle}>First Name</label>
-                    <input className="login-input" type="text" value={firstName} onChange={e => setFirstName(e.target.value)} required placeholder="Jane" style={inputStyle} />
-                  </div>
-                  <div>
-                    <label style={labelStyle}>Last Name</label>
-                    <input className="login-input" type="text" value={lastName} onChange={e => setLastName(e.target.value)} required placeholder="Smith" style={inputStyle} />
-                  </div>
-                </div>
-                <div style={{ marginBottom: '14px' }}>
-                  <label style={labelStyle}>Email</label>
-                  <input className="login-input" type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="you@email.com" style={inputStyle} />
-                </div>
-                <div style={{ marginBottom: '14px' }}>
-                  <label style={labelStyle}>Phone</label>
-                  <input className="login-input" type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="(317) 555-0123" style={inputStyle} />
-                </div>
-                <div style={{ marginBottom: '14px' }}>
-                  <label style={labelStyle}>Password</label>
-                  <input className="login-input" type="password" value={password} onChange={e => setPassword(e.target.value)} required placeholder="••••••••" style={inputStyle} />
-                </div>
-                <div style={{ marginBottom: '22px' }}>
-                  <label style={labelStyle}>Confirm Password</label>
-                  <input className="login-input" type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required placeholder="••••••••" style={inputStyle} />
-                </div>
-                {error && <div style={{ background: '#fff5f5', border: '1.5px solid #feb2b2', color: '#c53030', padding: '10px 14px', borderRadius: '10px', marginBottom: '14px', fontSize: '13px', fontWeight: '600' }}>{error}</div>}
-                <button type="submit" disabled={loading} className="submit-btn"
-                  style={{ width: '100%', padding: '13px', background: 'linear-gradient(135deg, #f88124, #f9a04e)', color: 'white', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: 'pointer', boxShadow: '0 4px 16px rgba(248,129,36,0.3)', fontFamily: 'inherit' }}>
-                  {loading ? 'Creating Account…' : 'Create Account →'}
-                </button>
-              </form>
-            )}
-
-            {mode === 'reset' && (
-              resetSent ? (
-                <div style={{ textAlign: 'center', padding: '8px 0' }}>
-                  <div style={{ width: '64px', height: '64px', background: 'rgba(44,90,158,0.08)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-                    <Mail size={28} color={BLUE} />
-                  </div>
-                  <h3 style={{ color: DARK_BLUE, margin: '0 0 10px', fontWeight: '800', fontSize: '18px' }}>Check your email!</h3>
-                  <p style={{ color: '#718096', marginBottom: '24px', fontSize: '14px', lineHeight: 1.6 }}>We sent a reset link to <strong style={{ color: DARK_BLUE }}>{email}</strong>.</p>
+              {/* Tab switcher */}
+              {mode !== 'reset' && (
+                <div style={{ display: 'flex', marginBottom: '24px', background: '#f4f6fb', borderRadius: '12px', padding: '4px', gap: '4px' }}>
                   <button onClick={() => switchMode('login')} className="tab-btn"
-                    style={{ width: '100%', padding: '13px', background: '#f0f2f7', color: DARK_BLUE, border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: 'pointer', fontFamily: 'inherit' }}>
-                    Back to Login
+                    style={{ flex: 1, padding: '10px', border: 'none', borderRadius: '9px', fontWeight: '700', fontSize: '14px', fontFamily: 'inherit', background: mode === 'login' ? 'white' : 'transparent', color: mode === 'login' ? DARK_BLUE : '#a0aec0', boxShadow: mode === 'login' ? '0 1px 6px rgba(0,0,0,0.08)' : 'none' }}>
+                    Log In
+                  </button>
+                  <button onClick={() => switchMode('signup')} className="tab-btn"
+                    style={{ flex: 1, padding: '10px', border: 'none', borderRadius: '9px', fontWeight: '700', fontSize: '14px', fontFamily: 'inherit', background: mode === 'signup' ? 'white' : 'transparent', color: mode === 'signup' ? DARK_BLUE : '#a0aec0', boxShadow: mode === 'signup' ? '0 1px 6px rgba(0,0,0,0.08)' : 'none' }}>
+                    Sign Up
                   </button>
                 </div>
-              ) : (
-                <form onSubmit={handleReset}>
-                  <div style={{ marginBottom: '20px' }}>
-                    <h3 style={{ color: DARK_BLUE, margin: '0 0 6px', fontWeight: '800', fontSize: '18px' }}>Reset Password</h3>
-                    <p style={{ color: '#718096', fontSize: '13px', margin: 0, lineHeight: 1.5 }}>Enter your email and we'll send you a reset link.</p>
-                  </div>
-                  <div style={{ marginBottom: '22px' }}>
+              )}
+
+              {/* Login */}
+              {mode === 'login' && (
+                <form onSubmit={handleLogin}>
+                  <div style={{ marginBottom: '14px' }}>
                     <label style={labelStyle}>Email</label>
                     <input className="login-input" type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="you@email.com" style={inputStyle} />
                   </div>
+                  <div style={{ marginBottom: '8px' }}>
+                    <label style={labelStyle}>Password</label>
+                    <input className="login-input" type="password" value={password} onChange={e => setPassword(e.target.value)} required placeholder="••••••••" style={inputStyle} />
+                  </div>
+                  <div style={{ marginBottom: '22px', textAlign: 'right' }}>
+                    <button type="button" onClick={() => switchMode('reset')}
+                      style={{ background: 'none', border: 'none', color: ORANGE, fontSize: '13px', cursor: 'pointer', padding: 0, fontWeight: '700', fontFamily: 'inherit' }}>
+                      Forgot password?
+                    </button>
+                  </div>
                   {error && <div style={{ background: '#fff5f5', border: '1.5px solid #feb2b2', color: '#c53030', padding: '10px 14px', borderRadius: '10px', marginBottom: '14px', fontSize: '13px', fontWeight: '600' }}>{error}</div>}
                   <button type="submit" disabled={loading} className="submit-btn"
-                    style={{ width: '100%', padding: '13px', background: 'linear-gradient(135deg, #f88124, #f9a04e)', color: 'white', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: 'pointer', marginBottom: '10px', boxShadow: '0 4px 16px rgba(248,129,36,0.3)', fontFamily: 'inherit' }}>
-                    {loading ? 'Sending…' : 'Send Reset Link →'}
-                  </button>
-                  <button type="button" onClick={() => switchMode('login')} className="tab-btn"
-                    style={{ width: '100%', padding: '12px', background: '#f0f2f7', color: '#718096', border: 'none', borderRadius: '12px', fontSize: '14px', fontWeight: '600', cursor: 'pointer', fontFamily: 'inherit' }}>
-                    Back to Login
+                    style={{ width: '100%', padding: '13px', background: `linear-gradient(135deg, ${ORANGE}, #f9a04e)`, color: 'white', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', fontFamily: 'inherit', boxShadow: '0 4px 16px rgba(248,129,36,0.3)' }}>
+                    {loading ? 'Logging in…' : 'Log In →'}
                   </button>
                 </form>
-              )
-            )}
-          </div>
-        )}
+              )}
 
-        <p style={{ textAlign: 'center', marginTop: '20px', color: '#a0aec0', fontSize: '12px', fontWeight: '600' }}>
-          Hamilton County, IN · <a href="https://www.thecaninegym.com" style={{ color: '#a0aec0', textDecoration: 'none' }}>thecaninegym.com</a>
-        </p>
+              {/* Signup */}
+              {mode === 'signup' && (
+                <form onSubmit={handleSignup}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '14px' }}>
+                    <div>
+                      <label style={labelStyle}>First Name</label>
+                      <input className="login-input" type="text" value={firstName} onChange={e => setFirstName(e.target.value)} required placeholder="Jane" style={inputStyle} />
+                    </div>
+                    <div>
+                      <label style={labelStyle}>Last Name</label>
+                      <input className="login-input" type="text" value={lastName} onChange={e => setLastName(e.target.value)} required placeholder="Smith" style={inputStyle} />
+                    </div>
+                  </div>
+                  <div style={{ marginBottom: '14px' }}>
+                    <label style={labelStyle}>Email</label>
+                    <input className="login-input" type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="you@email.com" style={inputStyle} />
+                  </div>
+                  <div style={{ marginBottom: '14px' }}>
+                    <label style={labelStyle}>Phone</label>
+                    <input className="login-input" type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="(317) 555-0123" style={inputStyle} />
+                  </div>
+                  <div style={{ marginBottom: '14px' }}>
+                    <label style={labelStyle}>Password</label>
+                    <input className="login-input" type="password" value={password} onChange={e => setPassword(e.target.value)} required placeholder="••••••••" style={inputStyle} />
+                  </div>
+                  <div style={{ marginBottom: '22px' }}>
+                    <label style={labelStyle}>Confirm Password</label>
+                    <input className="login-input" type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required placeholder="••••••••" style={inputStyle} />
+                  </div>
+                  {error && <div style={{ background: '#fff5f5', border: '1.5px solid #feb2b2', color: '#c53030', padding: '10px 14px', borderRadius: '10px', marginBottom: '14px', fontSize: '13px', fontWeight: '600' }}>{error}</div>}
+                  <button type="submit" disabled={loading} className="submit-btn"
+                    style={{ width: '100%', padding: '13px', background: `linear-gradient(135deg, ${ORANGE}, #f9a04e)`, color: 'white', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', fontFamily: 'inherit', boxShadow: '0 4px 16px rgba(248,129,36,0.3)' }}>
+                    {loading ? 'Creating Account…' : 'Create Account →'}
+                  </button>
+                </form>
+              )}
 
+              {/* Reset */}
+              {mode === 'reset' && (
+                resetSent ? (
+                  <div style={{ textAlign: 'center', padding: '8px 0' }}>
+                    <div style={{ width: '64px', height: '64px', background: 'rgba(44,90,158,0.08)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+                      <Mail size={28} color={BLUE} />
+                    </div>
+                    <h3 style={{ color: DARK_BLUE, margin: '0 0 10px', fontWeight: '800', fontSize: '18px' }}>Check your email!</h3>
+                    <p style={{ color: '#718096', marginBottom: '24px', fontSize: '14px', lineHeight: 1.6 }}>We sent a reset link to <strong style={{ color: DARK_BLUE }}>{email}</strong>.</p>
+                    <button onClick={() => switchMode('login')} className="tab-btn"
+                      style={{ width: '100%', padding: '13px', background: '#f4f6fb', color: DARK_BLUE, border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', fontFamily: 'inherit' }}>
+                      Back to Login
+                    </button>
+                  </div>
+                ) : (
+                  <form onSubmit={handleReset}>
+                    <div style={{ marginBottom: '22px' }}>
+                      <label style={labelStyle}>Email</label>
+                      <input className="login-input" type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="you@email.com" style={inputStyle} />
+                    </div>
+                    {error && <div style={{ background: '#fff5f5', border: '1.5px solid #feb2b2', color: '#c53030', padding: '10px 14px', borderRadius: '10px', marginBottom: '14px', fontSize: '13px', fontWeight: '600' }}>{error}</div>}
+                    <button type="submit" disabled={loading} className="submit-btn"
+                      style={{ width: '100%', padding: '13px', background: `linear-gradient(135deg, ${ORANGE}, #f9a04e)`, color: 'white', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', fontFamily: 'inherit', marginBottom: '10px', boxShadow: '0 4px 16px rgba(248,129,36,0.3)' }}>
+                      {loading ? 'Sending…' : 'Send Reset Link →'}
+                    </button>
+                    <button type="button" onClick={() => switchMode('login')} className="tab-btn"
+                      style={{ width: '100%', padding: '12px', background: '#f4f6fb', color: '#718096', border: 'none', borderRadius: '12px', fontSize: '14px', fontWeight: '600', fontFamily: 'inherit' }}>
+                      Back to Login
+                    </button>
+                  </form>
+                )
+              )}
+            </div>
+          )}
+
+          <p style={{ textAlign: 'center', marginTop: '20px', color: '#c0c8d8', fontSize: '12px', fontWeight: '600' }}>
+            <a href="https://www.thecaninegym.com" style={{ color: '#c0c8d8', textDecoration: 'none' }}>thecaninegym.com</a>
+          </p>
+        </div>
       </div>
     </div>
   )
