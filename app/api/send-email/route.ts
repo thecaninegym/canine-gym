@@ -80,11 +80,32 @@ export async function POST(request: Request) {
   }
 
   if (type === 'reminder') {
+    const checklistItems = [
+      ['🚫', 'No food 2 hours before we arrive', "Please hold off on feeding ${data.dogName} at least 2 hours before the session. Exercising on a full stomach can cause discomfort."],
+      ['💧', "We'll bring fresh water", "No need to worry about hydration — we have fresh water on board for ${data.dogName} during and after the session."],
+      ['🐾', 'Have your dog leashed and ready', "When we pull up, have ${data.dogName} leashed and ready to go so we can get started right away."],
+      ['🐕', 'Let your dog potty before we arrive', 'A quick bathroom break before we get there means more time on the treadmill!'],
+      ['👀', 'You are welcome to watch', "Feel free to stick around and watch the session — you're not required to, but you're always welcome!"],
+      ['🏠', "We'll bring your dog back up", "When the session is done, we'll walk ${data.dogName} right back up to your door. No need to come to us!"],
+    ]
+    const checklistHtml = checklistItems.map(([icon, title, desc]) => `
+      <div style="display:flex;gap:14px;align-items:flex-start;padding:10px 0;border-bottom:1px solid rgba(0,0,0,0.06);">
+        <span style="font-size:20px;flex-shrink:0;line-height:1.4;">${icon}</span>
+        <div>
+          <p style="margin:0 0 2px;font-size:14px;font-weight:700;color:#001840;font-family:'Montserrat',Arial,sans-serif;">${title}</p>
+          <p style="margin:0;font-size:13px;color:#888;font-family:'Montserrat',Arial,sans-serif;line-height:1.5;">${desc}</p>
+        </div>
+      </div>
+    `).join('')
     subject = `Reminder: ${data.dogName}'s session is tomorrow at ${data.time}`
     html = emailWrapper('Session Reminder', `
       ${h1(`See you tomorrow, ${data.ownerName}! 👋`)}
       ${p(`Just a heads up — ${data.dogName} is on the schedule for tomorrow. We'll be pulling up to your place ready to go.`)}
       ${infoBox([row('Dog', data.dogName), row('Date', data.date), row('Time', data.time)])}
+      <div style="margin:24px 0;">
+        <h3 style="color:#001840;font-size:16px;font-weight:800;margin:0 0 14px;font-family:'Montserrat',Arial,sans-serif;">📋 How to Prepare for Tomorrow's Session</h3>
+        <div style="background:#f8f9ff;border-radius:12px;padding:20px 24px;">${checklistHtml}</div>
+      </div>
       ${p(`Need to cancel or reschedule? Please do it as soon as possible through your dashboard so we can open the slot for another pup.`)}
       ${btn('View My Dashboard', 'https://app.thecaninegym.com/dashboard')}
     `)
