@@ -91,6 +91,30 @@ export default function ClientDashboard() {
   const totalMiles = sessions.reduce((sum, s) => sum + (s.distance_miles || 0), 0).toFixed(2)
   const totalCalories = sessions.reduce((sum, s) => sum + (s.calories_burned || 0), 0)
 
+  // Last session date
+  const lastSessionDate = sessions.length > 0
+    ? new Date(sessions[0].session_date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    : null
+
+  // Current streak: count consecutive weeks with at least 1 session (most recent first)
+  const sessionWeeks = new Set(sessions.map(s => {
+    const d = new Date(s.session_date + 'T12:00:00')
+    const startOfWeek = new Date(d)
+    startOfWeek.setDate(d.getDate() - d.getDay())
+    return startOfWeek.toISOString().split('T')[0]
+  }))
+  const sortedWeeks = Array.from(sessionWeeks).sort((a, b) => b.localeCompare(a))
+  let streak = 0
+  const today = new Date()
+  const thisWeekStart = new Date(today)
+  thisWeekStart.setDate(today.getDate() - today.getDay())
+  for (let i = 0; i < sortedWeeks.length; i++) {
+    const expected = new Date(thisWeekStart)
+    expected.setDate(thisWeekStart.getDate() - i * 7)
+    const expectedStr = expected.toISOString().split('T')[0]
+    if (sortedWeeks[i] === expectedStr) { streak++ } else { break }
+  }
+
   const allAchievements = [
     { key: 'first_stride', label: 'First Stride', icon: '🐾', description: 'Complete your first session' },
     { key: 'finding_their_pace', label: 'Finding Their Pace', icon: '⚡', description: 'Complete 5 sessions' },
@@ -473,16 +497,16 @@ export default function ClientDashboard() {
                 {/* STAT CARDS */}
                 <div className="stat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px', marginBottom: '20px' }}>
                   {[
-                    { label: 'Total Sessions', value: totalSessions, icon: <PawPrint size={22} />, color: '#2c5a9e', bg: '#eef2fb' },
-                    { label: 'Total Miles', value: totalMiles, icon: <Navigation size={22} />, color: '#2c5a9e', bg: '#eef2fb' },
-                    { label: 'Calories Burned', value: totalCalories.toLocaleString(), icon: <Flame size={22} />, color: '#f88124', bg: '#fff0ea' },
+                    { label: 'Last Session', value: lastSessionDate || 'No sessions yet', icon: <Clock size={22} />, color: '#2c5a9e', bg: '#eef2fb' },
+                    { label: 'Weekly Streak', value: streak > 0 ? `${streak} week${streak !== 1 ? 's' : ''}` : 'No streak yet', icon: <Flame size={22} />, color: '#f88124', bg: '#fff0ea' },
+                    { label: 'Sessions This Month', value: sessions.filter(s => { const d = new Date(s.session_date + 'T12:00:00'); const now = new Date(); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear() }).length, icon: <Calendar size={22} />, color: '#2c5a9e', bg: '#eef2fb' },
                   ].map(stat => (
                     <div key={stat.label} className="stat-card" style={{ backgroundColor: 'white', padding: '18px', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '14px' }}>
                       <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: stat.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: stat.color, flexShrink: 0 }}>
                         {stat.icon}
                       </div>
                       <div>
-                        <div style={{ fontSize: '22px', fontWeight: '800', color: '#1a1a2e', letterSpacing: '-0.5px', lineHeight: 1 }}>{stat.value}</div>
+                        <div style={{ fontSize: stat.label === 'Last Session' ? '16px' : '22px', fontWeight: '800', color: '#1a1a2e', letterSpacing: '-0.5px', lineHeight: 1 }}>{stat.value}</div>
                         <div style={{ fontSize: '12px', color: '#888', marginTop: '3px' }}>{stat.label}</div>
                       </div>
                     </div>
