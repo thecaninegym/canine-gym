@@ -368,9 +368,9 @@ export default function ClientDashboard() {
                       )}
                       <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
                         {[
-                          { val: totalSessions, label: 'Sessions' },
-                          { val: totalMiles, label: 'Miles' },
-                          { val: totalCalories.toLocaleString(), label: 'Calories' },
+                          { val: totalSessions, label: 'Total Sessions' },
+                          { val: totalMiles, label: 'Total Miles' },
+                          { val: totalCalories.toLocaleString(), label: 'Total Calories' },
                         ].map(stat => (
                           <div key={stat.label}>
                             <div style={{ color: 'white', fontSize: '20px', fontWeight: '800', lineHeight: 1 }}>{stat.val}</div>
@@ -499,14 +499,14 @@ export default function ClientDashboard() {
                   {[
                     { label: 'Last Session', value: lastSessionDate || 'No sessions yet', icon: <Clock size={22} />, color: '#2c5a9e', bg: '#eef2fb' },
                     { label: 'Weekly Streak', value: streak > 0 ? `${streak} week${streak !== 1 ? 's' : ''}` : 'No streak yet', icon: <Flame size={22} />, color: '#f88124', bg: '#fff0ea' },
-                    { label: 'Sessions This Month', value: sessions.filter(s => { const d = new Date(s.session_date + 'T12:00:00'); const now = new Date(); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear() }).length, icon: <Calendar size={22} />, color: '#2c5a9e', bg: '#eef2fb' },
+                    { label: 'Completed This Month', value: sessions.filter(s => { const d = new Date(s.session_date + 'T12:00:00'); const now = new Date(); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear() }).length, icon: <Calendar size={22} />, color: '#2c5a9e', bg: '#eef2fb' },
                   ].map(stat => (
                     <div key={stat.label} className="stat-card" style={{ backgroundColor: 'white', padding: '18px', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '14px' }}>
                       <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: stat.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: stat.color, flexShrink: 0 }}>
                         {stat.icon}
                       </div>
                       <div>
-                        <div style={{ fontSize: stat.label === 'Last Session' ? '16px' : '22px', fontWeight: '800', color: '#1a1a2e', letterSpacing: '-0.5px', lineHeight: 1 }}>{stat.value}</div>
+                        <div style={{ fontSize: typeof stat.value === 'string' && stat.value.length > 8 ? '14px' : '22px', fontWeight: '800', color: '#1a1a2e', letterSpacing: '-0.5px', lineHeight: 1 }}>{stat.value}</div>
                         <div style={{ fontSize: '12px', color: '#888', marginTop: '3px' }}>{stat.label}</div>
                       </div>
                     </div>
