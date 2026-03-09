@@ -29,8 +29,17 @@ export default function AdminMemberships() {
 
   const handleSave = async (membership: any) => {
     setSaving(prev => ({ ...prev, [membership.id]: true }))
-    await supabase.from('memberships').update({ sessions_remaining: adjustments[membership.id] }).eq('id', membership.id)
+    const res = await fetch('/api/admin-adjust-sessions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ membershipId: membership.id, sessionsRemaining: adjustments[membership.id] })
+    })
+    const data = await res.json()
     setSaving(prev => ({ ...prev, [membership.id]: false }))
+    if (!res.ok) {
+      alert(`Failed to save: ${data.error}`)
+      return
+    }
     setSaved(prev => ({ ...prev, [membership.id]: true }))
     setMemberships(prev => prev.map(m => m.id === membership.id ? { ...m, sessions_remaining: adjustments[membership.id] } : m))
     setTimeout(() => setSaved(prev => ({ ...prev, [membership.id]: false })), 2000)
