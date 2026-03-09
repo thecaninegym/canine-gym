@@ -54,12 +54,13 @@ export default function Membership() {
       alert('Please select at least one dog for this membership.')
       return
     }
+    const isAddon = !!membership && effectiveDogCount === 2
     const key = type === 'alacarte' || type === 'alacarte2' ? type : `${plan}-${dogCount}`
     setCheckoutLoading(key)
     const res = await fetch('/api/create-checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ownerId, ownerEmail, type, plan, dogCount: effectiveDogCount, dogIds: selectedDogIds })
+      body: JSON.stringify({ ownerId, ownerEmail, type, plan, dogCount: effectiveDogCount, dogIds: selectedDogIds, isAddon })
     })
     const data = await res.json()
     if (data.url) window.location.href = data.url

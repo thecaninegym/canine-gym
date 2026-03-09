@@ -9,13 +9,16 @@ const supabase = createClient(
 )
 
 export async function POST(request: Request) {
-  const { ownerId, ownerEmail, type, plan, dogCount, dogIds, bookingDate, slotHour } = await request.json()
+  const { ownerId, ownerEmail, type, plan, dogCount, dogIds, bookingDate, slotHour, isAddon } = await request.json()
 
   const getPriceId = () => {
     if (type === 'alacarte') {
       return dogCount >= 2
         ? process.env.STRIPE_PRICE_ALACARTE_2DOGS!
         : process.env.STRIPE_PRICE_ALACARTE_1DOG!
+    }
+    if (isAddon) {
+      return process.env[`STRIPE_PRICE_${plan.toUpperCase()}_ADDON`]!
     }
     const key = `STRIPE_PRICE_${plan.toUpperCase()}_${dogCount === 2 ? '2DOGS' : '1DOG'}`
     return process.env[key]!
