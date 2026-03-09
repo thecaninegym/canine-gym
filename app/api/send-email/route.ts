@@ -32,7 +32,7 @@ function infoBox(rows: string[], bg = '#f0f2f7', border = '') {
 }
 
 function row(label: string, value: string) {
-  return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.06);"><span style="color:#888;font-size:13px;font-weight:600;font-family:'Montserrat',Arial,sans-serif;">${label}</span><span style="color:#1a1a2e;font-size:14px;font-weight:700;font-family:'Montserrat',Arial,sans-serif;">${value}</span></div>`
+  return `<table width="100%" cellpadding="0" cellspacing="0" style="border-bottom:1px solid rgba(0,0,0,0.06);"><tr><td style="padding:8px 0;color:#888;font-size:13px;font-weight:600;font-family:'Montserrat',Arial,sans-serif;width:40%;">${label}</td><td style="padding:8px 0;color:#1a1a2e;font-size:14px;font-weight:700;font-family:'Montserrat',Arial,sans-serif;text-align:right;">${value}</td></tr></table>`
 }
 
 function h1(text: string, color = BLUE) {
