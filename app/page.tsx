@@ -76,11 +76,7 @@ await supabase.from('owners').insert([{ name: fullName, email, phone }])
 
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <div style={{ width: '64px', height: '64px', background: 'rgba(255,107,53,0.2)', borderRadius: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
-            <PawPrint size={32} color="#f88124" />
-          </div>
-          <h1 style={{ color: 'white', fontSize: '26px', fontWeight: '800', margin: '0 0 4px', letterSpacing: '-0.5px' }}>The Canine Gym</h1>
-          <p style={{ color: 'rgba(255,255,255,0.55)', margin: 0, fontSize: '14px' }}>The run comes to you.</p>
+          <img src="/logo-white.png" alt="The Canine Gym" style={{ height: '64px', width: 'auto', margin: '0 auto 8px', display: 'block' }} />
         </div>
 
         {signupSuccess ? (
