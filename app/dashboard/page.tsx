@@ -146,8 +146,8 @@ export default function ClientDashboard() {
 
         @media (max-width: 700px) {
           .nav-links-desktop { display: none; }
-          .nav-hamburger { display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.1); border: none; color: white; cursor: pointer; border-radius: 8px; width: 40px; height: 40px; }
-          .mobile-menu { display: flex; flex-direction: column; gap: 4px; position: absolute; top: 64px; left: 0; right: 0; background: linear-gradient(135deg, #001840 0%, #2c5a9e 100%); padding: 12px 16px; z-index: 99; border-top: 1px solid rgba(255,255,255,0.08); box-shadow: 0 8px 24px rgba(0,0,0,0.25); }
+          .nav-hamburger { display: flex; align-items: center; justify-content: center; background: rgba(0,24,64,0.06); border: none; color: #001840; cursor: pointer; border-radius: 8px; width: 40px; height: 40px; }
+          .mobile-menu { display: flex; flex-direction: column; gap: 4px; position: absolute; top: 64px; left: 0; right: 0; background: white; padding: 12px 16px; z-index: 99; border-top: 1px solid #f0f2f7; box-shadow: 0 8px 24px rgba(0,24,64,0.10); }
           .mobile-menu a, .mobile-menu button { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 10px; color: rgba(255,255,255,0.9) !important; font-size: 14px !important; font-weight: 600; text-decoration: none; background: rgba(255,255,255,0.05); border: none; cursor: pointer; width: 100%; }
 
           /* Hero card stacks on mobile */
@@ -188,9 +188,9 @@ export default function ClientDashboard() {
       `}</style>
 
       {/* Nav */}
-      <nav style={{ background: 'linear-gradient(135deg, #001840 0%, #2c5a9e 100%)', padding: '0 24px', height: '80px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 20px rgba(0,0,0,0.2)' }}>
+      <nav style={{ background: 'white', padding: '0 24px', height: '80px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 12px rgba(0,24,64,0.08)', borderBottom: '3px solid #f88124' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <img src="/logo-white.png" alt="The Canine Gym" style={{ height: '56px', width: 'auto' }} />
+          <img src="/logo.png" alt="The Canine Gym" style={{ height: '56px', width: 'auto' }} />
         </div>
 
         {/* Desktop nav */}
@@ -202,7 +202,7 @@ export default function ClientDashboard() {
             { href: '/profile', icon: <User size={15} />, label: 'Profile' },
             { href: '/membership', icon: <CreditCard size={15} />, label: membership ? `Membership (${membership.sessions_remaining} left)` : 'Membership' },
           ].map(item => (
-            <a key={item.href} href={item.href} className="nav-link" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none', fontWeight: '600', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '5px', padding: '8px 12px', borderRadius: '8px', transition: 'all 0.15s', background: 'rgba(255,255,255,0.05)' }}>
+            <a key={item.href} href={item.href} className="nav-link" style={{ color: '#001840', textDecoration: 'none', fontWeight: '600', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '5px', padding: '8px 12px', borderRadius: '8px', transition: 'all 0.15s', background: 'rgba(0,24,64,0.04)' }}>
               {item.icon} {item.label}
             </a>
           ))}
