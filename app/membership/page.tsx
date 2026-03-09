@@ -22,6 +22,10 @@ export default function Membership() {
   const [cancelSuccess, setCancelSuccess] = useState(false)
   const [selectedDogIds, setSelectedDogIds] = useState<string[]>([])
 
+  const effectiveDogCount = membership
+    ? Math.min(2, (membership.dog_count || 1) + selectedDogIds.length)
+    : selectedDogIds.length || dogCount
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     if (params.get('success') === 'true') setSuccess(true)
@@ -55,7 +59,7 @@ export default function Membership() {
     const res = await fetch('/api/create-checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ownerId, ownerEmail, type, plan, dogCount: selectedDogIds.length || dogCount, dogIds: selectedDogIds })
+      body: JSON.stringify({ ownerId, ownerEmail, type, plan, dogCount: effectiveDogCount, dogIds: selectedDogIds })
     })
     const data = await res.json()
     if (data.url) window.location.href = data.url
@@ -200,6 +204,11 @@ export default function Membership() {
               )
             })}
           </div>
+          {membership && selectedDogIds.length > 0 && (
+            <p style={{ color: '#003087', fontSize: '13px', marginTop: '10px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <CheckCircle size={13} color="#003087" /> 2-dog pricing applied — you already have an active membership
+            </p>
+          )}
           {selectedDogIds.length === 0 && (
             <p style={{ color: '#dc3545', fontSize: '13px', marginTop: '12px', display: 'flex', alignItems: 'center', gap: '5px', margin: '12px 0 0' }}>
               <AlertCircle size={13} /> Please select at least one dog to see pricing
@@ -218,9 +227,9 @@ export default function Membership() {
         {/* Plan Cards */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', marginBottom: '24px' }}>
           {PLANS.map(plan => {
-            const price = dogCount === 2 ? plan.price2 : plan.price1
-            const perSession = dogCount === 2 ? plan.perSession2 : plan.perSession1
-            const isLoading = checkoutLoading === `${plan.key}-${dogCount}`
+            const price = effectiveDogCount === 2 ? plan.price2 : plan.price1
+            const perSession = effectiveDogCount === 2 ? plan.perSession2 : plan.perSession1
+            const isLoading = checkoutLoading === `${plan.key}-${effectiveDogCount}`
             const isCurrent = membership?.plan === plan.key && membership?.dog_count === dogCount
               && selectedDogIds.length > 0 && selectedDogIds.every(id => (membership?.dog_ids || []).includes(id))
 
@@ -244,8 +253,8 @@ export default function Membership() {
                   </div>
                   <div style={{ background: '#f0f2f7', padding: '14px', borderRadius: '12px', marginBottom: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {[
-                      `${plan.sessions} sessions/month${dogCount === 2 ? ` per dog (${plan.sessions * 2} total)` : ''}`,
-                      `$${perSession}/session${dogCount === 2 ? ' per dog' : ''}`,
+                      `${plan.sessions} sessions/month${effectiveDogCount === 2 ? ` per dog (${plan.sessions * 2} total)` : ''}`,
+                      `$${perSession}/session${effectiveDogCount === 2 ? ' per dog' : ''}`,
                     ].map((text, i) => (
                       <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#444', fontSize: '13px', fontWeight: '600' }}>
                         <div style={{ width: '20px', height: '20px', background: '#d4edda', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -258,7 +267,7 @@ export default function Membership() {
                       <div style={{ width: '20px', height: '20px', background: '#d4edda', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         <CheckCircle size={12} color="#28a745" />
                       </div>
-                      Save ${dogCount === 2 ? ((90 - perSession * 2) * plan.sessions).toFixed(0) : ((50 - perSession) * plan.sessions).toFixed(0)}/month vs a la carte
+                      Save ${effectiveDogCount === 2 ? ((90 - perSession * 2) * plan.sessions).toFixed(0) : ((50 - perSession) * plan.sessions).toFixed(0)}/month vs a la carte
                     </div>
                   </div>
                   {isCurrent ? (
