@@ -4,9 +4,9 @@ import { supabase } from '../../lib/supabase'
 import { PawPrint, ArrowLeft, CreditCard, Calendar, CheckCircle, XCircle, AlertCircle, ChevronRight } from 'lucide-react'
 
 const PLANS = [
-  { key: 'starter', name: 'Starter', sessions: 4, price1: 180, price2: 324, perSession1: 45, perSession2: 40.50, description: 'Perfect for getting started' },
-  { key: 'active', name: 'Active', sessions: 8, price1: 340, price2: 612, perSession1: 42.50, perSession2: 38.25, description: 'Most popular for regular runners', popular: true },
-  { key: 'athlete', name: 'Athlete', sessions: 12, price1: 480, price2: 864, perSession1: 40, perSession2: 36, description: 'Maximum gains for serious dogs' }
+  { key: 'starter', name: 'Starter', sessions: 4, price1: 180, price2: 324, priceAdd: 144, perSession1: 45, perSession2: 40.50, description: 'Perfect for getting started' },
+  { key: 'active', name: 'Active', sessions: 8, price1: 340, price2: 612, priceAdd: 272, perSession1: 42.50, perSession2: 38.25, description: 'Most popular for regular runners', popular: true },
+  { key: 'athlete', name: 'Athlete', sessions: 12, price1: 480, price2: 864, priceAdd: 384, perSession1: 40, perSession2: 36, description: 'Maximum gains for serious dogs' }
 ]
 
 export default function Membership() {
@@ -227,7 +227,7 @@ export default function Membership() {
         {/* Plan Cards */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', marginBottom: '24px' }}>
           {PLANS.map(plan => {
-            const price = effectiveDogCount === 2 ? plan.price2 : plan.price1
+            const price = membership && effectiveDogCount === 2 ? plan.priceAdd : effectiveDogCount === 2 ? plan.price2 : plan.price1
             const perSession = effectiveDogCount === 2 ? plan.perSession2 : plan.perSession1
             const isLoading = checkoutLoading === `${plan.key}-${effectiveDogCount}`
             const isCurrent = membership?.plan === plan.key && membership?.dog_count === dogCount
@@ -250,6 +250,9 @@ export default function Membership() {
                   <div style={{ marginBottom: '18px' }}>
                     <span style={{ fontSize: '38px', fontWeight: '800', color: '#003087', letterSpacing: '-1px' }}>${price}</span>
                     <span style={{ color: '#aaa', fontSize: '14px' }}>/month</span>
+                    {membership && effectiveDogCount === 2 && (
+                      <p style={{ color: '#888', fontSize: '12px', margin: '4px 0 0', fontWeight: '600' }}>Additional dog added to your existing membership</p>
+                    )}
                   </div>
                   <div style={{ background: '#f0f2f7', padding: '14px', borderRadius: '12px', marginBottom: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {[
