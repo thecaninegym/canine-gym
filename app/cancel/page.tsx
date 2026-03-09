@@ -125,13 +125,13 @@ function CancelForm() {
   }
 
   if (loading) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#2c5a9e' }}>
-      <p style={{ color: 'white' }}>Loading...</p>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f0f2f7' }}>
+      <p style={{ color: '#001840' }}>Loading...</p>
     </div>
   )
 
   if (!booking) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f5f5f5' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f0f2f7' }}>
       <p style={{ color: '#666' }}>Booking not found.</p>
     </div>
   )
@@ -139,29 +139,26 @@ function CancelForm() {
   const resultMessage = getResultMessage()
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
-      <nav style={{ backgroundColor: '#2c5a9e', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <PawPrint size={24} color="white" />
-          <h1 style={{ color: 'white', fontSize: '20px', fontWeight: 'bold', margin: 0 }}>The Canine Gym</h1>
-        </div>
-        <a href="/dashboard" style={{ color: 'white', textDecoration: 'none', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', fontFamily: "'Montserrat', system-ui, sans-serif" }}>
+      <nav style={{ background: 'white', padding: '0 24px', height: '80px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 12px rgba(0,24,64,0.08)', borderBottom: '3px solid #f88124' }}>
+        <img src="/logo.png" alt="The Canine Gym" style={{ height: '56px', width: 'auto' }} />
+        <a href="/dashboard" style={{ color: '#001840', textDecoration: 'none', fontWeight: '700', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
           <ArrowLeft size={16} /> Back to Dashboard
         </a>
       </nav>
 
-      <div style={{ padding: '32px', maxWidth: '600px', margin: '0 auto' }}>
+      <div style={{ padding: '32px 24px', maxWidth: '600px', margin: '0 auto' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
           <XCircle size={28} color="#dc3545" />
-          <h2 style={{ color: '#2c5a9e', margin: 0 }}>Cancel Session</h2>
+          <h2 style={{ color: '#001840', margin: 0, fontSize: '22px', fontWeight: '800' }}>Cancel Session</h2>
         </div>
 
         {result ? (
-          <div style={{ backgroundColor: 'white', padding: '32px', borderRadius: '12px', textAlign: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+          <div style={{ backgroundColor: 'white', padding: '32px', borderRadius: '16px', textAlign: 'center', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
             <CheckCircle size={52} color="#2c5a9e" style={{ marginBottom: '16px' }} />
-            <h3 style={{ color: '#2c5a9e', marginBottom: '16px' }}>Session Cancelled</h3>
+            <h3 style={{ color: '#001840', marginBottom: '16px', fontWeight: '800' }}>Session Cancelled</h3>
             {resultMessage && (
-              <div style={{ backgroundColor: resultMessage.color, padding: '16px', borderRadius: '8px', marginBottom: '24px', display: 'flex', alignItems: 'flex-start', gap: '10px', textAlign: 'left' }}>
+              <div style={{ backgroundColor: resultMessage.color, padding: '16px', borderRadius: '12px', marginBottom: '24px', display: 'flex', alignItems: 'flex-start', gap: '10px', textAlign: 'left' }}>
                 {resultMessage.icon}
                 <div>
                   <p style={{ margin: '0 0 4px 0', fontWeight: 'bold', color: resultMessage.textColor }}>{resultMessage.title}</p>
@@ -169,23 +166,25 @@ function CancelForm() {
                 </div>
               </div>
             )}
-            <a href="/dashboard" style={{ backgroundColor: '#2c5a9e', color: 'white', padding: '12px 24px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold' }}>Back to Dashboard</a>
+            <a href="/dashboard" style={{ backgroundColor: '#f88124', color: 'white', padding: '12px 28px', borderRadius: '12px', textDecoration: 'none', fontWeight: '700', fontSize: '15px', display: 'inline-block' }}>Back to Dashboard</a>
           </div>
         ) : (
           <>
-            <div style={{ backgroundColor: '#2c5a9e', color: 'white', padding: '20px', borderRadius: '12px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <PawPrint size={24} color="white" />
+            <div style={{ background: 'linear-gradient(135deg, #001840 0%, #2c5a9e 100%)', color: 'white', padding: '20px 24px', borderRadius: '16px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '14px', boxShadow: '0 4px 20px rgba(0,48,135,0.2)' }}>
+              <div style={{ width: '44px', height: '44px', background: 'rgba(255,255,255,0.12)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <PawPrint size={22} color="white" />
+              </div>
               <div>
-                <p style={{ margin: '0 0 4px 0', fontWeight: 'bold', fontSize: '18px' }}>{booking.dogs?.name}</p>
-                <p style={{ margin: 0, opacity: 0.8 }}>{formatBookingTime()}</p>
+                <p style={{ margin: '0 0 4px 0', fontWeight: '800', fontSize: '18px' }}>{booking.dogs?.name}</p>
+                <p style={{ margin: 0, opacity: 0.75, fontSize: '14px' }}>{formatBookingTime()}</p>
               </div>
             </div>
 
             {hasFee && (
-              <div style={{ backgroundColor: '#fff3cd', border: '1px solid #ffc107', padding: '16px', borderRadius: '8px', marginBottom: '24px', display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+              <div style={{ backgroundColor: '#fff8e6', border: '1.5px solid #ffc107', padding: '16px', borderRadius: '12px', marginBottom: '20px', display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
                 <AlertTriangle size={20} color="#856404" style={{ flexShrink: 0, marginTop: '2px' }} />
                 <div>
-                  <p style={{ margin: '0 0 4px 0', color: '#856404', fontWeight: 'bold' }}>Late Cancellation Warning</p>
+                  <p style={{ margin: '0 0 4px 0', color: '#856404', fontWeight: '700' }}>Late Cancellation Warning</p>
                   {isMember
                     ? <p style={{ margin: 0, color: '#856404', fontSize: '14px' }}>This session is less than 48 hours away. As a membership client, this session will be forfeited — no fee charged.</p>
                     : <p style={{ margin: 0, color: '#856404', fontSize: '14px' }}>This session is less than 48 hours away. You will receive a 50% refund. Select "My dog is sick" below to receive a full refund.</p>
@@ -194,12 +193,12 @@ function CancelForm() {
               </div>
             )}
 
-            <div style={{ backgroundColor: 'white', padding: '32px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+            <div style={{ backgroundColor: 'white', padding: '28px', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
               <form onSubmit={handleCancel}>
                 <div style={{ marginBottom: '16px' }}>
-                  <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#333' }}>Reason for cancellation</label>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '700', color: '#001840', fontSize: '14px' }}>Reason for cancellation</label>
                   <select value={reason} onChange={(e) => setReason(e.target.value)} required
-                    style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px', fontSize: '16px', boxSizing: 'border-box', color: '#000' }}>
+                    style={{ width: '100%', padding: '12px', border: '1.5px solid #e5e8f0', borderRadius: '10px', fontSize: '15px', boxSizing: 'border-box', color: '#001840', fontFamily: 'inherit', background: 'white' }}>
                     <option value="">Select a reason...</option>
                     <option value="scheduling_conflict">Scheduling conflict</option>
                     <option value="dog_is_sick">My dog is sick</option>
@@ -210,7 +209,7 @@ function CancelForm() {
                 </div>
 
                 {reason === 'dog_is_sick' && (
-                  <div style={{ backgroundColor: '#d4edda', padding: '12px', borderRadius: '8px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ backgroundColor: '#d4edda', padding: '12px 16px', borderRadius: '10px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <CheckCircle size={16} color="#155724" />
                     <p style={{ margin: 0, color: '#155724', fontSize: '14px' }}>
                       {isMember ? 'Your session will be credited back to your membership. We hope your pup feels better!' : 'You will receive a full refund. We hope your pup feels better soon!'}
@@ -218,14 +217,14 @@ function CancelForm() {
                   </div>
                 )}
 
-                {error && <p style={{ color: 'red', marginBottom: '16px', fontSize: '14px' }}>{error}</p>}
+                {error && <p style={{ color: '#dc3545', marginBottom: '16px', fontSize: '14px', fontWeight: '600' }}>{error}</p>}
 
                 <button type="submit" disabled={cancelling}
-                  style={{ width: '100%', padding: '12px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '6px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                  style={{ width: '100%', padding: '14px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontFamily: 'inherit' }}>
                   <XCircle size={18} /> {cancelling ? 'Cancelling...' : 'Confirm Cancellation'}
                 </button>
 
-                <a href="/dashboard" style={{ display: 'block', textAlign: 'center', marginTop: '12px', color: '#666', fontSize: '14px' }}>
+                <a href="/dashboard" style={{ display: 'block', textAlign: 'center', marginTop: '14px', color: '#888', fontSize: '14px', textDecoration: 'none' }}>
                   Never mind, keep my session
                 </a>
               </form>
@@ -239,7 +238,7 @@ function CancelForm() {
 
 export default function CancelPage() {
   return (
-    <Suspense fallback={<div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#2c5a9e' }}><p style={{ color: 'white' }}>Loading...</p></div>}>
+    <Suspense fallback={<div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f0f2f7' }}><p style={{ color: '#001840' }}>Loading...</p></div>}>
       <CancelForm />
     </Suspense>
   )
