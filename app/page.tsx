@@ -104,10 +104,10 @@ function LoginContent() {
         }
       `}</style>
 
-      {/* LEFT PANEL — dark navy, logo */}
+      {/* LEFT PANEL — light grey, full color logo shines */}
       <div className="split-left" style={{
         width: '45%',
-        background: `linear-gradient(160deg, ${DARK_BLUE} 0%, #0a2a5e 100%)`,
+        background: '#f0f2f7',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -116,21 +116,22 @@ function LoginContent() {
         position: 'relative',
         overflow: 'hidden',
         flexShrink: 0,
+        borderRight: '1px solid #e2e6ed',
       }}>
-        {/* Subtle decorative rings */}
-        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '500px', height: '500px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.04)', pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '340px', height: '340px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.06)', pointerEvents: 'none' }} />
+        {/* Decorative background blobs */}
+        <div style={{ position: 'absolute', top: -80, right: -80, width: '320px', height: '320px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(248,129,36,0.08) 0%, transparent 70%)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', bottom: -80, left: -80, width: '300px', height: '300px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(44,90,158,0.08) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '3px', background: `linear-gradient(90deg, transparent, ${ORANGE}, transparent)` }} />
 
-        {/* Logo — black bg blends into dark panel */}
+        {/* Full color logo — transparent bg, looks perfect on light grey */}
         <img
           src="/logo.png"
           alt="The Canine Gym"
-          style={{ width: '82%', maxWidth: '300px', height: 'auto', display: 'block', position: 'relative', zIndex: 1 }}
+          style={{ width: '85%', maxWidth: '320px', height: 'auto', display: 'block', position: 'relative', zIndex: 1 }}
         />
 
         <div style={{ marginTop: '40px', textAlign: 'center', position: 'relative', zIndex: 1 }}>
-          <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '12px', fontWeight: '600', letterSpacing: '1.5px', textTransform: 'uppercase', margin: 0 }}>
+          <p style={{ color: '#a0aec0', fontSize: '12px', fontWeight: '600', letterSpacing: '1.5px', textTransform: 'uppercase', margin: 0 }}>
             Hamilton County, Indiana
           </p>
         </div>
@@ -163,7 +164,6 @@ function LoginContent() {
           ) : (
             <div style={{ background: 'white', borderRadius: '20px', padding: '32px', boxShadow: '0 4px 24px rgba(0,24,64,0.08)' }}>
 
-              {/* Heading */}
               <div style={{ marginBottom: '24px' }}>
                 <h1 style={{ color: DARK_BLUE, margin: '0 0 4px', fontWeight: '800', fontSize: '22px' }}>
                   {mode === 'login' ? 'Welcome back!' : mode === 'signup' ? 'Create your account' : 'Reset your password'}
@@ -173,7 +173,6 @@ function LoginContent() {
                 </p>
               </div>
 
-              {/* Tab switcher */}
               {mode !== 'reset' && (
                 <div style={{ display: 'flex', marginBottom: '24px', background: '#f4f6fb', borderRadius: '12px', padding: '4px', gap: '4px' }}>
                   <button onClick={() => switchMode('login')} className="tab-btn"
@@ -187,7 +186,6 @@ function LoginContent() {
                 </div>
               )}
 
-              {/* Login */}
               {mode === 'login' && (
                 <form onSubmit={handleLogin}>
                   <div style={{ marginBottom: '14px' }}>
@@ -212,7 +210,6 @@ function LoginContent() {
                 </form>
               )}
 
-              {/* Signup */}
               {mode === 'signup' && (
                 <form onSubmit={handleSignup}>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '14px' }}>
@@ -249,7 +246,6 @@ function LoginContent() {
                 </form>
               )}
 
-              {/* Reset */}
               {mode === 'reset' && (
                 resetSent ? (
                   <div style={{ textAlign: 'center', padding: '8px 0' }}>
