@@ -11,9 +11,9 @@ const DARK_BLUE = '#001840'
 function emailWrapper(headerLabel: string, bodyContent: string) {
   return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet"/></head><body style="margin:0;padding:0;background:#f0f2f7;font-family:'Montserrat',Arial,sans-serif;">
   <div style="max-width:600px;margin:32px auto;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.10);">
-    <div style="background:linear-gradient(135deg,${DARK_BLUE} 0%,${BLUE} 100%);padding:28px 32px;text-align:center;">
-      <img src="${LOGO_URL}" alt="The Canine Gym" style="height:52px;width:auto;display:block;margin:0 auto 12px;"/>
-      ${headerLabel ? `<div style="display:inline-block;background:rgba(255,255,255,0.12);border-radius:20px;padding:4px 16px;"><span style="color:rgba(255,255,255,0.85);font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;">${headerLabel}</span></div>` : ''}
+    <div style="background:white;padding:28px 32px;text-align:center;border-bottom:3px solid ${ORANGE};">
+      <img src="${LOGO_URL}" alt="The Canine Gym" style="height:70px;width:auto;display:block;margin:0 auto 12px;"/>
+      ${headerLabel ? `<div style="display:inline-block;background:${DARK_BLUE};border-radius:20px;padding:4px 16px;"><span style="color:rgba(255,255,255,0.9);font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;">${headerLabel}</span></div>` : ''}
     </div>
     <div style="background:white;padding:36px 32px;">${bodyContent}</div>
     <div style="background:${DARK_BLUE};padding:20px 32px;text-align:center;">

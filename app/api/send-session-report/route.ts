@@ -36,10 +36,10 @@ export async function POST(request: Request) {
 <body style="margin:0;padding:0;background:#f0f2f7;font-family:'Montserrat',Arial,sans-serif;">
   <div style="max-width:600px;margin:32px auto;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.10);">
 
-    <div style="background:linear-gradient(135deg,${DARK_BLUE} 0%,${BLUE} 100%);padding:28px 32px;text-align:center;">
-      <img src="${LOGO_URL}" alt="The Canine Gym" style="height:52px;width:auto;display:block;margin:0 auto 12px;"/>
-      <div style="display:inline-block;background:rgba(255,255,255,0.12);border-radius:20px;padding:4px 16px;">
-        <span style="color:rgba(255,255,255,0.85);font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;">Session Report</span>
+    <div style="background:white;padding:28px 32px;text-align:center;border-bottom:3px solid ${ORANGE};">
+      <img src="${LOGO_URL}" alt="The Canine Gym" style="height:70px;width:auto;display:block;margin:0 auto 12px;"/>
+      <div style="display:inline-block;background:${DARK_BLUE};border-radius:20px;padding:4px 16px;">
+        <span style="color:rgba(255,255,255,0.9);font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;">Session Report</span>
       </div>
     </div>
 
