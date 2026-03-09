@@ -61,20 +61,14 @@ export default function LogSession() {
       await supabase.from('bookings').update({ status: 'completed' }).eq('dog_id', dogId).eq('booking_date', sessionDate).eq('status', 'confirmed')
     }
 
-    // Decrement sessions_remaining on active membership
+    // Decrement sessions_remaining via API (uses service key to bypass RLS)
     const selectedDogDataForMembership = dogs.find(d => d.id === dogId)
     if (selectedDogDataForMembership?.owner_id) {
-      const { data: activeMembership } = await supabase
-        .from('memberships')
-        .select('id, sessions_remaining')
-        .eq('owner_id', selectedDogDataForMembership.owner_id)
-        .eq('status', 'active')
-        .single()
-      if (activeMembership && activeMembership.sessions_remaining > 0) {
-        await supabase.from('memberships')
-          .update({ sessions_remaining: activeMembership.sessions_remaining - 1 })
-          .eq('id', activeMembership.id)
-      }
+      await fetch('/api/decrement-sessions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ownerId: selectedDogDataForMembership.owner_id })
+      })
     }
 
     const newAchievements = await checkAchievements(dogId)
