@@ -38,12 +38,12 @@ export async function POST(request: Request) {
       const dogCountLabel = dogCount > 1 ? ` — ${dogCount} Dogs` : ' — 1 Dog'
 
       let receiptUrl = null
-      if (session.payment_intent) {
-        try {
-          const pi = await stripe.paymentIntents.retrieve(session.payment_intent as string, { expand: ['latest_charge'] })
-          receiptUrl = (pi.latest_charge as any)?.receipt_url || null
-        } catch {}
-      }
+if (session.invoice) {
+  try {
+    const invoice = await stripe.invoices.retrieve(session.invoice as string)
+    receiptUrl = invoice.hosted_invoice_url || null
+  } catch {}
+}
 
       await supabase.from('memberships').upsert({
         owner_id: ownerId,
