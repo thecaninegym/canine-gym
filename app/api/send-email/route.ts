@@ -287,6 +287,20 @@ export async function POST(request: Request) {
     `)
   }
 
+  if (type === 'broadcast') {
+    subject = data.subject
+    const bodyLines = (data.message as string)
+      .split('\n')
+      .filter((l: string) => l.trim())
+      .map((line: string) => p(line))
+      .join('')
+    html = emailWrapper('Message from The Canine Gym', `
+      ${h1(`Hi ${data.ownerName}!`)}
+      ${bodyLines}
+      ${p('<em style="color:#aaa;font-size:12px;">You received this message because you have an account with The Canine Gym. Questions? Reply to this email or visit <a href="https://app.thecaninegym.com" style="color:#2c5a9e;">app.thecaninegym.com</a>.</em>')}
+    `)
+  }
+
   try {
     await resend.emails.send({
       from: 'The Canine Gym <info@thecaninegym.com>',
