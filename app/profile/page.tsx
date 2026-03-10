@@ -18,6 +18,7 @@ export default function Profile() {
   const [saving, setSaving] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [smsConsent, setSmsConsent] = useState(false)
 
   useEffect(() => {
     const init = async () => {
@@ -32,6 +33,7 @@ export default function Profile() {
         setCity(ownerData.city || '')
         setZip(ownerData.zip || '')
         setGymTag(ownerData.gym_tag || '')
+        setSmsConsent(ownerData.sms_consent || false)
       }
       setLoading(false)
     }
@@ -42,7 +44,7 @@ export default function Profile() {
     e.preventDefault()
     setSaving(true)
     setError(null)
-    const { error } = await supabase.from('owners').update({ name, phone, address, city, zip, gym_tag: gymTag.toLowerCase().replace(/[^a-z0-9_]/g, '') || null }).eq('id', ownerId)
+    const { error } = await supabase.from('owners').update({ name, phone, address, city, zip, gym_tag: gymTag.toLowerCase().replace(/[^a-z0-9_]/g, '') || null, sms_consent: smsConsent }).eq('id', ownerId)
     const { data: dogData } = await supabase.from('dogs').select('id').eq('owner_id', ownerId)
     if (dogData && dogData.length > 0) {
       await supabase.from('leaderboard_settings').update({ city }).in('dog_id', dogData.map((d: any) => d.id))
@@ -114,6 +116,22 @@ export default function Profile() {
               <div style={{ gridColumn: '1 / -1' }}>
                 <label style={labelStyle}>Phone</label>
                 <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} style={inputStyle} placeholder="(317) 555-0123" />
+              </div>
+              <div style={{ gridColumn: '1 / -1' }}>
+                <div style={{ background: '#f8f9ff', border: '1.5px solid #e5e8f0', borderRadius: '12px', padding: '16px 18px', marginTop: '4px' }}>
+                  <label style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={smsConsent}
+                      onChange={e => setSmsConsent(e.target.checked)}
+                      style={{ marginTop: '2px', width: '18px', height: '18px', accentColor: '#f88124', flexShrink: 0, cursor: 'pointer' }}
+                    />
+                    <span style={{ fontSize: '13px', color: '#555', lineHeight: '1.6', fontWeight: '500' }}>
+                      I agree to receive text messages from The Canine Gym including booking confirmations, session reminders, and account notifications. Message & data rates may apply.{' '}
+                      <strong style={{ color: '#001840' }}>Reply STOP at any time to opt out.</strong>
+                    </span>
+                  </label>
+                </div>
               </div>
               <div style={{ gridColumn: '1 / -1' }}>
                 <label style={labelStyle}>Gym Tag <span style={{ color: '#aaa', fontWeight: '400' }}>— your unique handle for friends to find you</span></label>

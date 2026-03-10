@@ -13,6 +13,7 @@ export default function AddOwner() {
   const [address, setAddress] = useState('')
   const [city, setCity] = useState('')
   const [zip, setZip] = useState('')
+  const [smsConsent, setSmsConsent] = useState(false)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -21,11 +22,11 @@ export default function AddOwner() {
     e.preventDefault()
     setLoading(true)
     setError(null)
-    const { error } = await supabase.from('owners').insert([{ name, email, phone, address, city, zip }])
+    const { error } = await supabase.from('owners').insert([{ name, email, phone, address, city, zip, sms_consent: smsConsent }])
     if (error) { setError(error.message); setLoading(false); return }
     await fetch('/api/send-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'welcome', to: email, data: { ownerName: name, dogName: 'your dog' } }) })
     setSuccess(true)
-    setName(''); setEmail(''); setPhone(''); setAddress(''); setCity(''); setZip('')
+    setName(''); setEmail(''); setPhone(''); setAddress(''); setCity(''); setZip(''); setSmsConsent(false)
     setLoading(false)
   }
 
@@ -81,6 +82,25 @@ export default function AddOwner() {
                 </div>
               ))}
             </div>
+            {/* SMS Consent */}
+            <div style={{ marginTop: '16px', background: '#fff8e6', border: '1.5px solid #ffc107', borderRadius: '12px', padding: '16px 18px' }}>
+              <p style={{ margin: '0 0 10px', fontSize: '13px', fontWeight: '700', color: '#856404' }}>⚠️ SMS Consent — Admin Note</p>
+              <p style={{ margin: '0 0 12px', fontSize: '13px', color: '#856404', lineHeight: '1.6' }}>
+                Before checking this box, you must have verbally confirmed with the client that they agree to receive text messages from The Canine Gym for booking confirmations, reminders, and account notifications.
+              </p>
+              <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={smsConsent}
+                  onChange={e => setSmsConsent(e.target.checked)}
+                  style={{ marginTop: '2px', width: '18px', height: '18px', accentColor: '#f88124', flexShrink: 0, cursor: 'pointer' }}
+                />
+                <span style={{ fontSize: '13px', color: '#856404', fontWeight: '600', lineHeight: '1.6' }}>
+                  Client has verbally confirmed SMS consent
+                </span>
+              </label>
+            </div>
+
             <button type="submit" disabled={loading} style={{ marginTop: '24px', width: '100%', padding: '13px', background: 'linear-gradient(135deg, #2c5a9e, #2c5a9e)', color: 'white', border: 'none', borderRadius: '12px', fontWeight: '700', fontSize: '15px', cursor: 'pointer' }}>
               {loading ? 'Adding…' : 'Add Owner'}
             </button>
