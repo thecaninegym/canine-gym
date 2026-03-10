@@ -193,7 +193,7 @@ export default function ClientDashboard() {
           .membership-manage { align-self: center; }
 
           /* Page padding tighter on mobile */
-          .page-inner { padding: 16px 14px !important; }
+          .page-inner { padding: 96px 14px 16px !important; }
 
           /* Hero name smaller */
           .hero-name { font-size: 24px !important; }
@@ -266,7 +266,7 @@ export default function ClientDashboard() {
         </div>
       )}
 
-      <div className="page-inner" style={{ padding: '28px 24px', maxWidth: '1040px', margin: '0 auto' }}>
+      <div className="page-inner" style={{ padding: '108px 24px 28px', maxWidth: '1040px', margin: '0 auto' }}>
 
         {/* ONBOARDING STATE */}
         {!hasAddress || !hasDogs || !hasWaiver ? (
