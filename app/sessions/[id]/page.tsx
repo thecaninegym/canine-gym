@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
-import { PawPrint, ArrowLeft, Timer, MapPin, Flame, Activity, BarChart2, FileText, Wifi, MessageSquare, CheckCircle } from 'lucide-react'
+import { PawPrint, ArrowLeft, Timer, MapPin, Flame, Activity, BarChart2, FileText, Wifi } from 'lucide-react'
 
 export default function SessionDetail() {
   const params = useParams()
@@ -11,9 +11,6 @@ export default function SessionDetail() {
   const [dog, setDog] = useState<any>(null)
   const [previousSessions, setPreviousSessions] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const [clientNote, setClientNote] = useState('')
-  const [savingNote, setSavingNote] = useState(false)
-  const [noteSaved, setNoteSaved] = useState(false)
 
   useEffect(() => {
     const init = async () => {
@@ -21,7 +18,6 @@ export default function SessionDetail() {
       if (!sessionData) { setLoading(false); return }
       setSession(sessionData)
       setDog(sessionData.dogs)
-      setClientNote(sessionData.client_note || '')
 
       const { data: prevSessions } = await supabase.from('sessions').select('*').eq('dog_id', sessionData.dog_id).neq('id', id).order('session_date', { ascending: false }).limit(5)
       setPreviousSessions(prevSessions || [])
@@ -33,15 +29,6 @@ export default function SessionDetail() {
   const formatDate = (dateStr: string) => new Date(dateStr + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
   const getIntensityColor = (score: number) => score >= 80 ? '#f88124' : score >= 50 ? '#f59e0b' : '#22c55e'
   const getIntensityLabel = (score: number) => score >= 80 ? 'High' : score >= 50 ? 'Moderate' : 'Light'
-
-  const saveClientNote = async () => {
-    if (!clientNote.trim()) return
-    setSavingNote(true)
-    await supabase.from('sessions').update({ client_note: clientNote.trim() }).eq('id', id)
-    setSavingNote(false)
-    setNoteSaved(true)
-    setTimeout(() => setNoteSaved(false), 3000)
-  }
 
   if (loading) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #001840 0%, #2c5a9e 100%)' }}>
@@ -215,50 +202,6 @@ export default function SessionDetail() {
             <p style={{ margin: 0, color: '#555', fontStyle: 'italic', fontSize: '15px', lineHeight: 1.7, borderLeft: '3px solid #e5e8f0', paddingLeft: '14px' }}>"{session.notes}"</p>
           </div>
         )}
-
-        {/* Client Notes */}
-        <div style={{ background: 'white', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5', padding: '24px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-            <div style={{ width: '34px', height: '34px', background: '#fff0ea', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <MessageSquare size={17} color="#f88124" />
-            </div>
-            <div>
-              <span style={{ fontWeight: '800', color: '#1a1a2e', fontSize: '15px', display: 'block' }}>Your Notes</span>
-              <span style={{ color: '#aaa', fontSize: '12px' }}>Visible to your trainer</span>
-            </div>
-          </div>
-
-          {session.client_note && !clientNote ? null : null}
-
-          <textarea
-            value={clientNote}
-            onChange={e => { setClientNote(e.target.value); setNoteSaved(false) }}
-            placeholder="How did the session go? Anything your trainer should know — energy level, mood, anything unusual…"
-            rows={4}
-            style={{ width: '100%', padding: '12px 14px', border: '1.5px solid #e5e8f0', borderRadius: '12px', fontSize: '14px', color: '#1a1a2e', outline: 'none', fontFamily: 'inherit', resize: 'vertical', lineHeight: '1.7', boxSizing: 'border-box' as const }}
-            onFocus={e => e.target.style.borderColor = '#f88124'}
-            onBlur={e => e.target.style.borderColor = '#e5e8f0'}
-          />
-
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '12px', flexWrap: 'wrap', gap: '10px' }}>
-            {noteSaved ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#155724', fontSize: '13px', fontWeight: '700' }}>
-                <CheckCircle size={15} color="#155724" /> Note saved!
-              </div>
-            ) : (
-              <p style={{ margin: 0, color: '#bbb', fontSize: '12px' }}>
-                {clientNote.length > 0 ? `${clientNote.length} characters` : 'Optional — leave blank if nothing to add'}
-              </p>
-            )}
-            <button
-              onClick={saveClientNote}
-              disabled={savingNote || !clientNote.trim() || noteSaved}
-              style={{ padding: '9px 20px', background: clientNote.trim() && !noteSaved ? 'linear-gradient(135deg, #f88124, #f9a04e)' : '#f0f2f7', color: clientNote.trim() && !noteSaved ? 'white' : '#aaa', border: 'none', borderRadius: '10px', fontWeight: '700', fontSize: '13px', cursor: clientNote.trim() && !noteSaved ? 'pointer' : 'default', display: 'flex', alignItems: 'center', gap: '6px', transition: 'all 0.15s', boxShadow: clientNote.trim() && !noteSaved ? '0 3px 10px rgba(255,107,53,0.3)' : 'none' }}>
-              <MessageSquare size={13} />
-              {savingNote ? 'Saving…' : noteSaved ? 'Saved ✓' : 'Save Note'}
-            </button>
-          </div>
-        </div>
 
       </div>
     </div>
