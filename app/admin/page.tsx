@@ -79,7 +79,7 @@ export default function AdminDashboard() {
 
       <nav style={{ background: 'white', padding: '0 24px', height: '80px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 12px rgba(0,24,64,0.08)', borderBottom: '3px solid #f88124' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <img src="/logo.png" alt="The Canine Gym" style={{ height: '56px', width: 'auto' }} />
+          <img src="/logo.png" alt="The Canine Gym" style={{ height: 'clamp(36px, 6vw, 56px)', width: 'auto' }} />
           <span style={{ color: '#888', fontWeight: '600', fontSize: '14px' }}>· Admin</span>
         </div>
         <button onClick={handleLogout} style={{ backgroundColor: '#f88124', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
