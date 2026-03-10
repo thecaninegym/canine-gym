@@ -13,13 +13,9 @@ export default function PaymentHistory() {
       if (!user) { window.location.href = '/'; return }
       const { data: ownerData } = await supabase.from('owners').select('id').eq('email', user.email).single()
       if (!ownerData) { setLoading(false); return }
-      const { data } = await supabase
-        .from('payments')
-        .select('*')
-        .eq('owner_id', ownerData.id)
-        .eq('status', 'succeeded')
-        .order('created_at', { ascending: false })
-      setPayments(data || [])
+      const res = await fetch(`/api/get-payments?owner_id=${ownerData.id}`)
+      const data = await res.json()
+      setPayments(data)
       setLoading(false)
     }
     init()
