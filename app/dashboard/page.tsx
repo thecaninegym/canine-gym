@@ -170,9 +170,9 @@ export default function ClientDashboard() {
 
         @media (max-width: 700px) {
           .nav-links-desktop { display: none; }
-          .nav-hamburger { display: flex; align-items: center; justify-content: center; background: rgba(0,24,64,0.06); border: none; color: #001840; cursor: pointer; border-radius: 8px; width: 40px; height: 40px; }
+          .nav-hamburger { display: flex; align-items: center; justify-content: center; background: rgba(0,24,64,0.08); border: none; color: #001840; cursor: pointer; border-radius: 8px; width: 40px; height: 40px; }
           .mobile-menu { display: flex; flex-direction: column; gap: 4px; position: absolute; top: 64px; left: 0; right: 0; background: white; padding: 12px 16px; z-index: 99; border-top: 1px solid #f0f2f7; box-shadow: 0 8px 24px rgba(0,24,64,0.10); }
-          .mobile-menu a, .mobile-menu button { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 10px; color: rgba(255,255,255,0.9) !important; font-size: 14px !important; font-weight: 600; text-decoration: none; background: rgba(255,255,255,0.05); border: none; cursor: pointer; width: 100%; }
+          .mobile-menu a, .mobile-menu button { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 10px; color: #001840 !important; font-size: 14px !important; font-weight: 600; text-decoration: none; background: rgba(0,24,64,0.04); border: none; cursor: pointer; width: 100%; }
 
           /* Hero card stacks on mobile */
           .hero-inner { flex-direction: column !important; align-items: flex-start !important; gap: 16px !important; }
