@@ -79,7 +79,7 @@ export default function AdminBroadcast() {
       }
       setProgress({ sent: i + 1, total: recipients.length })
       // Small delay to avoid rate limiting
-      if (i < recipients.length - 1) await new Promise(r => setTimeout(r, 120))
+      if (i < recipients.length - 1) await new Promise(r => setTimeout(r, 700))
     }
 
     setSending(false)
