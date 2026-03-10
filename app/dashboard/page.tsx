@@ -170,8 +170,8 @@ export default function ClientDashboard() {
 
         @media (max-width: 700px) {
           .nav-links-desktop { display: none; }
-          .nav-hamburger { display: flex; align-items: center; justify-content: center; background: rgba(0,24,64,0.08); border: none; color: #001840; cursor: pointer; border-radius: 8px; width: 40px; height: 40px; }
-          .mobile-menu { display: flex; flex-direction: column; gap: 4px; position: absolute; top: 64px; left: 0; right: 0; background: white; padding: 12px 16px; z-index: 99; border-top: 1px solid #f0f2f7; box-shadow: 0 8px 24px rgba(0,24,64,0.10); }
+          .nav-hamburger { display: flex; align-items: center; justify-content: center; background: #001840; border: none; color: white; cursor: pointer; border-radius: 8px; width: 40px; height: 40px; }
+          .mobile-menu { display: flex; flex-direction: column; gap: 4px; position: absolute; top: 80px; left: 0; right: 0; background: white; padding: 16px 16px 16px; z-index: 99; border-top: 3px solid #f88124; box-shadow: 0 8px 24px rgba(0,24,64,0.12); }
           .mobile-menu a, .mobile-menu button { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 10px; color: #001840 !important; font-size: 14px !important; font-weight: 600; text-decoration: none; background: rgba(0,24,64,0.04); border: none; cursor: pointer; width: 100%; }
 
           /* Hero card stacks on mobile */
