@@ -28,6 +28,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Canine Gym" />
         <link rel="apple-touch-icon" href="/icon-512.png" />
         <meta name="mobile-web-app-capable" content="yes" />
+        <link rel="icon" href="/icon-512.png" type="image/png" />
       </head>
       <body className={`${montserrat.variable} antialiased`}>
         {children}
