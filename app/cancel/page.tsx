@@ -22,7 +22,7 @@ function CancelForm() {
       if (!bookingId) return
       const { data } = await supabase
         .from('bookings')
-        .select('*, dogs(name, owner_id, owners(id, name, email))')
+        .select('*, dogs(name, owner_id, owners(id, name, email, phone, sms_consent))')
         .eq('id', bookingId)
         .single()
 
@@ -92,6 +92,45 @@ function CancelForm() {
         }
       })
     })
+
+    // Build refund note for client messages
+    let refundNote = ''
+    if (data.refundStatus === 'full_refund') refundNote = 'A full refund has been issued and will appear on your original payment method within 5-10 business days.'
+    else if (data.refundStatus === 'partial_refund') refundNote = `A 50% refund of $${(data.refundAmount / 100).toFixed(2)} has been issued and will appear within 5-10 business days.`
+    else if (data.refundStatus === 'no_refund_sick') refundNote = 'No charge has been applied since your dog was sick. We hope they feel better soon!'
+    else if (data.refundStatus === 'forfeited') refundNote = 'Because this was cancelled with less than 48 hours notice, this session has been forfeited from your membership.'
+
+    // Send client cancellation confirmation email
+    const ownerEmail = booking.dogs?.owners?.email
+    const ownerPhone = booking.dogs?.owners?.phone
+    const ownerSmsConsent = booking.dogs?.owners?.sms_consent
+    const ownerName = booking.dogs?.owners?.name
+    const dogName = booking.dogs?.name
+
+    if (ownerEmail) {
+      await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'booking_cancelled',
+          to: ownerEmail,
+          data: { ownerName, dogName, date: dateStr, time: timeStr, refundNote }
+        })
+      })
+    }
+
+    // Send client cancellation SMS if consented
+    if (ownerPhone && ownerSmsConsent) {
+      await fetch('/api/send-sms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'booking_cancelled',
+          to: ownerPhone,
+          data: { ownerName, dogName, date: dateStr, time: timeStr, refundNote }
+        })
+      })
+    }
 
     setResult(data)
     setCancelling(false)

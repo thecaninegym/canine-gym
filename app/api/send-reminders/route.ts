@@ -21,7 +21,7 @@ export async function GET(request: Request) {
   // Get all confirmed bookings for tomorrow
   const { data: bookings } = await supabase
     .from('bookings')
-    .select('*, dogs(name, owners(name, email))')
+    .select('*, dogs(name, owners(name, email, phone, sms_consent))')
     .eq('booking_date', tomorrowStr)
     .eq('status', 'confirmed')
 
@@ -38,6 +38,8 @@ export async function GET(request: Request) {
     const timeStr = `${hour}:00 ${ampm} – ${hour}:30 ${ampm}`
 
     const ownerEmail = booking.dogs?.owners?.email
+    const ownerPhone = booking.dogs?.owners?.phone
+    const ownerSmsConsent = booking.dogs?.owners?.sms_consent
     const ownerName = booking.dogs?.owners?.name
     const dogName = booking.dogs?.name
 
@@ -52,6 +54,18 @@ export async function GET(request: Request) {
         data: { ownerName, dogName, date: dateStr, time: timeStr }
       })
     })
+
+    if (ownerPhone && ownerSmsConsent) {
+      await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/send-sms`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'reminder',
+          to: ownerPhone,
+          data: { ownerName, dogName, date: dateStr, time: timeStr }
+        })
+      })
+    }
 
     sent++
   }

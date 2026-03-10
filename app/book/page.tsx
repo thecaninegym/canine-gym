@@ -87,13 +87,14 @@ export default function BookSession() {
     }
     const { error: bookingError } = await supabase.from('bookings').insert(selectedDogIds.map(dogId => ({ dog_id: dogId, booking_date: selectedDate.dateStr, slot_hour: selectedSlot, status: 'confirmed' })))
     if (bookingError) { setError(bookingError.message); setBooking(false); return }
-    const { data: ownerData } = await supabase.from('owners').select('name, email').eq('id', ownerId).single()
+    const { data: ownerData } = await supabase.from('owners').select('name, email, phone, sms_consent').eq('id', ownerId).single()
     const selectedDogData = dogs.find(d => d.id === selectedDogIds[0])
     const ampm = selectedSlot >= 12 ? 'PM' : 'AM'
     const hour = selectedSlot > 12 ? selectedSlot - 12 : selectedSlot === 0 ? 12 : selectedSlot
     const timeStr = `${hour}:00 ${ampm} – ${hour}:30 ${ampm}`
     const dateStr = new Date(selectedDate.dateStr + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
     if (ownerData?.email) await fetch('/api/send-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'booking_confirmation', to: ownerData.email, data: { ownerName: ownerData.name, dogName: selectedDogData?.name, date: dateStr, time: timeStr } }) })
+    if (ownerData?.phone && ownerData?.sms_consent) await fetch('/api/send-sms', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'booking_confirmation', to: ownerData.phone, data: { ownerName: ownerData.name, dogName: selectedDogData?.name, date: dateStr, time: timeStr } }) })
     await fetch('/api/send-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'admin_notification', to: 'dev@thecaninegym.com', data: { action: 'New Booking', dogName: selectedDogData?.name, ownerName: ownerData?.name, date: dateStr, time: timeStr } }) })
     setSuccess(true); setBooking(false)
   }
