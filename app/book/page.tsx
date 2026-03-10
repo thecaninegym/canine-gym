@@ -19,6 +19,7 @@ export default function BookSession() {
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [ownerId, setOwnerId] = useState('')
+  const [clientNote, setClientNote] = useState('')
 
   useEffect(() => {
     const init = async () => {
@@ -85,7 +86,7 @@ export default function BookSession() {
       if (membershipData.sessions_remaining <= 0) { setError('You have no sessions remaining on your membership this month.'); setBooking(false); return }
       await supabase.from('memberships').update({ sessions_remaining: membershipData.sessions_remaining - bookedCoveredDogs.length }).eq('id', membershipData.id)
     }
-    const { error: bookingError } = await supabase.from('bookings').insert(selectedDogIds.map(dogId => ({ dog_id: dogId, booking_date: selectedDate.dateStr, slot_hour: selectedSlot, status: 'confirmed' })))
+    const { error: bookingError } = await supabase.from('bookings').insert(selectedDogIds.map(dogId => ({ dog_id: dogId, booking_date: selectedDate.dateStr, slot_hour: selectedSlot, status: 'confirmed', client_note: clientNote.trim() || null })))
     if (bookingError) { setError(bookingError.message); setBooking(false); return }
     const { data: ownerData } = await supabase.from('owners').select('name, email, phone, sms_consent').eq('id', ownerId).single()
     const selectedDogData = dogs.find(d => d.id === selectedDogIds[0])
@@ -260,6 +261,30 @@ export default function BookSession() {
                       })}
                     </div>
                 }
+              </div>
+            )}
+
+            {/* Note to trainer */}
+            {selectedDate && selectedSlot !== null && (
+              <div style={{ background: 'white', borderRadius: '16px', padding: '24px', marginBottom: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+                  <div style={{ width: '34px', height: '34px', background: '#fff0ea', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <PawPrint size={17} color="#f88124" />
+                  </div>
+                  <div>
+                    <span style={{ fontWeight: '800', color: '#1a1a2e', fontSize: '15px', display: 'block' }}>Note for your trainer</span>
+                    <span style={{ color: '#aaa', fontSize: '12px' }}>Optional — anything we should know before the session</span>
+                  </div>
+                </div>
+                <textarea
+                  value={clientNote}
+                  onChange={e => setClientNote(e.target.value)}
+                  placeholder="e.g. She's been a bit low energy this week, or he just started a new diet…"
+                  rows={3}
+                  style={{ width: '100%', padding: '12px 14px', border: '1.5px solid #e5e8f0', borderRadius: '12px', fontSize: '14px', color: '#1a1a2e', outline: 'none', fontFamily: 'inherit', resize: 'none', lineHeight: '1.7', boxSizing: 'border-box' as const }}
+                  onFocus={e => e.target.style.borderColor = '#f88124'}
+                  onBlur={e => e.target.style.borderColor = '#e5e8f0'}
+                />
               </div>
             )}
 

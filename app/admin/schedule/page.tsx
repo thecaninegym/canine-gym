@@ -60,11 +60,7 @@ export default function AdminSchedule() {
     setLoading(true)
     const { data } = await supabase.from('bookings').select('*, dogs(id, name, breed, photo_url, owners(name, email, phone, address, city, zip))').eq('booking_date', selectedDate).order('slot_hour')
     setBookings(data || [])
-    // Fetch client notes from sessions for this day
-    const { data: sessions } = await supabase.from('sessions').select('dog_id, client_note').eq('session_date', selectedDate).not('client_note', 'is', null)
-    const notesMap: Record<string, string> = {}
-    ;(sessions || []).forEach((s: any) => { if (s.client_note) notesMap[s.dog_id] = s.client_note })
-    setSessionNotes(notesMap)
+    setSessionNotes({})
     setLoading(false)
     if (data) fetchTravelTime(data)
   }
@@ -228,12 +224,12 @@ export default function AdminSchedule() {
                         )}
                       </div>
                       {booking.cancellation_reason && <p style={{ margin: '8px 0 0', fontSize: '13px', color: '#aaa', fontStyle: 'italic' }}>Reason: {booking.cancellation_reason}</p>}
-                      {sessionNotes[booking.dogs?.id] && (
+                      {booking.client_note && (
                         <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginTop: '10px', background: '#fff8f3', border: '1.5px solid #fde0c4', borderRadius: '10px', padding: '10px 14px' }}>
                           <MessageSquare size={14} color="#f88124" style={{ flexShrink: 0, marginTop: '2px' }} />
                           <div>
                             <p style={{ margin: '0 0 2px', fontSize: '11px', fontWeight: '700', color: '#f88124', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Client Note</p>
-                            <p style={{ margin: 0, fontSize: '13px', color: '#555', lineHeight: 1.6, fontStyle: 'italic' }}>"{sessionNotes[booking.dogs.id]}"</p>
+                            <p style={{ margin: 0, fontSize: '13px', color: '#555', lineHeight: 1.6, fontStyle: 'italic' }}>"{booking.client_note}"</p>
                           </div>
                         </div>
                       )}
