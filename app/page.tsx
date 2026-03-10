@@ -39,6 +39,7 @@ function LoginContent() {
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [phone, setPhone] = useState('')
+  const [smsConsent, setSmsConsent] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [signupSuccess, setSignupSuccess] = useState(false)
@@ -65,7 +66,7 @@ function LoginContent() {
     if (signupError) { setError(signupError.message); setLoading(false); return }
     await supabase.auth.signInWithPassword({ email, password })
     const fullName = `${firstName} ${lastName}`.trim()
-    await supabase.from('owners').insert([{ name: fullName, email, phone }])
+    await supabase.from('owners').insert([{ name: fullName, email, phone, sms_consent: smsConsent }])
     await fetch('/api/send-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'welcome', to: email, data: { ownerName: firstName, dogName: 'your dog' } }) })
     await fetch('/api/send-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'admin_notification', to: 'dev@thecaninegym.com', data: { action: 'New Client Signed Up', dogName: 'Not yet added', ownerName: `${firstName} ${lastName}`, date: new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }), time: email } }) })
     await supabase.auth.signInWithPassword({ email, password })
@@ -200,6 +201,20 @@ function LoginContent() {
                 <div style={{ marginBottom: '22px' }}>
                   <label style={labelStyle}>Confirm Password</label>
                   <input className="login-input" type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required placeholder="••••••••" style={inputStyle} />
+                </div>
+                <div style={{ background: '#f8f9ff', border: '1.5px solid #e5e8f0', borderRadius: '12px', padding: '14px 16px', marginBottom: '16px' }}>
+                  <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={smsConsent}
+                      onChange={e => setSmsConsent(e.target.checked)}
+                      style={{ marginTop: '3px', width: '16px', height: '16px', accentColor: '#f88124', flexShrink: 0, cursor: 'pointer' }}
+                    />
+                    <span style={{ fontSize: '12px', color: '#666', lineHeight: '1.6' }}>
+                      I agree to receive text messages from The Canine Gym including booking confirmations, session reminders, and account notifications. Message & data rates may apply.{' '}
+                      <strong style={{ color: '#001840' }}>Reply STOP at any time to opt out.</strong>
+                    </span>
+                  </label>
                 </div>
                 {error && <div style={{ background: '#fff5f5', border: '1.5px solid #feb2b2', color: '#c53030', padding: '10px 14px', borderRadius: '10px', marginBottom: '14px', fontSize: '13px', fontWeight: '600' }}>{error}</div>}
                 <button type="submit" disabled={loading} className="submit-btn"
