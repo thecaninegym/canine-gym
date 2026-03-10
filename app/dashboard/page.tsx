@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
-import { Trophy, PawPrint, User, CreditCard, LogOut, Calendar, Flame, Share2, Lock, CheckCircle, ChevronRight, X, Activity, Navigation, Medal, Zap, Target, RefreshCw, Award, TrendingUp, Dumbbell, RotateCcw, Hash, Star, Users, MapPin, Clock } from 'lucide-react'
+import { Trophy, PawPrint, User, CreditCard, LogOut, Calendar, Flame, Share2, Lock, CheckCircle, ChevronRight, X, Activity, Navigation, Medal, Zap, Target, RefreshCw, Award, TrendingUp, Dumbbell, RotateCcw, Hash, Star, Users, MapPin, Clock, Receipt } from 'lucide-react'
 
 export default function ClientDashboard() {
   const [dogs, setDogs] = useState<any[]>([])
@@ -225,6 +225,7 @@ export default function ClientDashboard() {
             { href: '/dogs', icon: <PawPrint size={15} />, label: 'My Dogs' },
             { href: '/profile', icon: <User size={15} />, label: 'Profile' },
             { href: '/membership', icon: <CreditCard size={15} />, label: membership ? `Membership (${membership.sessions_remaining} left)` : 'Membership' },
+            { href: '/payments', icon: <Receipt size={15} />, label: 'Payments' },
           ].map(item => (
             <a key={item.href} href={item.href} className="nav-link" style={{ color: '#001840', textDecoration: 'none', fontWeight: '600', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '5px', padding: '8px 12px', borderRadius: '8px', transition: 'all 0.15s', background: 'rgba(0,24,64,0.04)' }}>
               {item.icon} {item.label}
@@ -253,6 +254,7 @@ export default function ClientDashboard() {
             { href: '/dogs', icon: <PawPrint size={16} />, label: 'My Dogs' },
             { href: '/profile', icon: <User size={16} />, label: 'Profile' },
             { href: '/membership', icon: <CreditCard size={16} />, label: membership ? `Membership (${membership.sessions_remaining} left)` : 'Membership' },
+            { href: '/payments', icon: <Receipt size={16} />, label: 'Payments' },
           ].map(item => (
             <a key={item.href} href={item.href} onClick={() => setMobileMenuOpen(false)}>
               {item.icon} {item.label}

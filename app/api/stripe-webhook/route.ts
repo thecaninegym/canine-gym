@@ -34,6 +34,17 @@ export async function POST(request: Request) {
 
       const dogIds = metadata.dog_ids ? metadata.dog_ids.split(',').filter(Boolean) : []
 
+      const planLabels: Record<string, string> = { starter: 'Starter Plan', active: 'Active Plan', athlete: 'Athlete Plan' }
+      const dogCountLabel = dogCount > 1 ? ` — ${dogCount} Dogs` : ' — 1 Dog'
+
+      let receiptUrl = null
+      if (session.payment_intent) {
+        try {
+          const pi = await stripe.paymentIntents.retrieve(session.payment_intent as string, { expand: ['latest_charge'] })
+          receiptUrl = (pi.latest_charge as any)?.receipt_url || null
+        } catch {}
+      }
+
       await supabase.from('memberships').upsert({
         owner_id: ownerId,
         stripe_subscription_id: session.subscription as string,
@@ -53,6 +64,8 @@ export async function POST(request: Request) {
         stripe_payment_intent_id: session.payment_intent as string,
         amount: session.amount_total,
         type: 'membership',
+        description: `${planLabels[plan] || plan}${dogCountLabel}`,
+        receipt_url: receiptUrl,
         status: 'succeeded'
       })
 
@@ -81,11 +94,21 @@ export async function POST(request: Request) {
     }
 
     if (type === 'alacarte') {
+      let aReceiptUrl = null
+      if (session.payment_intent) {
+        try {
+          const pi = await stripe.paymentIntents.retrieve(session.payment_intent as string, { expand: ['latest_charge'] })
+          aReceiptUrl = (pi.latest_charge as any)?.receipt_url || null
+        } catch {}
+      }
+
       await supabase.from('payments').insert({
         owner_id: ownerId,
         stripe_payment_intent_id: session.payment_intent as string,
         amount: session.amount_total,
         type: 'alacarte',
+        description: 'A La Carte Session',
+        receipt_url: aReceiptUrl,
         status: 'succeeded'
       })
 
@@ -164,6 +187,22 @@ export async function POST(request: Request) {
         current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
         status: 'active'
       }).eq('stripe_subscription_id', subscriptionId)
+
+      // Log renewal payment (skip if amount is 0 — first invoice already logged via checkout.session.completed)
+      if ((invoice.amount_paid || 0) > 0 && invoice.billing_reason === 'subscription_cycle') {
+        const planLabels: Record<string, string> = { starter: 'Starter Plan', active: 'Active Plan', athlete: 'Athlete Plan' }
+        const dogCountLabel = membership.dog_count > 1 ? ` — ${membership.dog_count} Dogs` : ' — 1 Dog'
+        const inv = invoice as any
+await supabase.from('payments').insert({
+  owner_id: membership.owner_id,
+  stripe_payment_intent_id: inv.payment_intent ?? null,
+  amount: invoice.amount_paid,
+  type: 'membership_renewal',
+  description: `${planLabels[membership.plan] || membership.plan}${dogCountLabel} — Renewal`,
+  receipt_url: invoice.hosted_invoice_url || null,
+  status: 'succeeded'
+})
+      }
     }
   }
 
