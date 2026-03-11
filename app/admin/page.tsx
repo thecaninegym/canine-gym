@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
-import { PawPrint, LogOut, UserPlus, Activity, Users, Calendar, CreditCard, BarChart2, DollarSign, ShieldAlert, Clock, Bell } from 'lucide-react'
+import { PawPrint, LogOut, UserPlus, Activity, Users, Calendar, CreditCard, BarChart2, DollarSign, ShieldAlert, Clock, Bell, Zap } from 'lucide-react'
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<any>(null)
@@ -65,6 +65,7 @@ export default function AdminDashboard() {
     { label: 'Memberships', href: '/admin/memberships', icon: <CreditCard size={24} color="white" />, orange: false },
     { label: 'Reports', href: '/admin/reports', icon: <BarChart2 size={24} color="white" />, orange: false },
     { label: 'Send Broadcast', href: '/admin/broadcast', icon: <Bell size={24} color="white" />, orange: false },
+    { label: 'FitBark Settings', href: '/admin/fitbark', icon: <Zap size={24} color="white" />, orange: false },
   ]
 
   return (

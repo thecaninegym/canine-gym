@@ -71,6 +71,26 @@ export default function LogSession() {
       })
     }
 
+    // Pull FitBark activity data for the session window (non-blocking)
+    let fitbarkStats: any = {}
+    if (deviceSlug) {
+      try {
+        const { data: sessionRow } = await supabase.from('sessions')
+          .select('id').eq('dog_id', dogId).eq('session_date', sessionDate)
+          .order('created_at', { ascending: false }).limit(1).single()
+        if (sessionRow?.id) {
+          const fbRes = await fetch('/api/fitbark/activity', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sessionId: sessionRow.id, deviceSlug, startTime: start.toISOString(), endTime: end.toISOString() })
+          })
+          if (fbRes.ok) fitbarkStats = await fbRes.json()
+        }
+      } catch (e) {
+        console.warn('FitBark fetch failed (non-blocking):', e)
+      }
+    }
+
     const newAchievements = await checkAchievements(dogId)
     const selectedDogData = dogs.find(d => d.id === dogId)
     const { data: ownerData } = await supabase.from('owners').select('name, email').eq('id', selectedDogData?.owner_id).single()
@@ -78,7 +98,19 @@ export default function LogSession() {
       await fetch('/api/send-session-report', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ownerEmail: ownerData.email, ownerName: ownerData.name, dogName: selectedDogData?.name, sessionDate: new Date(sessionDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }), duration, miles: null, calories: null, notes, achievementsUnlocked: newAchievements.map((a: any) => a.label) })
+        body: JSON.stringify({
+          ownerEmail: ownerData.email,
+          ownerName: ownerData.name,
+          dogName: selectedDogData?.name,
+          sessionDate: new Date(sessionDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }),
+          duration,
+          miles: null,
+          calories: null,
+          activeMinutes: fitbarkStats.activeMinutes || null,
+          activityTotal: fitbarkStats.totalActivity || null,
+          notes,
+          achievementsUnlocked: newAchievements.map((a: any) => a.label)
+        })
       })
     }
     setSuccess(true)
