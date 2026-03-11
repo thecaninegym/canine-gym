@@ -320,6 +320,39 @@ export async function POST(request: Request) {
     `)
   }
 
+  if (type === 'onboarding_day2') {
+    subject = `How to book your first session, ${data.ownerName} 🐾`
+    html = emailWrapper('Getting Started', `
+      ${h1(`Here's how it works, ${data.ownerName}!`)}
+      ${p(`We're so glad you joined The Canine Gym. Here's everything you need to know to get <strong>${data.dogName}</strong> started:`)}
+      ${infoBox([
+        row('📍 Step 1', 'We come to you — just give us your address when booking'),
+        row('📅 Step 2', 'Pick a date and time slot that works for your neighborhood'),
+        row('🐕 Step 3', 'We handle the rest — ${data.dogName} hops on the slatmill and gets to work!'),
+      ])}
+      ${p(`Sessions are 30 minutes and designed specifically for your dog's fitness level. No experience needed — we guide every dog through their first session.`)}
+      ${p(`Ready to get started? Book your first session right from your dashboard:`)}
+      ${btn('Book Your First Session', 'https://app.thecaninegym.com/book')}
+    `)
+  }
+
+  if (type === 'onboarding_day5') {
+    subject = `${data.dogName} is waiting for their workout 🏃`
+    html = emailWrapper('Your Dog Deserves This', `
+      ${h1(`Don't let ${data.dogName} miss out!`)}
+      ${p(`Hi ${data.ownerName} — we noticed ${data.dogName} hasn't had their first session yet. We totally get it, life gets busy!`)}
+      ${p(`Here's what ${data.dogName} has to look forward to:`)}
+      ${infoBox([
+        row('💪 Real fitness', 'Slatmill running burns energy and builds muscle like nothing else'),
+        row('🏆 Achievements', 'Dogs earn badges and climb the leaderboard as they hit milestones'),
+        row('📊 Progress tracking', 'Watch your dog improve session over session with real data'),
+        row('🚐 Zero hassle', 'We come right to your driveway — no driving, no drop-off'),
+      ])}
+      ${p(`Your first session is the hardest to schedule — after that it becomes part of the routine. ${data.dogName} will thank you for it.`)}
+      ${btn('Book Your First Session', 'https://app.thecaninegym.com/book')}
+    `)
+  }
+
   if (type === 'broadcast') {
     subject = data.subject
     const bodyLines = (data.message as string)
