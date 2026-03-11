@@ -19,7 +19,7 @@ export async function GET(request: Request) {
   // their cycle resets so they can receive future nudges if they lapse again.
   const { data: toReset } = await supabase
     .from('owners')
-    .select('id, last_reengagement_sent_at, dogs(sessions(session_date, status))')
+    .select('id, last_reengagement_sent_at, dogs(sessions(session_date))')
     .not('reengagement_stage', 'is', null)
 
   for (const owner of toReset || []) {
@@ -43,7 +43,7 @@ export async function GET(request: Request) {
   // Get all owners who have not unsubscribed, and have completed at least one session
   const { data: owners } = await supabase
     .from('owners')
-    .select('id, name, email, reengagement_stage, last_reengagement_sent_at, dogs(name, sessions(session_date, status), bookings(booking_date, status))')
+    .select('id, name, email, reengagement_stage, last_reengagement_sent_at, dogs(name, sessions(session_date), bookings(booking_date, status))')
     .eq('email_unsubscribed', false)
 
   const today = now.toISOString().split('T')[0]
