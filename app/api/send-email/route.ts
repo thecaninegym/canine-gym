@@ -328,7 +328,7 @@ export async function POST(request: Request) {
       ${infoBox([
         row('📍 Step 1', 'We come to you — just give us your address when booking'),
         row('📅 Step 2', 'Pick a date and time slot that works for your neighborhood'),
-        row('🐕 Step 3', 'We handle the rest — ${data.dogName} hops on the slatmill and gets to work!'),
+        row('🐕 Step 3', `We handle the rest — ${data.dogName} hops on the slatmill and gets to work!`),
       ])}
       ${p(`Sessions are 30 minutes and designed specifically for your dog's fitness level. No experience needed — we guide every dog through their first session.`)}
       ${p(`Ready to get started? Book your first session right from your dashboard:`)}
