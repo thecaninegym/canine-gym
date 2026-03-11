@@ -287,6 +287,39 @@ export async function POST(request: Request) {
     `)
   }
 
+  if (type === 'booking_rescheduled_client') {
+    subject = `Your booking for ${data.dogName} has been rescheduled`
+    html = emailWrapper('Booking Rescheduled', `
+      ${h1(`Your booking has been rescheduled, ${data.ownerName}.`)}
+      ${p(`We've made a change to your upcoming session for <strong>${data.dogName}</strong>. Here are the updated details:`)}
+      ${infoBox([
+        row('Dog', data.dogName),
+        row('Previous Date', data.oldDate),
+        row('Previous Time', data.oldTime),
+        row('New Date', data.newDate),
+        row('New Time', data.newTime),
+      ])}
+      ${p(`Questions? Just reply to this email and we'll get back to you.`)}
+      ${btn('View My Dashboard', 'https://app.thecaninegym.com/dashboard')}
+    `)
+  }
+
+  if (type === 'booking_rescheduled_admin') {
+    subject = `Booking rescheduled: ${data.dogName} (${data.ownerName})`
+    html = emailWrapper('Booking Rescheduled', `
+      ${h1(`Booking rescheduled`)}
+      ${infoBox([
+        row('Dog', data.dogName),
+        row('Owner', data.ownerName),
+        row('Previous Date', data.oldDate),
+        row('Previous Time', data.oldTime),
+        row('New Date', data.newDate),
+        row('New Time', data.newTime),
+      ])}
+      ${btn('View Schedule', 'https://app.thecaninegym.com/admin/schedule', BLUE)}
+    `)
+  }
+
   if (type === 'broadcast') {
     subject = data.subject
     const bodyLines = (data.message as string)

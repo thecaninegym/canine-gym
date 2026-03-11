@@ -1,10 +1,11 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '../../../lib/supabase'
-import { PawPrint, ArrowLeft, Calendar, Map, List, ChevronLeft, ChevronRight, Clock, Phone, Mail, MapPin, Car, ClipboardList, CheckCircle, AlertTriangle, XCircle, Navigation, MessageSquare } from 'lucide-react'
+import { PawPrint, ArrowLeft, Calendar, Map, List, ChevronLeft, ChevronRight, Clock, Phone, Mail, MapPin, Car, ClipboardList, CheckCircle, AlertTriangle, XCircle, Navigation, MessageSquare, RefreshCw, X } from 'lucide-react'
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 const HOURS = Array.from({ length: 13 }, (_, i) => i + 6)
+const ADMIN_EMAIL = 'info@thecaninegym.com'
 
 function getUniqueStops(bookingList: any[]) {
   const seen: Record<string, boolean> = {}
@@ -28,6 +29,17 @@ export default function AdminSchedule() {
   const [view, setView] = useState<'list' | 'calendar' | 'map'>('list')
   const [mapMode, setMapMode] = useState<'day' | 'week'>('day')
   const [travelTime, setTravelTime] = useState<{ totalMinutes: number, legs: any[] } | null>(null)
+
+  // Cancel modal
+  const [cancelBooking, setCancelBooking] = useState<any | null>(null)
+  const [cancelReason, setCancelReason] = useState('')
+  const [cancelLoading, setCancelLoading] = useState(false)
+
+  // Reschedule modal
+  const [rescheduleBooking, setRescheduleBooking] = useState<any | null>(null)
+  const [newDate, setNewDate] = useState('')
+  const [newHour, setNewHour] = useState('')
+  const [rescheduleLoading, setRescheduleLoading] = useState(false)
 
   const getWeekDates = () => {
     const today = new Date(selectedDate + 'T12:00:00')
@@ -71,8 +83,75 @@ export default function AdminSchedule() {
     setWeekBookings(data || [])
   }
 
-  const handleCancel = async (bookingId: string) => {
-    await supabase.from('bookings').update({ status: 'cancelled', cancelled_at: new Date().toISOString() }).eq('id', bookingId)
+  const handleCancel = async () => {
+    if (!cancelBooking) return
+    setCancelLoading(true)
+    const booking = cancelBooking
+    const ownerEmail = booking.dogs?.owners?.email
+    const ownerName = booking.dogs?.owners?.name
+    const dogName = booking.dogs?.name
+    const date = new Date(booking.booking_date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
+    const time = formatHour(booking.slot_hour)
+
+    await supabase.from('bookings').update({
+      status: 'cancelled',
+      cancelled_at: new Date().toISOString(),
+      cancellation_reason: cancelReason || null,
+    }).eq('id', booking.id)
+
+    // Email client
+    if (ownerEmail) {
+      await fetch('/api/send-email', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'booking_cancelled', to: ownerEmail, data: { ownerName, dogName, date, time, refundNote: cancelReason ? `Reason: ${cancelReason}` : null } })
+      })
+    }
+    // Email admin
+    await fetch('/api/send-email', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'admin_notification', to: ADMIN_EMAIL, data: { action: 'Booking Cancelled', dogName, ownerName, date, time, reason: cancelReason || null } })
+    })
+
+    setCancelBooking(null)
+    setCancelReason('')
+    setCancelLoading(false)
+    fetchBookings(); fetchWeekBookings()
+  }
+
+  const handleReschedule = async () => {
+    if (!rescheduleBooking || !newDate || !newHour) return
+    setRescheduleLoading(true)
+    const booking = rescheduleBooking
+    const ownerEmail = booking.dogs?.owners?.email
+    const ownerName = booking.dogs?.owners?.name
+    const dogName = booking.dogs?.name
+    const oldDate = new Date(booking.booking_date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
+    const oldTime = formatHour(booking.slot_hour)
+    const newDateFormatted = new Date(newDate + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
+    const newTime = formatHour(Number(newHour))
+
+    await supabase.from('bookings').update({
+      booking_date: newDate,
+      slot_hour: Number(newHour),
+    }).eq('id', booking.id)
+
+    // Email client
+    if (ownerEmail) {
+      await fetch('/api/send-email', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'booking_rescheduled_client', to: ownerEmail, data: { ownerName, dogName, oldDate, oldTime, newDate: newDateFormatted, newTime } })
+      })
+    }
+    // Email admin
+    await fetch('/api/send-email', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'booking_rescheduled_admin', to: ADMIN_EMAIL, data: { dogName, ownerName, oldDate, oldTime, newDate: newDateFormatted, newTime } })
+    })
+
+    setRescheduleBooking(null)
+    setNewDate('')
+    setNewHour('')
+    setRescheduleLoading(false)
     fetchBookings(); fetchWeekBookings()
   }
 
@@ -249,7 +328,11 @@ export default function AdminSchedule() {
                             style={{ padding: '9px 16px', background: '#ffc107', color: '#333', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
                             <AlertTriangle size={14} /> No Show
                           </button>
-                          <button onClick={() => handleCancel(booking.id)}
+                          <button onClick={() => { setRescheduleBooking(booking); setNewDate(booking.booking_date); setNewHour(String(booking.slot_hour)) }}
+                            style={{ padding: '9px 16px', background: '#2c5a9e', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
+                            <RefreshCw size={14} /> Reschedule
+                          </button>
+                          <button onClick={() => { setCancelBooking(booking); setCancelReason('') }}
                             style={{ padding: '9px 16px', background: '#dc3545', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
                             <XCircle size={14} /> Cancel
                           </button>
@@ -447,6 +530,84 @@ export default function AdminSchedule() {
           </div>
         )}
       </div>
+
+      {/* CANCEL MODAL */}
+      {cancelBooking && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+          <div style={{ background: 'white', borderRadius: '20px', padding: '32px', maxWidth: '480px', width: '100%', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h3 style={{ margin: 0, color: '#1a1a2e', fontWeight: '800', fontSize: '18px' }}>Cancel Booking</h3>
+              <button onClick={() => setCancelBooking(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888' }}><X size={20} /></button>
+            </div>
+            <div style={{ background: '#f8f9fc', borderRadius: '12px', padding: '14px 16px', marginBottom: '20px' }}>
+              <p style={{ margin: '0 0 2px', fontWeight: '700', color: '#1a1a2e' }}>{cancelBooking.dogs?.name}</p>
+              <p style={{ margin: 0, fontSize: '13px', color: '#888' }}>{new Date(cancelBooking.booking_date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })} · {formatHour(cancelBooking.slot_hour)}</p>
+              <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#888' }}>{cancelBooking.dogs?.owners?.name}</p>
+            </div>
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', marginBottom: '6px', fontWeight: '700', color: '#555', fontSize: '13px' }}>Reason for cancellation</label>
+              <textarea
+                value={cancelReason}
+                onChange={(e) => setCancelReason(e.target.value)}
+                placeholder="e.g. Van maintenance, weather, scheduling conflict..."
+                rows={3}
+                style={{ width: '100%', padding: '10px 14px', border: '1.5px solid #e5e8f0', borderRadius: '10px', fontSize: '14px', fontFamily: 'inherit', resize: 'vertical', boxSizing: 'border-box' as const }}
+              />
+              <p style={{ margin: '6px 0 0', fontSize: '12px', color: '#aaa' }}>This will be included in the cancellation email to the client.</p>
+            </div>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button onClick={() => setCancelBooking(null)}
+                style={{ flex: 1, padding: '12px', background: '#f0f2f7', color: '#555', border: 'none', borderRadius: '10px', fontWeight: '700', fontSize: '14px', cursor: 'pointer' }}>
+                Keep Booking
+              </button>
+              <button onClick={handleCancel} disabled={cancelLoading}
+                style={{ flex: 1, padding: '12px', background: '#dc3545', color: 'white', border: 'none', borderRadius: '10px', fontWeight: '700', fontSize: '14px', cursor: 'pointer' }}>
+                {cancelLoading ? 'Cancelling...' : 'Cancel & Notify Client'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* RESCHEDULE MODAL */}
+      {rescheduleBooking && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+          <div style={{ background: 'white', borderRadius: '20px', padding: '32px', maxWidth: '480px', width: '100%', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h3 style={{ margin: 0, color: '#1a1a2e', fontWeight: '800', fontSize: '18px' }}>Reschedule Booking</h3>
+              <button onClick={() => setRescheduleBooking(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#888' }}><X size={20} /></button>
+            </div>
+            <div style={{ background: '#f8f9fc', borderRadius: '12px', padding: '14px 16px', marginBottom: '20px' }}>
+              <p style={{ margin: '0 0 2px', fontWeight: '700', color: '#1a1a2e' }}>{rescheduleBooking.dogs?.name}</p>
+              <p style={{ margin: 0, fontSize: '13px', color: '#888' }}>Currently: {new Date(rescheduleBooking.booking_date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })} · {formatHour(rescheduleBooking.slot_hour)}</p>
+              <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#888' }}>{rescheduleBooking.dogs?.owners?.name}</p>
+            </div>
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', marginBottom: '6px', fontWeight: '700', color: '#555', fontSize: '13px' }}>New Date</label>
+              <input type="date" value={newDate} onChange={(e) => setNewDate(e.target.value)}
+                style={{ width: '100%', padding: '10px 14px', border: '1.5px solid #e5e8f0', borderRadius: '10px', fontSize: '14px', fontFamily: 'inherit', boxSizing: 'border-box' as const }} />
+            </div>
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', marginBottom: '6px', fontWeight: '700', color: '#555', fontSize: '13px' }}>New Time Slot</label>
+              <select value={newHour} onChange={(e) => setNewHour(e.target.value)}
+                style={{ width: '100%', padding: '10px 14px', border: '1.5px solid #e5e8f0', borderRadius: '10px', fontSize: '14px', fontFamily: 'inherit', background: 'white', boxSizing: 'border-box' as const }}>
+                <option value="">Select a time...</option>
+                {HOURS.map(h => <option key={h} value={h}>{formatHour(h)}</option>)}
+              </select>
+            </div>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button onClick={() => setRescheduleBooking(null)}
+                style={{ flex: 1, padding: '12px', background: '#f0f2f7', color: '#555', border: 'none', borderRadius: '10px', fontWeight: '700', fontSize: '14px', cursor: 'pointer' }}>
+                Cancel
+              </button>
+              <button onClick={handleReschedule} disabled={rescheduleLoading || !newDate || !newHour}
+                style={{ flex: 1, padding: '12px', background: 'linear-gradient(135deg, #2c5a9e, #001840)', color: 'white', border: 'none', borderRadius: '10px', fontWeight: '700', fontSize: '14px', cursor: 'pointer', opacity: (!newDate || !newHour) ? 0.6 : 1 }}>
+                {rescheduleLoading ? 'Rescheduling...' : 'Reschedule & Notify Client'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
