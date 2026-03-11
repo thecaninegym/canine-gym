@@ -28,7 +28,7 @@ export async function GET(request: Request) {
     const dogs = (owner.dogs as any) || []
     const hasNewerSession = dogs.some((dog: any) =>
       (dog.sessions || []).some((s: any) =>
-        s.status === 'completed' && new Date(s.session_date) > sentAt
+        new Date(s.session_date) > sentAt
       )
     )
     if (hasNewerSession) {
@@ -60,7 +60,7 @@ export async function GET(request: Request) {
     let dogName = 'your dog'
     for (const dog of dogs) {
       for (const session of dog.sessions || []) {
-        if (session.status === 'completed') {
+        if (session.session_date) {
           const d = new Date(session.session_date)
           if (!lastSessionDate || d > lastSessionDate) {
             lastSessionDate = d
