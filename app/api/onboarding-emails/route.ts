@@ -14,25 +14,26 @@ export async function GET(request: Request) {
 
   const now = new Date()
 
-  // Calculate dates for day 2 and day 5 owners
   const day2Start = new Date(now); day2Start.setDate(now.getDate() - 2); day2Start.setHours(0, 0, 0, 0)
   const day2End = new Date(now); day2End.setDate(now.getDate() - 2); day2End.setHours(23, 59, 59, 999)
   const day5Start = new Date(now); day5Start.setDate(now.getDate() - 5); day5Start.setHours(0, 0, 0, 0)
   const day5End = new Date(now); day5End.setDate(now.getDate() - 5); day5End.setHours(23, 59, 59, 999)
 
-  // Get owners who signed up exactly 2 days ago
+  // Get owners who signed up exactly 2 days ago and have not unsubscribed
   const { data: day2Owners } = await supabase
     .from('owners')
     .select('id, name, email, dogs(name)')
     .gte('created_at', day2Start.toISOString())
     .lte('created_at', day2End.toISOString())
+    .eq('email_unsubscribed', false)
 
-  // Get owners who signed up exactly 5 days ago
+  // Get owners who signed up exactly 5 days ago and have not unsubscribed
   const { data: day5Owners } = await supabase
     .from('owners')
     .select('id, name, email, dogs(name)')
     .gte('created_at', day5Start.toISOString())
     .lte('created_at', day5End.toISOString())
+    .eq('email_unsubscribed', false)
 
   // Get all owners who have at least one booking (any status)
   const { data: bookedOwners } = await supabase
@@ -45,7 +46,6 @@ export async function GET(request: Request) {
 
   let sent = 0
 
-  // Send day 2 emails to owners who haven't booked
   for (const owner of day2Owners || []) {
     if (bookedOwnerIds.has(owner.id)) continue
     if (!owner.email) continue
@@ -57,13 +57,12 @@ export async function GET(request: Request) {
       body: JSON.stringify({
         type: 'onboarding_day2',
         to: owner.email,
-        data: { ownerName: owner.name, dogName }
+        data: { ownerName: owner.name, dogName, ownerId: owner.id }
       })
     })
     sent++
   }
 
-  // Send day 5 emails to owners who still haven't booked
   for (const owner of day5Owners || []) {
     if (bookedOwnerIds.has(owner.id)) continue
     if (!owner.email) continue
@@ -75,7 +74,7 @@ export async function GET(request: Request) {
       body: JSON.stringify({
         type: 'onboarding_day5',
         to: owner.email,
-        data: { ownerName: owner.name, dogName }
+        data: { ownerName: owner.name, dogName, ownerId: owner.id }
       })
     })
     sent++

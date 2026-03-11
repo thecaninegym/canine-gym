@@ -8,7 +8,7 @@ const BLUE = '#2c5a9e'
 const ORANGE = '#f88124'
 const DARK_BLUE = '#001840'
 
-function emailWrapper(headerLabel: string, bodyContent: string) {
+function emailWrapper(headerLabel: string, bodyContent: string, unsubscribeUrl?: string) {
   return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet"/></head><body style="margin:0;padding:0;background:#f0f2f7;font-family:'Montserrat',Arial,sans-serif;">
   <div style="max-width:600px;margin:32px auto;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.10);">
     <div style="background:white;padding:28px 32px;text-align:center;border-bottom:3px solid ${ORANGE};">
@@ -18,9 +18,15 @@ function emailWrapper(headerLabel: string, bodyContent: string) {
     <div style="background:white;padding:36px 32px;">${bodyContent}</div>
     <div style="background:${DARK_BLUE};padding:20px 32px;text-align:center;">
       <p style="color:rgba(255,255,255,0.4);font-size:12px;margin:0;font-family:'Montserrat',Arial,sans-serif;">© ${new Date().getFullYear()} The Canine Gym &nbsp;·&nbsp; Hamilton County, IN &nbsp;·&nbsp; <a href="https://www.thecaninegym.com" style="color:rgba(255,255,255,0.5);text-decoration:none;">thecaninegym.com</a></p>
+      ${unsubscribeUrl ? `<p style="margin:8px 0 0;font-family:'Montserrat',Arial,sans-serif;"><a href="${unsubscribeUrl}" style="color:rgba(255,255,255,0.25);font-size:11px;text-decoration:underline;">Unsubscribe from marketing emails</a></p>` : ''}
     </div>
   </div>
 </body></html>`
+}
+
+function unsubscribeLink(ownerId: string) {
+  const token = Buffer.from(ownerId).toString('base64url')
+  return `${process.env.NEXT_PUBLIC_APP_URL}/api/unsubscribe?token=${token}`
 }
 
 function btn(text: string, href: string, color = ORANGE) {
@@ -322,6 +328,7 @@ export async function POST(request: Request) {
 
   if (type === 'onboarding_day2') {
     subject = `How to book your first session, ${data.ownerName} 🐾`
+    const unsub2 = data.ownerId ? unsubscribeLink(data.ownerId) : undefined
     html = emailWrapper('Getting Started', `
       ${h1(`Here's how it works, ${data.ownerName}!`)}
       ${p(`We're so glad you joined The Canine Gym. Here's everything you need to know to get <strong>${data.dogName}</strong> started:`)}
@@ -333,11 +340,12 @@ export async function POST(request: Request) {
       ${p(`Sessions are 30 minutes and designed specifically for your dog's fitness level. No experience needed, we guide every dog through their first session.`)}
       ${p(`Ready to get started? Book your first session right from your dashboard:`)}
       ${btn('Book Your First Session', 'https://app.thecaninegym.com/book')}
-    `)
+    `, unsub2)
   }
 
   if (type === 'onboarding_day5') {
     subject = `${data.dogName} is waiting for their workout!`
+    const unsub5 = data.ownerId ? unsubscribeLink(data.ownerId) : undefined
     html = emailWrapper('Your Dog Deserves This', `
       ${h1(`Don't let ${data.dogName} miss out!`)}
       ${p(`Hi ${data.ownerName}, we noticed ${data.dogName} hasn't had their first session yet. We totally get it, life gets busy!`)}
@@ -350,7 +358,42 @@ export async function POST(request: Request) {
       ])}
       ${p(`Your first session is the hardest to schedule, after that it becomes part of the routine. ${data.dogName} will thank you for it.`)}
       ${btn('Book Your First Session', 'https://app.thecaninegym.com/book')}
-    `)
+    `, unsub5)
+  }
+
+  if (type === 'reengagement_14') {
+    subject = `We miss ${data.dogName}! Come back and run 🐾`
+    const unsubRe14 = data.ownerId ? unsubscribeLink(data.ownerId) : undefined
+    html = emailWrapper('We Miss You', `
+      ${h1(`It's been a while, ${data.ownerName}!`)}
+      ${p(`We haven't seen <strong>${data.dogName}</strong> in ${data.daysSince} days and we're missing that pup! Life gets busy, we get it.`)}
+      ${p(`But here's the thing about dog fitness: consistency is everything. Even one session every couple of weeks keeps ${data.dogName}'s energy levels balanced and their routine on track.`)}
+      ${infoBox([
+        row('⏱️ Just 30 minutes', 'We come to you, no driving required'),
+        row('🔄 Pick up where you left off', `${data.dogName} remembers the slatmill`),
+        row('📈 Track the comeback', 'Every session adds to the progress chart'),
+      ])}
+      ${p(`Ready to get ${data.dogName} back on the treadmill?`)}
+      ${btn('Book a Session', 'https://app.thecaninegym.com/book')}
+    `, unsubRe14)
+  }
+
+  if (type === 'reengagement_30') {
+    subject = `Don't let ${data.dogName}'s progress slip away 📉`
+    const unsubRe30 = data.ownerId ? unsubscribeLink(data.ownerId) : undefined
+    html = emailWrapper('Come Back', `
+      ${h1(`${data.dogName} needs you, ${data.ownerName}.`)}
+      ${p(`It's been about a month since ${data.dogName}'s last session. We're not here to guilt trip you, but we do want to be straight with you:`)}
+      ${infoBox([
+        `<p style="color:#dc3545;font-size:14px;font-weight:700;margin:0 0 8px;font-family:'Montserrat',Arial,sans-serif;">After 4+ weeks without activity, dogs can lose:</p>`,
+        row('💪 Muscle tone', 'Built up over weeks of consistent training'),
+        row('⚡ Energy regulation', 'Regular runs keep behavior balanced'),
+        row('🏆 Leaderboard ranking', `${data.dogName}'s spot is slipping`),
+      ], '#fff4e6', '#f88124')}
+      ${p(`The good news? It all comes back quickly. One session and ${data.dogName} will be right back in the groove.`)}
+      ${p(`We'd love to see you both again. Book anytime, we'll come to you.`)}
+      ${btn('Get Back on Track', 'https://app.thecaninegym.com/book')}
+    `, unsubRe30)
   }
 
   if (type === 'broadcast') {
