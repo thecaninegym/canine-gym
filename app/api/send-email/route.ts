@@ -56,12 +56,12 @@ export async function POST(request: Request) {
     subject = `Welcome to The Canine Gym, ${data.ownerName}!`
     html = emailWrapper('Welcome to the Pack', `
       ${h1(`Hi ${data.ownerName}, you're in! 🎉`)}
-      ${p(`We're thrilled to have you and <strong>${data.dogName}</strong> join The Canine Gym. Your dog deserves the best workout — and now they've got it, delivered right to your driveway.`)}
+      ${p(`We're thrilled to have you and <strong>${data.dogName}</strong> join The Canine Gym. Your dog deserves the best workout, and now they've got it, delivered right to your home.`)}
       ${infoBox([
         `<p style="color:#1a1a2e;font-size:14px;font-weight:700;margin:0 0 12px;font-family:'Montserrat',Arial,sans-serif;">Here's how to get started:</p>`,
         `<p style="color:#555;font-size:13px;margin:0 0 8px;font-family:'Montserrat',Arial,sans-serif;">📋 <strong>Upload vaccine records</strong> for ${data.dogName} to get cleared to run</p>`,
-        `<p style="color:#555;font-size:13px;margin:0 0 8px;font-family:'Montserrat',Arial,sans-serif;">📅 <strong>Book your first session</strong> — pick a time that works for you</p>`,
-        `<p style="color:#555;font-size:13px;margin:0 0 8px;font-family:'Montserrat',Arial,sans-serif;">🏆 <strong>Track progress</strong> — sessions, milestones, and leaderboard rankings</p>`,
+        `<p style="color:#555;font-size:13px;margin:0 0 8px;font-family:'Montserrat',Arial,sans-serif;">📅 <strong>Book your first session</strong> and pick a time that works for you</p>`,
+        `<p style="color:#555;font-size:13px;margin:0 0 8px;font-family:'Montserrat',Arial,sans-serif;">🏆 <strong>Track progress</strong>: sessions, milestones, and leaderboard rankings</p>`,
         `<p style="color:#555;font-size:13px;margin:0;font-family:'Montserrat',Arial,sans-serif;">📸 <strong>Share ${data.dogName}'s stats</strong> with friends and family</p>`,
       ])}
       ${btn('Go to My Dashboard', 'https://app.thecaninegym.com/dashboard')}
@@ -72,9 +72,9 @@ export async function POST(request: Request) {
     subject = `Session confirmed for ${data.dogName} — ${data.date}`
     html = emailWrapper('Booking Confirmed', `
       ${h1(`You're all set, ${data.ownerName}! ✅`)}
-      ${p(`${data.dogName}'s session is locked in. We'll come to you — just be ready to hand over one very excited dog.`)}
+      ${p(`${data.dogName}'s session is locked in. We'll come to you! Just be ready to hand over one very excited dog.`)}
       ${infoBox([row('Dog', data.dogName), row('Date', data.date), row('Time', data.time)])}
-      ${alert(`Cancellation Policy: Please cancel at least 48 hours in advance to avoid a fee. If your dog is sick, reach out and we'll waive it — no questions asked.`, '#fff4e6', ORANGE, '#b85c00')}
+      ${alert(`Cancellation Policy: Please cancel at least 48 hours in advance to avoid a fee.`, '#fff4e6', ORANGE, '#b85c00')}
       ${btn('View My Dashboard', 'https://app.thecaninegym.com/dashboard')}
     `)
   }
@@ -82,10 +82,10 @@ export async function POST(request: Request) {
   if (type === 'reminder') {
     const checklistItems = [
       ['🚫', 'No food 2 hours before we arrive', "Please hold off on feeding ${data.dogName} at least 2 hours before the session. Exercising on a full stomach can cause discomfort."],
-      ['💧', "We'll bring fresh water", "No need to worry about hydration — we have fresh water on board for ${data.dogName} during and after the session."],
+      ['💧', "We'll bring fresh water", "No need to worry about hydration, we have fresh water on board for ${data.dogName} during and after the session."],
       ['🐾', 'Have your dog leashed and ready', "When we pull up, have ${data.dogName} leashed and ready to go so we can get started right away."],
       ['🐕', 'Let your dog potty before we arrive', 'A quick bathroom break before we get there means more time on the treadmill!'],
-      ['👀', 'You are welcome to watch', "Feel free to stick around and watch the session — you're not required to, but you're always welcome!"],
+      ['👀', 'You are welcome to watch', "Feel free to stick around and watch the session, you're not required to, but you're always welcome!"],
       ['🏠', "We'll bring your dog back up", "When the session is done, we'll walk ${data.dogName} right back up to your door. No need to come to us!"],
     ]
     const checklistHtml = checklistItems.map(([icon, title, desc]) => `
@@ -100,7 +100,7 @@ export async function POST(request: Request) {
     subject = `Reminder: ${data.dogName}'s session is tomorrow at ${data.time}`
     html = emailWrapper('Session Reminder', `
       ${h1(`See you tomorrow, ${data.ownerName}! 👋`)}
-      ${p(`Just a heads up — ${data.dogName} is on the schedule for tomorrow. We'll be pulling up to your place ready to go.`)}
+      ${p(`Just a heads up, ${data.dogName} is on the schedule for tomorrow. We'll be pulling up to your place ready to go.`)}
       ${infoBox([row('Dog', data.dogName), row('Date', data.date), row('Time', data.time)])}
       <div style="margin:24px 0;">
         <h3 style="color:#001840;font-size:16px;font-weight:800;margin:0 0 14px;font-family:'Montserrat',Arial,sans-serif;">📋 How to Prepare for Tomorrow's Session</h3>
@@ -143,7 +143,7 @@ export async function POST(request: Request) {
     subject = `Payment confirmed — ${data.dogName}'s session on ${data.date}`
     html = emailWrapper('Payment Receipt', `
       ${h1(`Payment confirmed, ${data.ownerName}!`)}
-      ${p(`Thanks for booking with The Canine Gym. Here's your receipt — keep it for your records.`)}
+      ${p(`Thanks for booking with The Canine Gym. Here's your receipt, keep it for your records.`)}
       ${infoBox([
         row('Dog', data.dogName),
         row('Date', data.date),
@@ -151,16 +151,16 @@ export async function POST(request: Request) {
         row('Session Type', 'À La Carte'),
         `<div style="padding:12px 0 4px;"><span style="color:${BLUE};font-size:18px;font-weight:800;font-family:'Montserrat',Arial,sans-serif;">Total Paid: ${data.amount}</span></div>`,
       ])}
-      ${alert(`Cancellation Policy: Cancel at least 48 hours in advance for a full refund. Late cancellations receive a 50% refund. Dog sick? Reach out — we'll always work with you.`, '#fff4e6', ORANGE, '#b85c00')}
+      ${alert(`Cancellation Policy: Cancel at least 48 hours in advance for a full refund. Late cancellations receive a 50% refund.`, '#fff4e6', ORANGE, '#b85c00')}
       ${btn('View My Dashboard', 'https://app.thecaninegym.com/dashboard')}
     `)
   }
 
   if (type === 'receipt_membership') {
-    subject = `Membership confirmed — Welcome to the pack, ${data.ownerName}!`
+    subject = `Membership confirmed, welcome to the pack, ${data.ownerName}!`
     html = emailWrapper('Membership Receipt', `
       ${h1(`You're a member, ${data.ownerName}! 🎉`)}
-      ${p(`Your membership is live. Sessions are at your fingertips — book whenever works for you and we'll come to you.`)}
+      ${p(`Your membership is live. Sessions are at your fingertips, book whenever works for you and we'll come to you.`)}
       ${infoBox([
         row('Plan', data.planName),
         row('Dogs Covered', data.dogNames),
@@ -177,7 +177,7 @@ export async function POST(request: Request) {
     subject = `Your Canine Gym membership has been cancelled`
     html = emailWrapper('Membership Cancelled', `
       ${h1(`Hi ${data.ownerName}, your membership has been cancelled.`)}
-      ${p(`We're sorry to see you go! Your access doesn't end right away — here's what you need to know.`)}
+      ${p(`We're sorry to see you go! Your access doesn't end right away, here's what you need to know.`)}
       ${infoBox([
         row('Plan', `${data.planName} — Cancelled`),
         row('Access Until', data.periodEnd),
@@ -216,10 +216,10 @@ export async function POST(request: Request) {
   }
 
   if (type === 'vaccine_approved') {
-    subject = `${data.dogName}'s vaccine records are approved — you're cleared to run!`
+    subject = `${data.dogName}'s vaccine records are approved, you're cleared to run!`
     html = emailWrapper('Vaccines Approved', `
       ${h1(`Great news, ${data.ownerName}! ✅`)}
-      ${p(`We've reviewed and approved <strong>${data.dogName}</strong>'s vaccine records. Everything checks out — you're officially cleared to book sessions.`)}
+      ${p(`We've reviewed and approved <strong>${data.dogName}</strong>'s vaccine records. Everything checks out, you're officially cleared to book sessions.`)}
       ${infoBox([`<p style="color:#155724;font-size:14px;font-weight:700;margin:0;font-family:'Montserrat',Arial,sans-serif;">🐾 ${data.dogName} is cleared to run!</p>`], '#d4edda', '#c3e6cb')}
       ${btn('Book a Session Now', 'https://app.thecaninegym.com/book')}
     `)
@@ -227,9 +227,9 @@ export async function POST(request: Request) {
 
   if (type === 'vaccine_rejected') {
     subject = `Action needed: ${data.dogName}'s vaccine records`
-    html = emailWrapper('Vaccine Records — Action Needed', `
+    html = emailWrapper('Vaccine Records: Action Needed', `
       ${h1(`Hi ${data.ownerName}, we need a little help.`, '#dc3545')}
-      ${p(`We weren't able to approve the vaccine records submitted for <strong>${data.dogName}</strong>. No worries — it's an easy fix.`)}
+      ${p(`We weren't able to approve the vaccine records submitted for <strong>${data.dogName}</strong>. No worries, it's an easy fix.`)}
       ${infoBox([
         `<p style="color:#721c24;font-size:13px;font-weight:700;margin:0 0 6px;font-family:'Montserrat',Arial,sans-serif;">Reason:</p>`,
         `<p style="color:#721c24;font-size:14px;margin:0;font-family:'Montserrat',Arial,sans-serif;">${data.reason}</p>`,
@@ -246,7 +246,7 @@ export async function POST(request: Request) {
       ${h1(`${data.dogName}'s vaccines need attention, ${data.ownerName}.`, '#856404')}
       ${p(`The following vaccine(s) are expiring within the next 30 days. To keep ${data.dogName} cleared to run, please visit your vet and upload updated records before they expire.`)}
       ${infoBox([listItems], '#fffbea', '#ffc107')}
-      ${p(`Uploading is quick — just snap a clear photo of the updated certificate from your dog's profile.`)}
+      ${p(`Uploading is quick, just snap a clear photo of the updated certificate from your dog's profile.`)}
       ${btn('Update Vaccine Records', 'https://app.thecaninegym.com/dogs')}
     `)
   }
@@ -278,8 +278,8 @@ export async function POST(request: Request) {
   if (type === 'vaccine_expired_admin') {
     const listItems = data.expiredFields.map((f: any) => row(`💉 ${f.label}`, `Expired ${f.date}`)).join('')
     subject = `Vaccines expired: ${data.dogName} (${data.ownerName}) — booking blocked`
-    html = emailWrapper('Vaccines Expired — Booking Blocked', `
-      ${h1('Vaccines Expired — Booking Blocked', '#dc3545')}
+    html = emailWrapper('Vaccines Expired: Booking Blocked', `
+      ${h1('Vaccines Expired: Booking Blocked', '#dc3545')}
       ${infoBox([row('Dog', data.dogName), row('Owner', data.ownerName), row('Email', data.ownerEmail)])}
       ${infoBox([listItems], '#f8d7da', '#f5c6cb')}
       ${p('Vaccine status has been automatically reset to pending. The client has been notified and must re-upload and get approved before they can book again.')}
@@ -326,29 +326,29 @@ export async function POST(request: Request) {
       ${h1(`Here's how it works, ${data.ownerName}!`)}
       ${p(`We're so glad you joined The Canine Gym. Here's everything you need to know to get <strong>${data.dogName}</strong> started:`)}
       ${infoBox([
-        row('📍 Step 1', 'We come to you — just give us your address when booking'),
+        row('📍 Step 1', 'We come to you. Just give us your address when booking'),
         row('📅 Step 2', 'Pick a date and time slot that works for your neighborhood'),
-        row('🐕 Step 3', `We handle the rest — ${data.dogName} hops on the slatmill and gets to work!`),
+        row('🐕 Step 3', `We handle the rest, ${data.dogName} hops on the slatmill and gets to work!`),
       ])}
-      ${p(`Sessions are 30 minutes and designed specifically for your dog's fitness level. No experience needed — we guide every dog through their first session.`)}
+      ${p(`Sessions are 30 minutes and designed specifically for your dog's fitness level. No experience needed, we guide every dog through their first session.`)}
       ${p(`Ready to get started? Book your first session right from your dashboard:`)}
       ${btn('Book Your First Session', 'https://app.thecaninegym.com/book')}
     `)
   }
 
   if (type === 'onboarding_day5') {
-    subject = `${data.dogName} is waiting for their workout 🏃`
+    subject = `${data.dogName} is waiting for their workout!`
     html = emailWrapper('Your Dog Deserves This', `
       ${h1(`Don't let ${data.dogName} miss out!`)}
-      ${p(`Hi ${data.ownerName} — we noticed ${data.dogName} hasn't had their first session yet. We totally get it, life gets busy!`)}
+      ${p(`Hi ${data.ownerName}, we noticed ${data.dogName} hasn't had their first session yet. We totally get it, life gets busy!`)}
       ${p(`Here's what ${data.dogName} has to look forward to:`)}
       ${infoBox([
         row('💪 Real fitness', 'Slatmill running burns energy and builds muscle like nothing else'),
         row('🏆 Achievements', 'Dogs earn badges and climb the leaderboard as they hit milestones'),
         row('📊 Progress tracking', 'Watch your dog improve session over session with real data'),
-        row('🚐 Zero hassle', 'We come right to your driveway — no driving, no drop-off'),
+        row('🚐 Zero hassle', 'We come right to your home. No driving, no drop-off'),
       ])}
-      ${p(`Your first session is the hardest to schedule — after that it becomes part of the routine. ${data.dogName} will thank you for it.`)}
+      ${p(`Your first session is the hardest to schedule, after that it becomes part of the routine. ${data.dogName} will thank you for it.`)}
       ${btn('Book Your First Session', 'https://app.thecaninegym.com/book')}
     `)
   }
