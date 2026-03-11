@@ -40,6 +40,43 @@ export default function AdminSchedule() {
   const [newDate, setNewDate] = useState('')
   const [newHour, setNewHour] = useState('')
   const [rescheduleLoading, setRescheduleLoading] = useState(false)
+  const [cityWindows, setCityWindows] = useState<any[]>([])
+  const [availableHours, setAvailableHours] = useState<number[]>([])
+
+  const openReschedule = async (booking: any) => {
+    setRescheduleBooking(booking)
+    setNewDate(booking.booking_date)
+    setNewHour(String(booking.slot_hour))
+    setAvailableHours([])
+    // Load schedule windows for this dog's city
+    const city = booking.dogs?.leaderboard_settings?.city || booking.dogs?.owners?.city || ''
+    const { data: windows } = await supabase.from('schedule_windows').select('*').eq('city', city).eq('is_active', true)
+    setCityWindows(windows || [])
+    // Load available hours for current date
+    if (windows && windows.length > 0) {
+      await loadAvailableHours(booking.booking_date, windows, booking.id)
+    }
+  }
+
+  const loadAvailableHours = async (dateStr: string, windows: any[], excludeBookingId: string) => {
+    const dayOfWeek = new Date(dateStr + 'T12:00:00').getDay()
+    const window = windows.find((w: any) => w.day_of_week === dayOfWeek)
+    if (!window) { setAvailableHours([]); return }
+    const slots = []
+    for (let h = window.start_hour; h < window.end_hour; h++) slots.push(h)
+    const { data: existingBookings } = await supabase.from('bookings').select('slot_hour, id').eq('booking_date', dateStr).eq('status', 'confirmed')
+    const slotCounts: Record<number, number> = {}
+    existingBookings?.filter((b: any) => b.id !== excludeBookingId).forEach((b: any) => {
+      slotCounts[b.slot_hour] = (slotCounts[b.slot_hour] || 0) + 1
+    })
+    setAvailableHours(slots.filter(h => (slotCounts[h] || 0) < 2))
+  }
+
+  const isDateAvailable = (dateStr: string) => {
+    if (!cityWindows.length) return true
+    const dayOfWeek = new Date(dateStr + 'T12:00:00').getDay()
+    return cityWindows.some((w: any) => w.day_of_week === dayOfWeek)
+  }
 
   const getWeekDates = () => {
     const today = new Date(selectedDate + 'T12:00:00')
@@ -70,7 +107,7 @@ export default function AdminSchedule() {
 
   const fetchBookings = async () => {
     setLoading(true)
-    const { data } = await supabase.from('bookings').select('*, dogs(id, name, breed, photo_url, owners(name, email, phone, address, city, zip))').eq('booking_date', selectedDate).order('slot_hour')
+    const { data } = await supabase.from('bookings').select('*, dogs(id, name, breed, photo_url, leaderboard_settings(city), owners(name, email, phone, address, city, zip))').eq('booking_date', selectedDate).order('slot_hour')
     setBookings(data || [])
     setSessionNotes({})
     setLoading(false)
@@ -79,7 +116,7 @@ export default function AdminSchedule() {
 
   const fetchWeekBookings = async () => {
     const dates = getWeekDates()
-    const { data } = await supabase.from('bookings').select('*, dogs(id, name, breed, photo_url, owners(name, email, phone, address, city, zip))').in('booking_date', dates).order('slot_hour')
+    const { data } = await supabase.from('bookings').select('*, dogs(id, name, breed, photo_url, leaderboard_settings(city), owners(name, email, phone, address, city, zip))').in('booking_date', dates).order('slot_hour')
     setWeekBookings(data || [])
   }
 
@@ -328,7 +365,7 @@ export default function AdminSchedule() {
                             style={{ padding: '9px 16px', background: '#ffc107', color: '#333', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
                             <AlertTriangle size={14} /> No Show
                           </button>
-                          <button onClick={() => { setRescheduleBooking(booking); setNewDate(booking.booking_date); setNewHour(String(booking.slot_hour)) }}
+                          <button onClick={() => openReschedule(booking)}
                             style={{ padding: '9px 16px', background: '#2c5a9e', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
                             <RefreshCw size={14} /> Reschedule
                           </button>
@@ -584,15 +621,23 @@ export default function AdminSchedule() {
             </div>
             <div style={{ marginBottom: '16px' }}>
               <label style={{ display: 'block', marginBottom: '6px', fontWeight: '700', color: '#555', fontSize: '13px' }}>New Date</label>
-              <input type="date" value={newDate} onChange={(e) => setNewDate(e.target.value)}
-                style={{ width: '100%', padding: '10px 14px', border: '1.5px solid #e5e8f0', borderRadius: '10px', fontSize: '14px', fontFamily: 'inherit', boxSizing: 'border-box' as const }} />
+              <input type="date" value={newDate} onChange={async (e) => { setNewDate(e.target.value); setNewHour(''); await loadAvailableHours(e.target.value, cityWindows, rescheduleBooking.id) }}
+                style={{ width: '100%', padding: '10px 14px', border: '1.5px solid #e5e8f0', borderRadius: '10px', fontSize: '14px', fontFamily: 'inherit', boxSizing: 'border-box' as const, color: '#1a1a2e', background: 'white' }} />
+              {newDate && !isDateAvailable(newDate) && (
+                <p style={{ margin: '6px 0 0', fontSize: '12px', color: '#dc3545', fontWeight: '600' }}>⚠️ This date is not a scheduled day for this dog's city. Please pick another date.</p>
+              )}
             </div>
             <div style={{ marginBottom: '20px' }}>
               <label style={{ display: 'block', marginBottom: '6px', fontWeight: '700', color: '#555', fontSize: '13px' }}>New Time Slot</label>
               <select value={newHour} onChange={(e) => setNewHour(e.target.value)}
-                style={{ width: '100%', padding: '10px 14px', border: '1.5px solid #e5e8f0', borderRadius: '10px', fontSize: '14px', fontFamily: 'inherit', background: 'white', boxSizing: 'border-box' as const }}>
+                style={{ width: '100%', padding: '10px 14px', border: '1.5px solid #e5e8f0', borderRadius: '10px', fontSize: '14px', fontFamily: 'inherit', background: 'white', boxSizing: 'border-box' as const, color: newHour ? '#1a1a2e' : '#aaa' }}>
                 <option value="">Select a time...</option>
-                {HOURS.map(h => <option key={h} value={h}>{formatHour(h)}</option>)}
+                {availableHours.length > 0
+                  ? availableHours.map(h => <option key={h} value={h}>{formatHour(h)}</option>)
+                  : newDate && isDateAvailable(newDate)
+                    ? <option disabled>No available slots for this date</option>
+                    : null
+                }
               </select>
             </div>
             <div style={{ display: 'flex', gap: '10px' }}>
