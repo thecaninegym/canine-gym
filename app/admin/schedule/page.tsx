@@ -588,7 +588,7 @@ export default function AdminSchedule() {
                 onChange={(e) => setCancelReason(e.target.value)}
                 placeholder="e.g. Van maintenance, weather, scheduling conflict..."
                 rows={3}
-                style={{ width: '100%', padding: '10px 14px', border: '1.5px solid #e5e8f0', borderRadius: '10px', fontSize: '14px', fontFamily: 'inherit', resize: 'vertical', boxSizing: 'border-box' as const }}
+                style={{ width: '100%', padding: '10px 14px', border: '1.5px solid #e5e8f0', borderRadius: '10px', fontSize: '14px', fontFamily: 'inherit', resize: 'vertical', boxSizing: 'border-box' as const, color: '#1a1a2e', background: 'white' }}
               />
               <p style={{ margin: '6px 0 0', fontSize: '12px', color: '#aaa' }}>This will be included in the cancellation email to the client.</p>
             </div>
