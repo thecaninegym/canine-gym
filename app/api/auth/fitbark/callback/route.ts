@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { exchangeCodeForToken } from '../../../../lib/fitbark'
+import { exchangeCodeForToken } from '../../../../../lib/fitbark'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
