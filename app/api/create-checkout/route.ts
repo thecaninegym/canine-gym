@@ -55,7 +55,8 @@ export async function POST(request: Request) {
         dog_count: String(dogCount || 1),
         sessions_per_month: String(sessionsPerMonth),
         dog_ids: (dogIds || []).join(','),
-        pending_booking_id: pendingBookingId
+        pending_booking_id: pendingBookingId,
+        is_addon: isAddon ? 'true' : 'false'
       },
       success_url: type === 'alacarte'
         ? `${process.env.NEXT_PUBLIC_APP_URL}/booking-confirmed?pending=${pendingBookingId}`

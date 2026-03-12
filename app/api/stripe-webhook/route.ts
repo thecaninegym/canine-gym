@@ -33,6 +33,24 @@ export async function POST(request: Request) {
       const sessionsPerMonth = parseInt(metadata.sessions_per_month || '0')
 
       const dogIds = metadata.dog_ids ? metadata.dog_ids.split(',').filter(Boolean) : []
+      const isAddon = metadata.is_addon === 'true'
+
+      // If this is an add-on, merge new dog IDs with existing ones
+      let finalDogIds = dogIds
+      let finalDogCount = dogCount
+      if (isAddon) {
+        const { data: existingMembership } = await supabase
+          .from('memberships')
+          .select('dog_ids, dog_count')
+          .eq('owner_id', ownerId)
+          .eq('status', 'active')
+          .single()
+        if (existingMembership) {
+          const existingDogIds: string[] = existingMembership.dog_ids || []
+          finalDogIds = [...new Set([...existingDogIds, ...dogIds])]
+          finalDogCount = finalDogIds.length
+        }
+      }
 
       const planLabels: Record<string, string> = { starter: 'Starter Plan', active: 'Active Plan', athlete: 'Athlete Plan' }
       const dogCountLabel = dogCount > 1 ? ` — ${dogCount} Dogs` : ' — 1 Dog'
@@ -50,8 +68,8 @@ if (session.invoice) {
         stripe_subscription_id: session.subscription as string,
         stripe_customer_id: session.customer as string,
         plan,
-        dog_count: dogCount,
-        dog_ids: dogIds,
+        dog_count: finalDogCount,
+        dog_ids: finalDogIds,
         sessions_per_month: sessionsPerMonth,
         sessions_remaining: sessionsPerMonth,
         status: 'active',
