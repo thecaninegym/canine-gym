@@ -7,11 +7,11 @@ const supabase = createClient(
 )
 
 export async function POST(request: Request) {
-  const { ownerId } = await request.json()
+  const { dogId } = await request.json()
   const { data: membership } = await supabase
     .from('memberships')
     .select('id, sessions_remaining')
-    .eq('owner_id', ownerId)
+    .eq('dog_id', dogId)
     .eq('status', 'active')
     .single()
 

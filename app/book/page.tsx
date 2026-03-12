@@ -73,18 +73,23 @@ export default function BookSession() {
     setBooking(true); setError(null)
     const { data: existingBookings } = await supabase.from('bookings').select('id').eq('booking_date', selectedDate.dateStr).eq('slot_hour', selectedSlot).eq('status', 'confirmed')
     if ((existingBookings?.length || 0) + selectedDogIds.length > 2) { setError('This slot is no longer available. Please choose another time.'); setBooking(false); return }
-    const { data: membershipData } = await supabase.from('memberships').select('*').eq('owner_id', ownerId).eq('status', 'active').single()
-    const coveredDogs = membershipData?.dog_ids || []
-    const bookedCoveredDogs = selectedDogIds.filter((id: string) => coveredDogs.includes(id))
-    const uncoveredDogs = selectedDogIds.filter((id: string) => !coveredDogs.includes(id))
+    // Load each dog's own membership
+    const { data: membershipsData } = await supabase.from('memberships').select('*').eq('owner_id', ownerId).eq('status', 'active')
+    const membershipsMap: Record<string, any> = {}
+    for (const m of membershipsData || []) membershipsMap[m.dog_id] = m
+
+    const coveredDogs = selectedDogIds.filter((id: string) => membershipsMap[id] && membershipsMap[id].sessions_remaining > 0)
+    const uncoveredDogs = selectedDogIds.filter((id: string) => !membershipsMap[id] || membershipsMap[id].sessions_remaining <= 0)
+
     if (uncoveredDogs.length > 0) {
       const res = await fetch('/api/create-checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ownerId, ownerEmail: (await supabase.auth.getUser()).data.user?.email, type: 'alacarte', dogCount: uncoveredDogs.length, dogIds: uncoveredDogs, bookingDate: selectedDate.dateStr, slotHour: selectedSlot }) })
       const data = await res.json()
       if (data.url) { window.location.href = data.url; return }
     }
-    if (bookedCoveredDogs.length > 0) {
-      if (membershipData.sessions_remaining <= 0) { setError('You have no sessions remaining on your membership this month.'); setBooking(false); return }
-      await supabase.from('memberships').update({ sessions_remaining: membershipData.sessions_remaining - bookedCoveredDogs.length }).eq('id', membershipData.id)
+    // Decrement each covered dog's own membership
+    for (const dogId of coveredDogs) {
+      const m = membershipsMap[dogId]
+      await supabase.from('memberships').update({ sessions_remaining: m.sessions_remaining - 1 }).eq('id', m.id)
     }
     const { error: bookingError } = await supabase.from('bookings').insert(selectedDogIds.map(dogId => ({ dog_id: dogId, booking_date: selectedDate.dateStr, slot_hour: selectedSlot, status: 'confirmed', client_note: clientNote.trim() || null })))
     if (bookingError) { setError(bookingError.message); setBooking(false); return }

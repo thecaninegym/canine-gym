@@ -81,8 +81,8 @@ export default function AdminReports() {
   const maxDayCount = Math.max(...Object.values(bookingsByDay), 1)
 
   const membershipRevenue = activeMemberships.reduce((sum, m) => {
-    const prices: Record<string, number[]> = { starter: [180, 324], active: [340, 612], athlete: [480, 864] }
-    return sum + (prices[m.plan]?.[m.dog_count - 1] || 0)
+    const prices: Record<string, number> = { starter: 180, active: 340, athlete: 480 }
+    return sum + (prices[m.plan] || 0)
   }, 0)
 
   const longestClients = [...owners]

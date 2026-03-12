@@ -32,18 +32,14 @@ function CancelForm() {
         const hoursUntil = (bookingDateTime.getTime() - Date.now()) / (1000 * 60 * 60)
         setHasFee(hoursUntil < 48)
 
-        // Check if owner has membership
-        const ownerId = data.dogs?.owners?.id
-        if (ownerId) {
-          const { data: membership } = await supabase
-            .from('memberships')
-            .select('id')
-            .eq('owner_id', ownerId)
-            .eq('status', 'active')
-            .single()
-          const dogCovered = membership && Array.isArray((membership as any).dog_ids) && (membership as any).dog_ids.includes(data.dog_id)
-          setIsMember(!!dogCovered)
-        }
+        // Check if this dog has its own active membership
+        const { data: membership } = await supabase
+          .from('memberships')
+          .select('id')
+          .eq('dog_id', data.dog_id)
+          .eq('status', 'active')
+          .single()
+        setIsMember(!!membership)
       }
       setLoading(false)
     }

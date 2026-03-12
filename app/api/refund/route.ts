@@ -20,16 +20,15 @@ export async function POST(request: Request) {
 
   if (!booking) return NextResponse.json({ error: 'Booking not found' }, { status: 404 })
 
-  // Check if THIS specific dog is covered by an active membership
-  const ownerId = booking.dogs?.owners?.id
+  // Find this dog's own active membership (per-dog model)
   const { data: membership } = await supabase
     .from('memberships')
     .select('*')
-    .eq('owner_id', ownerId)
+    .eq('dog_id', booking.dog_id)
     .eq('status', 'active')
     .single()
 
-  const dogIsCovered = !!(membership && membership.dog_ids && membership.dog_ids.includes(booking.dog_id))
+  const dogIsCovered = !!membership
 
   const bookingDateTime = new Date(booking.booking_date + 'T' + String(booking.slot_hour).padStart(2, '0') + ':00:00')
   const hoursUntil = (bookingDateTime.getTime() - Date.now()) / (1000 * 60 * 60)

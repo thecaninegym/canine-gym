@@ -29,31 +29,10 @@ export async function POST(request: Request) {
 
     if (type === 'membership') {
       const plan = metadata.plan
-      const dogCount = parseInt(metadata.dog_count || '1')
+      const dogId = metadata.dog_id
       const sessionsPerMonth = parseInt(metadata.sessions_per_month || '0')
 
-      const dogIds = metadata.dog_ids ? metadata.dog_ids.split(',').filter(Boolean) : []
-      const isAddon = metadata.is_addon === 'true'
-
-      // If this is an add-on, merge new dog IDs with existing ones
-      let finalDogIds = dogIds
-      let finalDogCount = dogCount
-      if (isAddon) {
-        const { data: existingMembership } = await supabase
-          .from('memberships')
-          .select('dog_ids, dog_count')
-          .eq('owner_id', ownerId)
-          .eq('status', 'active')
-          .single()
-        if (existingMembership) {
-          const existingDogIds: string[] = existingMembership.dog_ids || []
-          finalDogIds = [...new Set([...existingDogIds, ...dogIds])]
-          finalDogCount = finalDogIds.length
-        }
-      }
-
       const planLabels: Record<string, string> = { starter: 'Starter Plan', active: 'Active Plan', athlete: 'Athlete Plan' }
-      const dogCountLabel = dogCount > 1 ? ` — ${dogCount} Dogs` : ' — 1 Dog'
 
       let receiptUrl = null
 if (session.invoice) {
@@ -65,33 +44,32 @@ if (session.invoice) {
 
       await supabase.from('memberships').upsert({
         owner_id: ownerId,
+        dog_id: dogId,
         stripe_subscription_id: session.subscription as string,
         stripe_customer_id: session.customer as string,
         plan,
-        dog_count: finalDogCount,
-        dog_ids: finalDogIds,
         sessions_per_month: sessionsPerMonth,
         sessions_remaining: sessionsPerMonth,
         status: 'active',
         current_period_start: new Date().toISOString(),
         current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-      }, { onConflict: 'owner_id' })
+      }, { onConflict: 'dog_id' })
 
       await supabase.from('payments').insert({
         owner_id: ownerId,
         stripe_payment_intent_id: session.payment_intent as string,
         amount: session.amount_total,
         type: 'membership',
-        description: `${planLabels[plan] || plan}${dogCountLabel}`,
+        description: planLabels[plan] || plan,
         receipt_url: receiptUrl,
         status: 'succeeded'
       })
 
       // Send membership receipt
       const { data: ownerData } = await supabase.from('owners').select('name, email').eq('id', ownerId).single()
-      const { data: dogsData } = await supabase.from('dogs').select('name').in('id', metadata.dog_ids ? metadata.dog_ids.split(',').filter(Boolean) : [])
+      const { data: dogData } = await supabase.from('dogs').select('name').eq('id', dogId).single()
       if (ownerData?.email) {
-        const planNames: Record<string, string> = { starter: 'Starter (4 sessions)', standard: 'Standard (8 sessions)', unlimited: 'Unlimited' }
+        const planNames: Record<string, string> = { starter: 'Starter (4 sessions)', active: 'Active (8 sessions)', athlete: 'Athlete (12 sessions)' }
         await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/send-email`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -100,8 +78,8 @@ if (session.invoice) {
             to: ownerData.email,
             data: {
               ownerName: ownerData.name,
-              planName: planNames[metadata.plan] || metadata.plan,
-              dogNames: dogsData?.map((d: any) => d.name).join(', ') || 'your dog',
+              planName: planNames[plan] || plan,
+              dogNames: dogData?.name || 'your dog',
               sessionsPerMonth: metadata.sessions_per_month,
               amount: `$${((session.amount_total || 0) / 100).toFixed(2)}`
             }
@@ -209,14 +187,13 @@ if (session.invoice) {
       // Log renewal payment (skip if amount is 0 — first invoice already logged via checkout.session.completed)
       if ((invoice.amount_paid || 0) > 0 && invoice.billing_reason === 'subscription_cycle') {
         const planLabels: Record<string, string> = { starter: 'Starter Plan', active: 'Active Plan', athlete: 'Athlete Plan' }
-        const dogCountLabel = membership.dog_count > 1 ? ` — ${membership.dog_count} Dogs` : ' — 1 Dog'
         const inv = invoice as any
 await supabase.from('payments').insert({
   owner_id: membership.owner_id,
   stripe_payment_intent_id: inv.payment_intent ?? null,
   amount: invoice.amount_paid,
   type: 'membership_renewal',
-  description: `${planLabels[membership.plan] || membership.plan}${dogCountLabel} — Renewal`,
+  description: `${planLabels[membership.plan] || membership.plan} — Renewal`,
   receipt_url: invoice.hosted_invoice_url || null,
   status: 'succeeded'
 })

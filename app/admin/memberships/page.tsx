@@ -14,7 +14,7 @@ export default function AdminMemberships() {
 
   const fetchMemberships = async () => {
     setLoading(true)
-    const { data } = await supabase.from('memberships').select('*, owners(name, email, phone)').order('created_at', { ascending: false })
+    const { data } = await supabase.from('memberships').select('*, owners(name, email, phone), dogs(name, photo_url)').order('created_at', { ascending: false })
     setMemberships(data || [])
     const initial: Record<string, number> = {}
     for (const m of data || []) initial[m.id] = m.sessions_remaining
@@ -70,8 +70,8 @@ export default function AdminMemberships() {
 
   const activeMemberships = memberships.filter(m => m.status === 'active')
   const totalRevenue = activeMemberships.reduce((sum, m) => {
-    const prices: Record<string, number[]> = { starter: [180, 324], active: [340, 612], athlete: [480, 864] }
-    return sum + (prices[m.plan]?.[m.dog_count - 1] || 0)
+    const prices: Record<string, number> = { starter: 180, active: 340, athlete: 480 }
+    return sum + (prices[m.plan] || 0)
   }, 0)
 
   const summaryCards = [
@@ -154,7 +154,7 @@ export default function AdminMemberships() {
                         <Phone size={12} color="#ccc" style={{ marginLeft: '8px' }} /> {membership.owners?.phone}
                       </p>
                       <p style={{ margin: 0, fontSize: '13px', color: '#888', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <PawPrint size={12} color="#ccc" /> {membership.dog_count} dog{membership.dog_count > 1 ? 's' : ''} · {membership.sessions_per_month} sessions/month
+                        <PawPrint size={12} color="#ccc" /> {membership.dogs?.name || 'Unknown dog'} · {membership.sessions_per_month} sessions/month
                       </p>
                       <p style={{ margin: 0, fontSize: '13px', color: '#888', display: 'flex', alignItems: 'center', gap: '6px' }}>
                         <Calendar size={12} color="#ccc" /> Renews {formatDate(membership.current_period_end)}

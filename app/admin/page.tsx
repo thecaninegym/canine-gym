@@ -35,8 +35,8 @@ export default function AdminDashboard() {
       supabase.from('bookings').select('id').eq('status', 'confirmed').gte('booking_date', today),
     ])
 
-    const prices: Record<string, number[]> = { starter: [180, 324], active: [340, 612], athlete: [480, 864] }
-    const mrr = (activeMemberships || []).reduce((sum: number, m: any) => sum + (prices[m.plan]?.[m.dog_count - 1] || 0), 0)
+    const prices: Record<string, number> = { starter: 180, active: 340, athlete: 480 }
+    const mrr = (activeMemberships || []).reduce((sum: number, m: any) => sum + (prices[m.plan] || 0), 0)
 
     setStats({
       todayConfirmed: (todayBookings || []).filter((b: any) => b.status === 'confirmed').length,

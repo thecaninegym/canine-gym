@@ -14,7 +14,7 @@ export default function ClientDashboard() {
   const [hasAddress, setHasAddress] = useState(false)
   const [hasDogs, setHasDogs] = useState(false)
   const [hasWaiver, setHasWaiver] = useState(false)
-  const [membership, setMembership] = useState<any>(null)
+  const [membershipsMap, setMembershipsMap] = useState<Record<string, any>>({})
   const [showShareModal, setShowShareModal] = useState(false)
   const [friendsActivity, setFriendsActivity] = useState<any[]>([])
   const [ownerId, setOwnerId] = useState<string | null>(null)
@@ -29,11 +29,12 @@ export default function ClientDashboard() {
       setOwnerId(owner.id)
       setHasAddress(!!(owner.address && owner.city))
       setHasWaiver(!!(owner.waiver_signed))
-      const { data: membershipData } = await supabase
+      const { data: membershipRows } = await supabase
         .from('memberships').select('*').eq('owner_id', owner.id)
         .in('status', ['active', 'cancelled']).gte('current_period_end', new Date().toISOString())
-        .order('current_period_end', { ascending: false }).limit(1).single()
-      setMembership(membershipData)
+      const map: Record<string, any> = {}
+      for (const m of membershipRows || []) map[m.dog_id] = m
+      setMembershipsMap(map)
       const { data: dogsData } = await supabase.from('dogs').select('*, leaderboard_settings(city, visibility)').eq('owner_id', owner.id).order('name')
       setDogs(dogsData || [])
       setHasDogs((dogsData || []).length > 0)
@@ -224,7 +225,7 @@ export default function ClientDashboard() {
             { href: '/leaderboard', icon: <Trophy size={15} />, label: 'Leaderboard' },
             { href: '/dogs', icon: <PawPrint size={15} />, label: 'My Dogs' },
             { href: '/profile', icon: <User size={15} />, label: 'Profile' },
-            { href: '/membership', icon: <CreditCard size={15} />, label: membership ? `Membership (${membership.sessions_remaining} left)` : 'Membership' },
+            { href: '/membership', icon: <CreditCard size={15} />, label: selectedDog && membershipsMap[selectedDog?.id] ? `Membership (${membershipsMap[selectedDog.id].sessions_remaining} left)` : 'Membership' },
             { href: '/payments', icon: <Receipt size={15} />, label: 'Payments' },
           ].map(item => (
             <a key={item.href} href={item.href} className="nav-link" style={{ color: '#001840', textDecoration: 'none', fontWeight: '600', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '5px', padding: '8px 12px', borderRadius: '8px', transition: 'all 0.15s', background: 'rgba(0,24,64,0.04)' }}>
@@ -253,7 +254,7 @@ export default function ClientDashboard() {
             { href: '/leaderboard', icon: <Trophy size={16} />, label: 'Leaderboard' },
             { href: '/dogs', icon: <PawPrint size={16} />, label: 'My Dogs' },
             { href: '/profile', icon: <User size={16} />, label: 'Profile' },
-            { href: '/membership', icon: <CreditCard size={16} />, label: membership ? `Membership (${membership.sessions_remaining} left)` : 'Membership' },
+            { href: '/membership', icon: <CreditCard size={16} />, label: selectedDog && membershipsMap[selectedDog?.id] ? `Membership (${membershipsMap[selectedDog.id].sessions_remaining} left)` : 'Membership' },
             { href: '/payments', icon: <Receipt size={16} />, label: 'Payments' },
           ].map(item => (
             <a key={item.href} href={item.href} onClick={() => setMobileMenuOpen(false)}>
@@ -428,29 +429,27 @@ export default function ClientDashboard() {
                   </div>
                 )}
 
-                {/* MEMBERSHIP CARD */}
-                {membership && (() => {
-                  const coveredDogs = dogs.filter(d => (membership.dog_ids as string[] || []).includes(d.id))
-                  const dogIsCovered = (membership.dog_ids as string[] || []).includes(selectedDog.id)
-                  const isCancelled = membership.status === 'cancelled'
-
-                  if (!dogIsCovered) {
+                {/* MEMBERSHIP CARD — per-dog */}
+                {(() => {
+                  const membership = membershipsMap[selectedDog.id]
+                  if (!membership) {
                     return (
                       <div style={{ background: '#f8f9ff', borderRadius: '16px', padding: '16px 20px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '14px', border: '1.5px dashed #c8d4f0', flexWrap: 'wrap' }}>
                         <div style={{ width: '38px', height: '38px', background: '#eef2fb', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                           <CreditCard size={18} color="#8a9bc0" />
                         </div>
                         <div style={{ flex: 1, minWidth: '160px' }}>
-                          <p style={{ margin: '0 0 2px', color: '#5a6a8a', fontWeight: '700', fontSize: '14px' }}>{selectedDog.name} isn't on a membership</p>
-                          <p style={{ margin: 0, color: '#9aaac8', fontSize: '13px' }}>Your {membership.plan} plan covers: {coveredDogs.map(d => d.name).join(', ')}</p>
+                          <p style={{ margin: '0 0 2px', color: '#5a6a8a', fontWeight: '700', fontSize: '14px' }}>{selectedDog.name} doesn't have a membership</p>
+                          <p style={{ margin: 0, color: '#9aaac8', fontSize: '13px' }}>Get a monthly plan to save on every session</p>
                         </div>
                         <a href="/membership" style={{ color: '#2c5a9e', fontWeight: '700', fontSize: '13px', textDecoration: 'none', background: 'white', padding: '8px 14px', borderRadius: '8px', border: '1.5px solid #c8d4f0', flexShrink: 0 }}>
-                          Add {selectedDog.name} →
+                          Get a Plan →
                         </a>
                       </div>
                     )
                   }
 
+                  const isCancelled = membership.status === 'cancelled'
                   return (
                     <div style={{ background: isCancelled ? 'linear-gradient(135deg, #4a5568, #6c757d)' : 'linear-gradient(135deg, #2c5a9e, #2c5a9e)', borderRadius: '16px', padding: '20px 24px', marginBottom: '20px', boxShadow: '0 4px 20px rgba(0,48,135,0.2)', position: 'relative', overflow: 'hidden' }}>
                       <div style={{ position: 'absolute', right: '-10px', top: '-10px', opacity: 0.07, pointerEvents: 'none' }}><CreditCard size={120} color="white" /></div>
@@ -471,17 +470,10 @@ export default function ClientDashboard() {
                             <strong style={{ color: 'white', fontSize: '18px' }}>{membership.sessions_remaining}</strong>
                             <span> of {membership.sessions_per_month} sessions remaining</span>
                           </p>
-                          {coveredDogs.length > 0 && (
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-                              <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px' }}>Covers:</span>
-                              {coveredDogs.map(dog => (
-                                <div key={dog.id} style={{ display: 'flex', alignItems: 'center', gap: '5px', background: 'rgba(255,255,255,0.12)', padding: '3px 10px', borderRadius: '20px' }}>
-                                  {dog.photo_url ? <img src={dog.photo_url} alt={dog.name} style={{ width: '16px', height: '16px', borderRadius: '50%', objectFit: 'cover' }} /> : <PawPrint size={11} color="rgba(255,255,255,0.8)" />}
-                                  <span style={{ color: 'white', fontSize: '12px', fontWeight: '700' }}>{dog.name}</span>
-                                </div>
-                              ))}
-                            </div>
-                          )}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', background: 'rgba(255,255,255,0.12)', padding: '3px 10px', borderRadius: '20px', width: 'fit-content' }}>
+                            {selectedDog.photo_url ? <img src={selectedDog.photo_url} alt={selectedDog.name} style={{ width: '16px', height: '16px', borderRadius: '50%', objectFit: 'cover' }} /> : <PawPrint size={11} color="rgba(255,255,255,0.8)" />}
+                            <span style={{ color: 'white', fontSize: '12px', fontWeight: '700' }}>{selectedDog.name}</span>
+                          </div>
                           {isCancelled && (
                             <p style={{ margin: '6px 0 0', fontSize: '12px', color: 'rgba(255,255,255,0.6)' }}>
                               Access until {new Date(membership.current_period_end).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}

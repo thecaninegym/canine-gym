@@ -17,11 +17,8 @@ export async function POST(request: Request) {
         ? process.env.STRIPE_PRICE_ALACARTE_2DOGS!
         : process.env.STRIPE_PRICE_ALACARTE_1DOG!
     }
-    if (isAddon) {
-      return process.env[`STRIPE_PRICE_${plan.toUpperCase()}_ADDON`]!
-    }
-    const key = `STRIPE_PRICE_${plan.toUpperCase()}_${dogCount === 2 ? '2DOGS' : '1DOG'}`
-    return process.env[key]!
+    // Memberships are always per-dog (single-dog price)
+    return process.env[`STRIPE_PRICE_${plan.toUpperCase()}_1DOG`]!
   }
 
   const sessionsPerMonth = plan === 'starter' ? 4 : plan === 'active' ? 8 : plan === 'athlete' ? 12 : 0
@@ -52,11 +49,11 @@ export async function POST(request: Request) {
         owner_id: ownerId,
         type,
         plan: plan || '',
-        dog_count: String(dogCount || 1),
         sessions_per_month: String(sessionsPerMonth),
-        dog_ids: (dogIds || []).join(','),
+        // memberships: dog_id is a single dog. alacarte: dog_ids is comma-separated.
+        dog_id: type === 'membership' ? (dogIds?.[0] || '') : '',
+        dog_ids: type !== 'membership' ? (dogIds || []).join(',') : '',
         pending_booking_id: pendingBookingId,
-        is_addon: isAddon ? 'true' : 'false'
       },
       success_url: type === 'alacarte'
         ? `${process.env.NEXT_PUBLIC_APP_URL}/booking-confirmed?pending=${pendingBookingId}`

@@ -62,14 +62,11 @@ export default function LogSession() {
     }
 
     // Decrement sessions_remaining via API (uses service key to bypass RLS)
-    const selectedDogDataForMembership = dogs.find(d => d.id === dogId)
-    if (selectedDogDataForMembership?.owner_id) {
-      await fetch('/api/decrement-sessions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ownerId: selectedDogDataForMembership.owner_id })
-      })
-    }
+    await fetch('/api/decrement-sessions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dogId })
+    })
 
     // Pull FitBark activity data for the session window (non-blocking)
     let fitbarkStats: any = {}
