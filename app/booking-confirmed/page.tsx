@@ -1,7 +1,12 @@
 'use client'
+import { useEffect } from 'react'
 import { CheckCircle, PawPrint, Calendar } from 'lucide-react'
+import { trackEvent } from '../components/Analytics'
 
 export default function BookingConfirmed() {
+  useEffect(() => {
+    trackEvent('session_booked')
+  }, [])
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#2c5a9e', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
       <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '48px 40px', maxWidth: '480px', width: '100%', textAlign: 'center' }}>

@@ -3,6 +3,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '../lib/supabase'
 import { Mail, CheckCircle } from 'lucide-react'
+import { trackEvent } from '../components/Analytics'
 
 const ORANGE = '#f88124'
 const DARK_BLUE = '#001840'
@@ -55,6 +56,7 @@ function LoginContent() {
     e.preventDefault(); setLoading(true); setError(null)
     const { data, error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) { setError('Invalid email or password.'); setLoading(false); return }
+    trackEvent('login', { method: 'email' })
     window.location.href = data.user?.email === 'dev@thecaninegym.com' ? '/admin' : '/dashboard'
   }
 
@@ -71,6 +73,7 @@ function LoginContent() {
     await fetch('/api/send-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'admin_notification', to: 'dev@thecaninegym.com', data: { action: 'New Client Signed Up', dogName: 'Not yet added', ownerName: `${firstName} ${lastName}`, date: new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }), time: email } }) })
     await supabase.auth.signInWithPassword({ email, password })
     window.location.href = '/dashboard'
+    trackEvent('sign_up', { method: 'email' })
     setLoading(false)
   }
 

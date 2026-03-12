@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import { PawPrint, ArrowLeft, CreditCard, Calendar, CheckCircle, XCircle, AlertCircle, ChevronRight } from 'lucide-react'
+import { trackEvent } from '../../components/Analytics'
 
 const PLANS = [
   { key: 'starter', name: 'Starter', sessions: 4, price1: 180, price2: 324, priceAdd: 144, perSession1: 45, perSession2: 40.50, description: 'Perfect for getting started' },
@@ -28,7 +29,10 @@ export default function Membership() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
-    if (params.get('success') === 'true') setSuccess(true)
+    if (params.get('success') === 'true') {
+      setSuccess(true)
+      trackEvent('membership_purchased')
+    }
     if (params.get('cancelled') === 'true') setCancelled(true)
 
     const init = async () => {
