@@ -1,7 +1,7 @@
 'use client'
 import { useEffect } from 'react'
 import { CheckCircle, PawPrint, Calendar } from 'lucide-react'
-import { trackEvent } from '../components/Analytics'
+import { trackEvent } from '../../components/Analytics'
 
 export default function BookingConfirmed() {
   useEffect(() => {
