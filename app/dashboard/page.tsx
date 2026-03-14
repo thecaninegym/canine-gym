@@ -460,7 +460,7 @@ export default function ClientDashboard() {
                         <div style={{ flex: 1 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
                             <p style={{ margin: 0, color: 'white', fontWeight: '800', fontSize: '16px' }}>
-                              {membership.plan.charAt(0).toUpperCase() + membership.plan.slice(1)} Membership
+                              {{ starter: 'Standard', active: 'Pro', athlete: 'Elite' }[membership.plan] || membership.plan} Membership
                             </p>
                             {isCancelled && (
                               <span style={{ background: 'rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.8)', padding: '2px 8px', borderRadius: '20px', fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Cancelled</span>

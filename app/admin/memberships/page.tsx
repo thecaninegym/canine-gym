@@ -77,9 +77,9 @@ export default function AdminMemberships() {
   const summaryCards = [
     { label: 'Active Members', value: activeMemberships.length, color: '#2c5a9e', icon: <Users size={20} color="white" />, bg: 'linear-gradient(135deg, #001840, #2c5a9e)' },
     { label: 'Monthly Revenue', value: `$${totalRevenue.toLocaleString()}`, color: '#28a745', icon: <DollarSign size={20} color="white" />, bg: 'linear-gradient(135deg, #1a7a2e, #28a745)' },
-    { label: 'Starter Plans', value: activeMemberships.filter(m => m.plan === 'starter').length, color: '#6c757d', icon: <CreditCard size={20} color="white" />, bg: 'linear-gradient(135deg, #495057, #6c757d)' },
-    { label: 'Active Plans', value: activeMemberships.filter(m => m.plan === 'active').length, color: '#f88124', icon: <CreditCard size={20} color="white" />, bg: 'linear-gradient(135deg, #f88124, #f9a04e)' },
-    { label: 'Athlete Plans', value: activeMemberships.filter(m => m.plan === 'athlete').length, color: '#2c5a9e', icon: <CreditCard size={20} color="white" />, bg: 'linear-gradient(135deg, #001840, #2c5a9e)' },
+    { label: 'Standard Plans', value: activeMemberships.filter(m => m.plan === 'starter').length, color: '#6c757d', icon: <CreditCard size={20} color="white" />, bg: 'linear-gradient(135deg, #495057, #6c757d)' },
+    { label: 'Pro Plans', value: activeMemberships.filter(m => m.plan === 'active').length, color: '#f88124', icon: <CreditCard size={20} color="white" />, bg: 'linear-gradient(135deg, #f88124, #f9a04e)' },
+    { label: 'Elite Plans', value: activeMemberships.filter(m => m.plan === 'athlete').length, color: '#2c5a9e', icon: <CreditCard size={20} color="white" />, bg: 'linear-gradient(135deg, #001840, #2c5a9e)' },
   ]
 
   return (
@@ -143,7 +143,7 @@ export default function AdminMemberships() {
                   <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px', flexWrap: 'wrap' as const }}>
                       <span style={{ fontWeight: '800', fontSize: '16px', color: '#1a1a2e' }}>{membership.owners?.name}</span>
-                      <span style={{ background: getPlanColor(membership.plan), color: 'white', padding: '2px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: '700', textTransform: 'uppercase' as const }}>{membership.plan}</span>
+                      <span style={{ background: getPlanColor(membership.plan), color: 'white', padding: '2px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: '700', textTransform: 'uppercase' as const }}>{{ starter: 'Standard', active: 'Pro', athlete: 'Elite' }[membership.plan] || membership.plan}</span>
                       <span style={{ background: getStatusColor(membership.status), color: 'white', padding: '2px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: '700', textTransform: 'uppercase' as const, display: 'flex', alignItems: 'center', gap: '4px' }}>
                         {getStatusIcon(membership.status)} {membership.status}
                       </span>

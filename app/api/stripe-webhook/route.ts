@@ -32,7 +32,7 @@ export async function POST(request: Request) {
       const dogId = metadata.dog_id
       const sessionsPerMonth = parseInt(metadata.sessions_per_month || '0')
 
-      const planLabels: Record<string, string> = { starter: 'Starter Plan', active: 'Active Plan', athlete: 'Athlete Plan' }
+      const planLabels: Record<string, string> = { starter: 'Standard Plan', active: 'Pro Plan', athlete: 'Elite Plan' }
 
       let receiptUrl = null
 if (session.invoice) {
@@ -69,7 +69,7 @@ if (session.invoice) {
       const { data: ownerData } = await supabase.from('owners').select('name, email').eq('id', ownerId).single()
       const { data: dogData } = await supabase.from('dogs').select('name').eq('id', dogId).single()
       if (ownerData?.email) {
-        const planNames: Record<string, string> = { starter: 'Starter (4 sessions)', active: 'Active (8 sessions)', athlete: 'Athlete (12 sessions)' }
+        const planNames: Record<string, string> = { starter: 'Standard (4 sessions)', active: 'Pro (8 sessions)', athlete: 'Elite (12 sessions)' }
         await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/send-email`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -186,7 +186,7 @@ if (session.invoice) {
 
       // Log renewal payment (skip if amount is 0 — first invoice already logged via checkout.session.completed)
       if ((invoice.amount_paid || 0) > 0 && invoice.billing_reason === 'subscription_cycle') {
-        const planLabels: Record<string, string> = { starter: 'Starter Plan', active: 'Active Plan', athlete: 'Athlete Plan' }
+        const planLabels: Record<string, string> = { starter: 'Standard Plan', active: 'Pro Plan', athlete: 'Elite Plan' }
         const inv = invoice as any
 await supabase.from('payments').insert({
   owner_id: membership.owner_id,

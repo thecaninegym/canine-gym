@@ -5,9 +5,9 @@ import { PawPrint, ArrowLeft, CreditCard, Calendar, CheckCircle, XCircle, AlertC
 import { trackEvent } from '../../components/Analytics'
 
 const PLANS = [
-  { key: 'starter', name: 'Starter', sessions: 4, price: 180, perSession: 45, description: 'Perfect for getting started' },
-  { key: 'active', name: 'Active', sessions: 8, price: 340, perSession: 42.50, description: 'Most popular for regular runners', popular: true },
-  { key: 'athlete', name: 'Athlete', sessions: 12, price: 480, perSession: 40, description: 'Maximum gains for serious dogs' }
+  { key: 'starter', name: 'Standard', sessions: 4, price: 180, perSession: 45, description: 'Perfect for getting started' },
+  { key: 'active', name: 'Pro', sessions: 8, price: 340, perSession: 42.50, description: 'Most popular for regular runners', popular: true },
+  { key: 'athlete', name: 'Elite', sessions: 12, price: 480, perSession: 40, description: 'Maximum gains for serious dogs' }
 ]
 
 export default function Membership() {
@@ -162,7 +162,7 @@ export default function Membership() {
                   {selectedMembership.status === 'cancelled' && <span style={{ marginLeft: '8px', background: 'rgba(255,255,255,0.15)', padding: '1px 8px', borderRadius: '20px', fontSize: '10px' }}>Cancelled</span>}
                 </p>
                 <h2 style={{ margin: '0 0 16px', fontSize: '28px', fontWeight: '800', color: 'white', letterSpacing: '-0.5px' }}>
-                  {selectedMembership.plan.charAt(0).toUpperCase() + selectedMembership.plan.slice(1)} Membership
+                  {{ starter: 'Standard', active: 'Pro', athlete: 'Elite' }[selectedMembership.plan] || selectedMembership.plan} Membership
                 </h2>
                 <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '7px', background: 'rgba(255,255,255,0.1)', padding: '8px 14px', borderRadius: '10px' }}>
