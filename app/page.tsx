@@ -2,7 +2,7 @@
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '../lib/supabase'
-import { Mail, CheckCircle } from 'lucide-react'
+import { Mail, CheckCircle, X } from 'lucide-react'
 import { trackEvent } from '../components/Analytics'
 
 const ORANGE = '#f88124'
@@ -30,6 +30,63 @@ const labelStyle = {
   fontSize: '12px',
   textTransform: 'uppercase' as const,
   letterSpacing: '0.6px',
+}
+
+// Password must be 8+ chars, with uppercase, lowercase, number, and special character
+function validatePassword(pw: string): string | null {
+  if (pw.length < 8) return 'Password must be at least 8 characters.'
+  if (!/[A-Z]/.test(pw)) return 'Password must include at least one uppercase letter.'
+  if (!/[a-z]/.test(pw)) return 'Password must include at least one lowercase letter.'
+  if (!/[0-9]/.test(pw)) return 'Password must include at least one number.'
+  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(pw)) return 'Password must include at least one special character (e.g. !@#$%).'
+  return null
+}
+
+// Returns 0-4 strength score and a label
+function getPasswordStrength(pw: string): { score: number; label: string; color: string } {
+  if (!pw) return { score: 0, label: '', color: '#e2e6ed' }
+  let score = 0
+  if (pw.length >= 8) score++
+  if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++
+  if (/[0-9]/.test(pw)) score++
+  if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(pw)) score++
+  const labels = ['', 'Weak', 'Fair', 'Good', 'Strong']
+  const colors = ['#e2e6ed', '#e74c3c', '#f88124', '#f0c040', '#28a745']
+  return { score, label: labels[score], color: colors[score] }
+}
+
+function PasswordStrengthBar({ password }: { password: string }) {
+  const { score, label, color } = getPasswordStrength(password)
+  if (!password) return null
+  return (
+    <div style={{ marginTop: '8px' }}>
+      <div style={{ display: 'flex', gap: '4px', marginBottom: '4px' }}>
+        {[1, 2, 3, 4].map(i => (
+          <div key={i} style={{
+            flex: 1, height: '4px', borderRadius: '2px',
+            background: i <= score ? color : '#e2e6ed',
+            transition: 'background 0.2s'
+          }} />
+        ))}
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ fontSize: '11px', color, fontWeight: '700' }}>{label}</span>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '1px' }}>
+          {[
+            { check: password.length >= 8, text: '8+ characters' },
+            { check: /[A-Z]/.test(password), text: 'Uppercase' },
+            { check: /[a-z]/.test(password), text: 'Lowercase' },
+            { check: /[0-9]/.test(password), text: 'Number' },
+            { check: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(password), text: 'Special character' },
+          ].map(({ check, text }) => (
+            <span key={text} style={{ fontSize: '10px', color: check ? '#28a745' : '#bbb', display: 'flex', alignItems: 'center', gap: '3px' }}>
+              {check ? '✓' : '·'} {text}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
 }
 
 function LoginContent() {
@@ -63,7 +120,8 @@ function LoginContent() {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault(); setLoading(true); setError(null)
     if (password !== confirmPassword) { setError('Passwords do not match.'); setLoading(false); return }
-    if (password.length < 6) { setError('Password must be at least 6 characters.'); setLoading(false); return }
+    const pwError = validatePassword(password)
+    if (pwError) { setError(pwError); setLoading(false); return }
     const { error: signupError } = await supabase.auth.signUp({ email, password })
     if (signupError) { setError(signupError.message); setLoading(false); return }
     await supabase.auth.signInWithPassword({ email, password })
@@ -85,7 +143,7 @@ function LoginContent() {
   }
 
   const switchMode = (newMode: 'login' | 'signup' | 'reset') => {
-    setMode(newMode); setError(null); setResetSent(false)
+    setMode(newMode); setError(null); setResetSent(false); setPassword(''); setConfirmPassword('')
   }
 
   return (
@@ -106,7 +164,6 @@ function LoginContent() {
 
       <div style={{ width: '100%', maxWidth: '420px', animation: 'fadeUp 0.4s ease' }}>
 
-        {/* Logo — full color, transparent bg, looks perfect on white */}
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <img
             src="/logo.png"
@@ -115,7 +172,6 @@ function LoginContent() {
           />
         </div>
 
-        {/* Orange accent line above card */}
         <div style={{ height: '3px', background: `linear-gradient(90deg, transparent, ${ORANGE}, transparent)`, borderRadius: '2px', marginBottom: '0' }} />
 
         {signupSuccess ? (
@@ -200,10 +256,14 @@ function LoginContent() {
                 <div style={{ marginBottom: '14px' }}>
                   <label style={labelStyle}>Password</label>
                   <input className="login-input" type="password" value={password} onChange={e => setPassword(e.target.value)} required placeholder="••••••••" style={inputStyle} />
+                  <PasswordStrengthBar password={password} />
                 </div>
                 <div style={{ marginBottom: '22px' }}>
                   <label style={labelStyle}>Confirm Password</label>
                   <input className="login-input" type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required placeholder="••••••••" style={inputStyle} />
+                  {confirmPassword && password !== confirmPassword && (
+                    <p style={{ margin: '6px 0 0', fontSize: '12px', color: '#e74c3c', fontWeight: '600' }}>Passwords do not match.</p>
+                  )}
                 </div>
                 <div style={{ background: '#f8f9ff', border: '1.5px solid #e5e8f0', borderRadius: '12px', padding: '14px 16px', marginBottom: '16px' }}>
                   <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer' }}>
