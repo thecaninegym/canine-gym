@@ -67,8 +67,13 @@ export default function Membership() {
     if (!membership) return
     const dogName = dogs.find(d => d.id === dogId)?.name || 'this dog'
     if (!confirm(`Cancel ${dogName}'s membership? It will remain active until the end of the billing period.`)) return
+    const { data: { session } } = await supabase.auth.getSession()
     const res = await fetch('/api/cancel-membership', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session?.access_token}`
+      },
       body: JSON.stringify({ subscriptionId: membership.stripe_subscription_id })
     })
     const data = await res.json()

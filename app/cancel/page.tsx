@@ -60,10 +60,16 @@ function CancelForm() {
     const timeStr = `${hour}:00 ${ampm} – ${hour}:30 ${ampm}`
     const dateStr = new Date(booking.booking_date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
 
+    // Get the current session token to authenticate the API call
+    const { data: { session } } = await supabase.auth.getSession()
+
     // Call refund API (handles cancellation + refund logic)
     const res = await fetch('/api/refund', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session?.access_token}`
+      },
       body: JSON.stringify({ bookingId, reason, dogIsSick })
     })
 

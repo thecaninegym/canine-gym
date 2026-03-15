@@ -61,10 +61,16 @@ export default function LogSession() {
       await supabase.from('bookings').update({ status: 'completed' }).eq('dog_id', dogId).eq('booking_date', sessionDate).eq('status', 'confirmed')
     }
 
+    // Get the current session token to authenticate the API call
+    const { data: { session } } = await supabase.auth.getSession()
+
     // Decrement sessions_remaining via API (uses service key to bypass RLS)
     await fetch('/api/decrement-sessions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session?.access_token}`
+      },
       body: JSON.stringify({ dogId })
     })
 

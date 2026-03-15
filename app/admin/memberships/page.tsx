@@ -29,9 +29,16 @@ export default function AdminMemberships() {
 
   const handleSave = async (membership: any) => {
     setSaving(prev => ({ ...prev, [membership.id]: true }))
+
+    // Get the current session token to authenticate the API call
+    const { data: { session } } = await supabase.auth.getSession()
+
     const res = await fetch('/api/admin-adjust-sessions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session?.access_token}`
+      },
       body: JSON.stringify({ membershipId: membership.id, sessionsRemaining: adjustments[membership.id] })
     })
     const data = await res.json()

@@ -3,15 +3,35 @@ import { createClient } from '@supabase/supabase-js'
 import Stripe from 'stripe'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string)
+
+// Service key client — for all database operations
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL as string,
   process.env.SUPABASE_SERVICE_KEY as string
 )
 
+// Anon key client — for verifying the user's session token
+const supabaseAnon = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL as string,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string
+)
+
 export async function POST(request: Request) {
+  // 1. Verify the caller is a logged-in user
+  const authHeader = request.headers.get('authorization')
+  const token = authHeader?.replace('Bearer ', '')
+  if (!token) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const { data: { user }, error: authError } = await supabaseAnon.auth.getUser(token)
+  if (authError || !user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   const { bookingId, reason, dogIsSick } = await request.json()
 
-  // Get the booking
+  // Get the booking (same query as before — needed for refund logic below)
   const { data: booking } = await supabase
     .from('bookings')
     .select('*, dogs(id, owner_id, owners(id, name, email))')
@@ -19,6 +39,15 @@ export async function POST(request: Request) {
     .single()
 
   if (!booking) return NextResponse.json({ error: 'Booking not found' }, { status: 404 })
+
+  // 2. Verify this booking belongs to the authenticated user.
+  //    Without this check, any logged-in user could cancel (and refund) anyone else's booking.
+  const bookingOwnerEmail = (booking.dogs as any)?.owners?.email
+  if (bookingOwnerEmail !== user.email) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+
+  // --- All existing refund logic unchanged below this line ---
 
   // Find this dog's own active membership (per-dog model)
   const { data: membership } = await supabase
