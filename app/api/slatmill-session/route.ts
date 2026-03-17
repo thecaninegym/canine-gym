@@ -14,7 +14,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const { duration_minutes, distance_miles, avg_speed_mph, peak_speed_mph, pulses } = body
+  const { duration_minutes, distance_miles, avg_speed_mph, peak_speed_mph, pulses, slatmill_id } = body
 
   // Basic validation
   if (!duration_minutes) {
@@ -27,6 +27,7 @@ export async function POST(request: Request) {
     avg_speed_mph,
     peak_speed_mph,
     pulses,
+    slatmill_id: slatmill_id || 'slatmill_1',
     used: false
   })
 
