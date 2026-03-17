@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../../../lib/supabase'
 import { checkAchievements } from '../../../../lib/achievements'
-import { PawPrint, ArrowLeft, ClipboardList, CheckCircle, Clock } from 'lucide-react'
+import { PawPrint, ArrowLeft, ClipboardList, CheckCircle, Clock, Zap, Activity } from 'lucide-react'
 
 const inputStyle = { width: '100%', padding: '10px 14px', border: '1.5px solid #e5e8f0', borderRadius: '10px', fontSize: '14px', color: '#1a1a2e', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' as const }
 const labelStyle = { display: 'block', marginBottom: '6px', fontWeight: '700' as const, color: '#555', fontSize: '13px' }
@@ -21,6 +21,23 @@ export default function LogSession() {
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [timeFromBooking, setTimeFromBooking] = useState(false)
+
+  // Slatmill state
+  const [pendingSlatmillSessions, setPendingSlatmillSessions] = useState<any[]>([])
+  const [selectedSlatmillId, setSelectedSlatmillId] = useState<string | null>(null)
+  const [dogWeightLbs, setDogWeightLbs] = useState('')
+  const [slatmillLoading, setSlatmillLoading] = useState(false)
+
+  const selectedSlatmill = pendingSlatmillSessions.find(s => s.id === selectedSlatmillId)
+
+  // Calculate calories from slatmill data + dog weight
+  const calculateCalories = () => {
+    if (!selectedSlatmill || !dogWeightLbs) return null
+    const weightKg = parseFloat(dogWeightLbs) * 0.453592
+    const met = 3.0 + (selectedSlatmill.avg_speed_mph * 1.5)
+    const calories = met * weightKg * (selectedSlatmill.duration_minutes / 60.0)
+    return Math.round(calories)
+  }
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -44,17 +61,59 @@ export default function LogSession() {
       setDevices(devicesData || [])
     }
     fetchData()
+    fetchPendingSlatmillSessions()
   }, [])
+
+  const fetchPendingSlatmillSessions = async () => {
+    setSlatmillLoading(true)
+    const { data } = await supabase
+      .from('slatmill_sessions')
+      .select('*')
+      .eq('used', false)
+      .order('created_at', { ascending: false })
+      .limit(10)
+    setPendingSlatmillSessions(data || [])
+    setSlatmillLoading(false)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
+
     const start = new Date(`${sessionDate}T${startTime}`)
     const end = new Date(`${sessionDate}T${endTime}`)
     const duration = Math.round((end.getTime() - start.getTime()) / 60000)
-    const { error: sessionError } = await supabase.from('sessions').insert([{ dog_id: dogId, fitbark_device_slug: deviceSlug, session_date: sessionDate, start_time: start.toISOString(), end_time: end.toISOString(), duration_minutes: duration, notes }])
+
+    const calories = calculateCalories()
+
+    // Build session row — include slatmill data if a session was selected
+    const sessionRow: any = {
+      dog_id: dogId,
+      fitbark_device_slug: deviceSlug,
+      session_date: sessionDate,
+      start_time: start.toISOString(),
+      end_time: end.toISOString(),
+      duration_minutes: selectedSlatmill ? selectedSlatmill.duration_minutes : duration,
+      notes,
+      ...(selectedSlatmill && {
+        distance_miles: selectedSlatmill.distance_miles,
+        avg_speed_mph: selectedSlatmill.avg_speed_mph,
+        peak_speed_mph: selectedSlatmill.peak_speed_mph,
+        slatmill_session_id: selectedSlatmill.id,
+      }),
+      ...(dogWeightLbs && { dog_weight_lbs: parseFloat(dogWeightLbs) }),
+      ...(calories && { calories }),
+    }
+
+    const { error: sessionError } = await supabase.from('sessions').insert([sessionRow])
     if (sessionError) { setError(sessionError.message); setLoading(false); return }
+
+    // Mark slatmill session as used
+    if (selectedSlatmillId) {
+      await supabase.from('slatmill_sessions').update({ used: true }).eq('id', selectedSlatmillId)
+    }
+
     if (bookingId) {
       await supabase.from('bookings').update({ status: 'completed' }).eq('id', bookingId)
     } else {
@@ -106,9 +165,9 @@ export default function LogSession() {
           ownerName: ownerData.name,
           dogName: selectedDogData?.name,
           sessionDate: new Date(sessionDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }),
-          duration,
-          miles: null,
-          calories: null,
+          duration: selectedSlatmill ? selectedSlatmill.duration_minutes : duration,
+          miles: selectedSlatmill?.distance_miles || null,
+          calories: calories || null,
           activeMinutes: fitbarkStats.activeMinutes || null,
           activityTotal: fitbarkStats.totalActivity || null,
           notes,
@@ -133,6 +192,13 @@ export default function LogSession() {
     return `${display}:${m} ${ampm}`
   }
 
+  const formatTime = (dateStr: string) => {
+    const d = new Date(dateStr)
+    return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
+  }
+
+  const calories = calculateCalories()
+
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', fontFamily: "'Montserrat', system-ui, sans-serif" }}>
       <style>{`
@@ -141,6 +207,7 @@ export default function LogSession() {
   input[type="date"], input[type="time"] { max-width: 100%; }
   @media (max-width: 480px) {
     .time-grid { grid-template-columns: 1fr !important; }
+    .stats-grid { grid-template-columns: 1fr 1fr !important; }
   }
 `}</style>
 
@@ -169,6 +236,82 @@ export default function LogSession() {
           <div style={{ background: '#d4edda', color: '#155724', padding: '14px 16px', borderRadius: '12px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '600' }}>
             <CheckCircle size={18} /> Session logged successfully!
             <a href="/admin/schedule" style={{ color: '#155724', marginLeft: 'auto', textDecoration: 'underline', fontSize: '13px' }}>← Back to Schedule</a>
+          </div>
+        )}
+
+        {/* Slatmill pending sessions */}
+        {pendingSlatmillSessions.length > 0 && (
+          <div style={{ background: 'white', borderRadius: '16px', padding: '20px', marginBottom: '20px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
+              <Activity size={17} color="#2c5a9e" />
+              <p style={{ margin: 0, fontWeight: '800', color: '#1a1a2e', fontSize: '14px' }}>
+                Slatmill Data Available ({pendingSlatmillSessions.length} session{pendingSlatmillSessions.length > 1 ? 's' : ''})
+              </p>
+              <button onClick={fetchPendingSlatmillSessions} style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#2c5a9e', fontSize: '12px', cursor: 'pointer', textDecoration: 'underline', fontFamily: 'inherit' }}>
+                Refresh
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {pendingSlatmillSessions.map(s => (
+                <div key={s.id}
+                  onClick={() => setSelectedSlatmillId(selectedSlatmillId === s.id ? null : s.id)}
+                  style={{
+                    padding: '12px 16px', borderRadius: '12px', cursor: 'pointer', transition: 'all 0.15s',
+                    border: selectedSlatmillId === s.id ? '2px solid #2c5a9e' : '2px solid #eef0f5',
+                    background: selectedSlatmillId === s.id ? '#eef2fb' : '#f8f9fc'
+                  }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                    <span style={{ fontWeight: '700', fontSize: '13px', color: '#2c5a9e' }}>
+                      {s.slatmill_id || 'slatmill_1'}
+                    </span>
+                    <span style={{ fontSize: '11px', color: '#aaa' }}>{formatTime(s.created_at)}</span>
+                  </div>
+                  <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '8px' }}>
+                    {[
+                      { label: 'Duration', value: `${s.duration_minutes?.toFixed(1)} min` },
+                      { label: 'Distance', value: `${s.distance_miles?.toFixed(2)} mi` },
+                      { label: 'Avg Speed', value: `${s.avg_speed_mph?.toFixed(1)} mph` },
+                      { label: 'Peak Speed', value: `${s.peak_speed_mph?.toFixed(1)} mph` },
+                    ].map(({ label, value }) => (
+                      <div key={label} style={{ textAlign: 'center' }}>
+                        <p style={{ margin: '0 0 2px', fontSize: '10px', color: '#aaa', fontWeight: '700', textTransform: 'uppercase' as const }}>{label}</p>
+                        <p style={{ margin: 0, fontSize: '13px', fontWeight: '800', color: '#1a1a2e' }}>{value}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {selectedSlatmill && (
+              <div style={{ marginTop: '14px', padding: '14px 16px', background: '#f0f2f7', borderRadius: '12px' }}>
+                <label style={labelStyle}>Dog's Weight Today (lbs)</label>
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                  <input
+                    type="number"
+                    value={dogWeightLbs}
+                    onChange={e => setDogWeightLbs(e.target.value)}
+                    placeholder="e.g. 45"
+                    min="1" max="200" step="0.1"
+                    style={{ ...inputStyle, width: '140px' }}
+                  />
+                  {calories !== null && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#fff3e0', padding: '8px 14px', borderRadius: '10px', border: '1.5px solid #f88124' }}>
+                      <Zap size={14} color="#f88124" />
+                      <span style={{ fontWeight: '800', fontSize: '14px', color: '#f88124' }}>{calories} cal</span>
+                    </div>
+                  )}
+                </div>
+                {dogWeightLbs && <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#888' }}>Calories calculated from speed, duration, and weight.</p>}
+              </div>
+            )}
+          </div>
+        )}
+
+        {slatmillLoading && (
+          <div style={{ background: 'white', borderRadius: '16px', padding: '16px 20px', marginBottom: '20px', color: '#888', fontSize: '13px', textAlign: 'center' }}>
+            Checking for slatmill data...
           </div>
         )}
 
