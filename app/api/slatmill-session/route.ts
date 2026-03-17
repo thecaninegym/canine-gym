@@ -17,7 +17,7 @@ export async function POST(request: Request) {
   const { duration_minutes, distance_miles, avg_speed_mph, peak_speed_mph, pulses } = body
 
   // Basic validation
-  if (!duration_minutes || !distance_miles) {
+  if (!duration_minutes) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
   }
 
