@@ -17,9 +17,12 @@ export default function SessionDetail() {
   const chartScrollRef = useRef<HTMLDivElement>(null)
 
 useEffect(() => {
-  if (chartScrollRef.current) {
-    chartScrollRef.current.scrollLeft = chartScrollRef.current.scrollWidth
-  }
+  const timer = setTimeout(() => {
+    if (chartScrollRef.current) {
+      chartScrollRef.current.scrollLeft = chartScrollRef.current.scrollWidth
+    }
+  }, 100)
+  return () => clearTimeout(timer)
 }, [activeTab, session])
 
   useEffect(() => {
