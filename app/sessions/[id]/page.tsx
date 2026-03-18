@@ -2,7 +2,9 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
-import { PawPrint, ArrowLeft, Timer, MapPin, Flame, Zap, Gauge, FileText, TrendingUp, TrendingDown, Minus } from 'lucide-react'
+import { PawPrint, ArrowLeft, Timer, MapPin, Flame, Zap, Gauge, FileText, TrendingUp, TrendingDown } from 'lucide-react'
+
+type Tab = 'duration' | 'distance' | 'avg_speed' | 'peak_speed' | 'calories' | 'weight'
 
 export default function SessionDetail() {
   const params = useParams()
@@ -11,6 +13,7 @@ export default function SessionDetail() {
   const [dog, setDog] = useState<any>(null)
   const [previousSessions, setPreviousSessions] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState<Tab>('duration')
 
   useEffect(() => {
     const init = async () => {
@@ -40,20 +43,6 @@ export default function SessionDetail() {
 
   const avg = (arr: number[]) => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null
 
-  const diffBadge = (current: number | null, previous: number | null) => {
-    if (!current || !previous) return null
-    const pct = ((current - previous) / previous * 100)
-    const isUp = pct >= 0
-    const color = isUp ? '#22c55e' : '#dc3545'
-    const bg = isUp ? '#f0fdf4' : '#ffeaea'
-    const Icon = isUp ? TrendingUp : TrendingDown
-    return (
-      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: '700', color, background: bg, padding: '3px 8px', borderRadius: '20px' }}>
-        <Icon size={11} /> {Math.abs(pct).toFixed(0)}% vs avg
-      </span>
-    )
-  }
-
   if (loading) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #001840 0%, #2c5a9e 100%)' }}>
       <div style={{ textAlign: 'center' }}>
@@ -72,19 +61,37 @@ export default function SessionDetail() {
 
   const hasSlatmillData = session.distance_miles || session.avg_speed_mph || session.peak_speed_mph
 
-  const prevWithData = previousSessions.filter(s => s.distance_miles || s.avg_speed_mph)
-  const prevAvgDistance = avg(prevWithData.map((s: any) => s.distance_miles).filter(Boolean))
-  const prevAvgSpeed = avg(prevWithData.map((s: any) => s.avg_speed_mph).filter(Boolean))
-  const prevAvgCalories = avg(prevWithData.map((s: any) => s.calories).filter(Boolean))
-  const prevAvgDuration = avg(previousSessions.map((s: any) => s.duration_minutes).filter(Boolean))
-
+  // All sessions oldest to newest including current
   const chartSessions = [...previousSessions].reverse().concat([session])
-  const maxDist = Math.max(...chartSessions.map(s => s.distance_miles || 0), 0.1)
-  const maxSpeed = Math.max(...chartSessions.map(s => s.avg_speed_mph || 0), 1)
 
-  const CHART_H = 80
-  const CHART_W = 280
-  const BAR_W = Math.floor(CHART_W / chartSessions.length) - 4
+  // Tab definitions
+  const tabs: { key: Tab; label: string; unit: string; color: string; getValue: (s: any) => number | null }[] = [
+    { key: 'duration',   label: 'Duration',   unit: 'min', color: '#2c5a9e', getValue: s => s.duration_minutes || null },
+    { key: 'distance',   label: 'Distance',   unit: 'mi',  color: '#2c5a9e', getValue: s => s.distance_miles || null },
+    { key: 'avg_speed',  label: 'Avg Speed',  unit: 'mph', color: '#2c5a9e', getValue: s => s.avg_speed_mph || null },
+    { key: 'peak_speed', label: 'Peak Speed', unit: 'mph', color: '#f88124', getValue: s => s.peak_speed_mph || null },
+    { key: 'calories',   label: 'Calories',   unit: 'cal', color: '#f88124', getValue: s => s.calories || null },
+    { key: 'weight',     label: 'Weight',     unit: 'lbs', color: '#2c5a9e', getValue: s => s.dog_weight_lbs || null },
+  ]
+
+  const activeTabDef = tabs.find(t => t.key === activeTab)!
+  const chartValues = chartSessions.map(s => ({ session: s, value: activeTabDef.getValue(s) }))
+  const maxVal = Math.max(...chartValues.map(c => c.value || 0), 0.01)
+  const prevValues = previousSessions.map(s => activeTabDef.getValue(s)).filter((v): v is number => v !== null)
+  const prevAvg = avg(prevValues)
+  const currentVal = activeTabDef.getValue(session)
+  const pctChange = currentVal && prevAvg ? ((currentVal - prevAvg) / prevAvg * 100) : null
+
+  const CHART_H = 120
+  const BAR_W = Math.max(28, Math.floor(560 / chartSessions.length) - 10)
+  const CHART_TOTAL_W = chartSessions.length * (BAR_W + 10)
+
+  const formatVal = (val: number | null, unit: string) => {
+    if (val === null) return '—'
+    if (unit === 'cal') return Math.round(val).toString()
+    if (unit === 'min') return val % 1 === 0 ? val.toString() : val.toFixed(1)
+    return val.toFixed(2)
+  }
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', fontFamily: "'Montserrat', system-ui, sans-serif" }}>
@@ -92,6 +99,8 @@ export default function SessionDetail() {
         @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
         * { box-sizing: border-box; }
         @media (max-width: 600px) { .stat-grid { grid-template-columns: repeat(2, 1fr) !important; } }
+        .tab-btn { transition: all 0.15s ease; cursor: pointer; white-space: nowrap; }
+        .tab-btn:hover { background: #eef2fb !important; }
       `}</style>
 
       <nav style={{ background: 'white', padding: '0 24px', height: '80px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 12px rgba(0,24,64,0.08)', borderBottom: '3px solid #f88124' }}>
@@ -119,26 +128,127 @@ export default function SessionDetail() {
           </div>
         </div>
 
-        {/* Main stat cards */}
+        {/* Stat cards */}
         <div className="stat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '20px' }}>
           {[
-            { icon: <Timer size={20} color="#2c5a9e" />, label: 'Duration', value: session.duration_minutes ? (session.duration_minutes % 1 === 0 ? String(session.duration_minutes) : session.duration_minutes.toFixed(1)) : '—', unit: session.duration_minutes ? 'min' : '', bg: '#eef2fb', accent: '#2c5a9e' },
-            { icon: <MapPin size={20} color="#2c5a9e" />, label: 'Distance', value: session.distance_miles ? session.distance_miles.toFixed(2) : '—', unit: session.distance_miles ? 'mi' : '', bg: '#eef2fb', accent: '#2c5a9e' },
-            { icon: <Gauge size={20} color="#2c5a9e" />, label: 'Avg Speed', value: session.avg_speed_mph ? session.avg_speed_mph.toFixed(1) : '—', unit: session.avg_speed_mph ? 'mph' : '', bg: '#eef2fb', accent: '#2c5a9e' },
-            { icon: <Zap size={20} color="#f88124" />, label: 'Peak Speed', value: session.peak_speed_mph ? session.peak_speed_mph.toFixed(1) : '—', unit: session.peak_speed_mph ? 'mph' : '', bg: '#fff5e6', accent: '#f88124' },
-            { icon: <Flame size={20} color="#f88124" />, label: 'Calories', value: session.calories ? Math.round(session.calories) : '—', unit: session.calories ? 'cal' : '', bg: '#fff5e6', accent: '#f88124' },
-            { icon: <PawPrint size={20} color="#2c5a9e" />, label: 'Weight', value: session.dog_weight_lbs ? session.dog_weight_lbs.toFixed(1) : '—', unit: session.dog_weight_lbs ? 'lbs' : '', bg: '#eef2fb', accent: '#2c5a9e' },
+            { icon: <Timer size={20} color="#2c5a9e" />, label: 'Duration', value: session.duration_minutes ? (session.duration_minutes % 1 === 0 ? String(session.duration_minutes) : session.duration_minutes.toFixed(1)) : '—', unit: session.duration_minutes ? 'min' : '', bg: '#eef2fb', accent: '#2c5a9e', tab: 'duration' as Tab },
+            { icon: <MapPin size={20} color="#2c5a9e" />, label: 'Distance', value: session.distance_miles ? session.distance_miles.toFixed(2) : '—', unit: session.distance_miles ? 'mi' : '', bg: '#eef2fb', accent: '#2c5a9e', tab: 'distance' as Tab },
+            { icon: <Gauge size={20} color="#2c5a9e" />, label: 'Avg Speed', value: session.avg_speed_mph ? session.avg_speed_mph.toFixed(1) : '—', unit: session.avg_speed_mph ? 'mph' : '', bg: '#eef2fb', accent: '#2c5a9e', tab: 'avg_speed' as Tab },
+            { icon: <Zap size={20} color="#f88124" />, label: 'Peak Speed', value: session.peak_speed_mph ? session.peak_speed_mph.toFixed(1) : '—', unit: session.peak_speed_mph ? 'mph' : '', bg: '#fff5e6', accent: '#f88124', tab: 'peak_speed' as Tab },
+            { icon: <Flame size={20} color="#f88124" />, label: 'Calories', value: session.calories ? Math.round(session.calories) : '—', unit: session.calories ? 'cal' : '', bg: '#fff5e6', accent: '#f88124', tab: 'calories' as Tab },
+            { icon: <PawPrint size={20} color="#2c5a9e" />, label: 'Weight', value: session.dog_weight_lbs ? session.dog_weight_lbs.toFixed(1) : '—', unit: session.dog_weight_lbs ? 'lbs' : '', bg: '#eef2fb', accent: '#2c5a9e', tab: 'weight' as Tab },
           ].map(stat => (
-            <div key={stat.label} style={{ background: 'white', padding: '16px 12px', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5', textAlign: 'center' }}>
-              <div style={{ width: '40px', height: '40px', background: stat.bg, borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px' }}>
-                {stat.icon}
+            <div key={stat.label} onClick={() => setActiveTab(stat.tab)}
+              style={{ background: activeTab === stat.tab ? 'linear-gradient(135deg, #001840, #2c5a9e)' : 'white', padding: '16px 12px', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: activeTab === stat.tab ? '1.5px solid #2c5a9e' : '1.5px solid #eef0f5', textAlign: 'center', cursor: 'pointer', transition: 'all 0.15s' }}>
+              <div style={{ width: '40px', height: '40px', background: activeTab === stat.tab ? 'rgba(255,255,255,0.15)' : stat.bg, borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px' }}>
+                {activeTab === stat.tab
+                  ? <div style={{ color: 'white' }}>{stat.icon}</div>
+                  : stat.icon}
               </div>
-              <div style={{ fontSize: '22px', fontWeight: '800', color: '#1a1a2e', lineHeight: 1 }}>{stat.value}</div>
-              {stat.unit && <div style={{ fontSize: '11px', color: stat.accent, fontWeight: '700', marginTop: '2px' }}>{stat.unit}</div>}
-              <div style={{ fontSize: '11px', color: '#aaa', marginTop: '4px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{stat.label}</div>
+              <div style={{ fontSize: '22px', fontWeight: '800', color: activeTab === stat.tab ? 'white' : '#1a1a2e', lineHeight: 1 }}>{stat.value}</div>
+              {stat.unit && <div style={{ fontSize: '11px', color: activeTab === stat.tab ? 'rgba(255,255,255,0.7)' : stat.accent, fontWeight: '700', marginTop: '2px' }}>{stat.unit}</div>}
+              <div style={{ fontSize: '11px', color: activeTab === stat.tab ? 'rgba(255,255,255,0.6)' : '#aaa', marginTop: '4px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{stat.label}</div>
             </div>
           ))}
         </div>
+
+        {/* Tabbed chart */}
+        {chartSessions.length > 1 && (
+          <div style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5', marginBottom: '20px' }}>
+
+            {/* Chart header */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ width: '34px', height: '34px', background: '#eef2fb', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <TrendingUp size={17} color="#2c5a9e" />
+                </div>
+                <span style={{ fontWeight: '800', color: '#1a1a2e', fontSize: '15px' }}>
+                  {activeTabDef.label} Over Time
+                </span>
+              </div>
+              {pctChange !== null && (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: '700', color: pctChange >= 0 ? '#22c55e' : '#dc3545', background: pctChange >= 0 ? '#f0fdf4' : '#ffeaea', padding: '4px 10px', borderRadius: '20px' }}>
+                  {pctChange >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+                  {Math.abs(pctChange).toFixed(0)}% vs your average
+                </span>
+              )}
+            </div>
+
+            {/* Tab buttons */}
+            <div style={{ display: 'flex', gap: '6px', marginBottom: '24px', overflowX: 'auto', paddingBottom: '4px' }}>
+              {tabs.map(tab => (
+                <button key={tab.key} className="tab-btn" onClick={() => setActiveTab(tab.key)}
+                  style={{ padding: '7px 14px', borderRadius: '20px', border: 'none', fontSize: '12px', fontWeight: '700', fontFamily: 'inherit', background: activeTab === tab.key ? '#2c5a9e' : '#f0f2f7', color: activeTab === tab.key ? 'white' : '#888', flexShrink: 0 }}>
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Bar chart */}
+            <div style={{ overflowX: 'auto' }}>
+              <svg width="100%" viewBox={`0 0 ${Math.max(400, CHART_TOTAL_W + 20)} ${CHART_H + 50}`} style={{ display: 'block' }}>
+                {/* Y axis gridlines */}
+                {[0.25, 0.5, 0.75, 1].map(pct => (
+                  <line key={pct} x1="0" y1={CHART_H - pct * CHART_H} x2={Math.max(400, CHART_TOTAL_W + 20)} y2={CHART_H - pct * CHART_H} stroke="#f0f2f7" strokeWidth="1" />
+                ))}
+                {/* Bars */}
+                {chartValues.map((c, i) => {
+                  const isCurrent = c.session.id === session.id
+                  const barH = c.value ? (c.value / maxVal) * CHART_H : 0
+                  const x = i * (BAR_W + 10) + 5
+                  const dateLabel = c.session.session_date
+                    ? new Date(c.session.session_date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                    : ''
+                  return (
+                    <g key={c.session.id}>
+                      {/* Bar */}
+                      <rect
+                        x={x} y={CHART_H - barH} width={BAR_W} height={barH} rx="4"
+                        fill={isCurrent ? activeTabDef.color : activeTabDef.color === '#f88124' ? '#fdd9b5' : '#c8d4f0'}
+                      />
+                      {/* Value label on top of bar */}
+                      {c.value !== null && barH > 16 && (
+                        <text x={x + BAR_W / 2} y={CHART_H - barH + 14} textAnchor="middle"
+                          style={{ fontSize: '9px', fill: 'white', fontWeight: '800', fontFamily: 'inherit' }}>
+                          {formatVal(c.value, activeTabDef.unit)}
+                        </text>
+                      )}
+                      {/* Date label */}
+                      <text x={x + BAR_W / 2} y={CHART_H + 18} textAnchor="middle"
+                        style={{ fontSize: '10px', fill: isCurrent ? '#1a1a2e' : '#aaa', fontWeight: isCurrent ? '800' : '600', fontFamily: 'inherit' }}>
+                        {isCurrent ? 'Today' : dateLabel}
+                      </text>
+                      {/* Unit label */}
+                      <text x={x + BAR_W / 2} y={CHART_H + 32} textAnchor="middle"
+                        style={{ fontSize: '9px', fill: isCurrent ? activeTabDef.color : '#ccc', fontWeight: '700', fontFamily: 'inherit' }}>
+                        {c.value !== null ? activeTabDef.unit : ''}
+                      </text>
+                    </g>
+                  )
+                })}
+                {/* Baseline */}
+                <line x1="0" y1={CHART_H} x2={Math.max(400, CHART_TOTAL_W + 20)} y2={CHART_H} stroke="#e5e8f0" strokeWidth="1.5" />
+                {/* Avg line */}
+                {prevAvg && (
+                  <>
+                    <line x1="0" y1={CHART_H - (prevAvg / maxVal) * CHART_H} x2={Math.max(400, CHART_TOTAL_W + 20)} y2={CHART_H - (prevAvg / maxVal) * CHART_H} stroke="#f88124" strokeWidth="1.5" strokeDasharray="4 3" />
+                    <text x="6" y={CHART_H - (prevAvg / maxVal) * CHART_H - 4}
+                      style={{ fontSize: '9px', fill: '#f88124', fontWeight: '700', fontFamily: 'inherit' }}>
+                      avg
+                    </text>
+                  </>
+                )}
+              </svg>
+            </div>
+
+            {/* No data note */}
+            {chartValues.every(c => c.value === null) && (
+              <p style={{ margin: '8px 0 0', fontSize: '12px', color: '#bbb', textAlign: 'center' }}>
+                No {activeTabDef.label.toLowerCase()} data yet — will populate once sessions are logged
+              </p>
+            )}
+          </div>
+        )}
 
         {/* Speed Breakdown */}
         {hasSlatmillData && session.avg_speed_mph && session.peak_speed_mph && (
@@ -167,95 +277,6 @@ export default function SessionDetail() {
               <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#aaa', fontWeight: '600' }}>
                 Running at {((session.avg_speed_mph / session.peak_speed_mph) * 100).toFixed(0)}% of peak speed on average
               </p>
-            </div>
-          </div>
-        )}
-
-        {/* Session History Chart */}
-        {chartSessions.length > 1 && (
-          <div style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5', marginBottom: '20px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
-              <div style={{ width: '34px', height: '34px', background: '#eef2fb', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <TrendingUp size={17} color="#2c5a9e" />
-              </div>
-              <span style={{ fontWeight: '800', color: '#1a1a2e', fontSize: '15px' }}>Session History</span>
-              <div style={{ marginLeft: 'auto', display: 'flex', gap: '12px' }}>
-                <span style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', color: '#888', fontWeight: '600' }}>
-                  <span style={{ display: 'inline-block', width: '10px', height: '10px', borderRadius: '2px', background: '#2c5a9e' }} /> Distance
-                </span>
-                <span style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', color: '#888', fontWeight: '600' }}>
-                  <span style={{ display: 'inline-block', width: '10px', height: '10px', borderRadius: '2px', background: '#f88124' }} /> Avg Speed
-                </span>
-              </div>
-            </div>
-            <div style={{ overflowX: 'auto' }}>
-              <svg width="100%" viewBox={`0 0 ${Math.max(CHART_W, chartSessions.length * (BAR_W + 4) + 20)} ${CHART_H + 40}`} style={{ display: 'block' }}>
-                {chartSessions.map((s, i) => {
-                  const isCurrent = s.id === session.id
-                  const distH = s.distance_miles ? (s.distance_miles / maxDist) * CHART_H : 0
-                  const speedH = s.avg_speed_mph ? (s.avg_speed_mph / maxSpeed) * CHART_H : 0
-                  const x = i * (BAR_W + 4) + 2
-                  const halfBar = Math.floor(BAR_W / 2) - 2
-                  const dateLabel = s.session_date ? new Date(s.session_date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''
-                  return (
-                    <g key={s.id}>
-                      <rect x={x} y={CHART_H - distH} width={halfBar} height={distH} rx="3" fill={isCurrent ? '#2c5a9e' : '#c8d4f0'} />
-                      <rect x={x + halfBar + 2} y={CHART_H - speedH} width={halfBar} height={speedH} rx="3" fill={isCurrent ? '#f88124' : '#fdd9b5'} />
-                      <text x={x + BAR_W / 2} y={CHART_H + 16} textAnchor="middle"
-                        style={{ fontSize: '9px', fill: isCurrent ? '#1a1a2e' : '#aaa', fontWeight: isCurrent ? '800' : '600', fontFamily: 'inherit' }}>
-                        {isCurrent ? 'Today' : dateLabel}
-                      </text>
-                    </g>
-                  )
-                })}
-                <line x1="0" y1={CHART_H} x2={chartSessions.length * (BAR_W + 4)} y2={CHART_H} stroke="#e5e8f0" strokeWidth="1" />
-              </svg>
-            </div>
-            {maxDist === 0.1 && <p style={{ margin: '8px 0 0', fontSize: '12px', color: '#bbb', textAlign: 'center' }}>Distance data will appear once the slatmill sensor is active</p>}
-          </div>
-        )}
-
-        {/* vs Previous Sessions */}
-        {prevWithData.length > 0 && hasSlatmillData && (
-          <div style={{ background: 'white', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5', overflow: 'hidden', marginBottom: '20px' }}>
-            <div style={{ padding: '18px 24px', borderBottom: '1.5px solid #f0f2f7', display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div style={{ width: '34px', height: '34px', background: '#eef2fb', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Minus size={17} color="#2c5a9e" />
-              </div>
-              <span style={{ fontWeight: '800', color: '#1a1a2e', fontSize: '15px' }}>vs Previous Sessions</span>
-              <span style={{ fontSize: '12px', color: '#aaa', fontWeight: '600' }}>avg of last {prevWithData.length}</span>
-            </div>
-            <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              {[
-                { label: 'Distance', current: session.distance_miles, prevAvg: prevAvgDistance, unit: 'mi', color: '#2c5a9e' },
-                { label: 'Avg Speed', current: session.avg_speed_mph, prevAvg: prevAvgSpeed, unit: 'mph', color: '#2c5a9e' },
-                { label: 'Calories', current: session.calories, prevAvg: prevAvgCalories, unit: 'cal', color: '#f88124' },
-                { label: 'Duration', current: session.duration_minutes, prevAvg: prevAvgDuration, unit: 'min', color: '#2c5a9e' },
-              ].filter(s => s.current && s.prevAvg).map(stat => {
-                const maxVal = Math.max(stat.current!, stat.prevAvg!) * 1.15
-                return (
-                  <div key={stat.label}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                      <span style={{ fontWeight: '800', color: '#1a1a2e', fontSize: '13px' }}>{stat.label}</span>
-                      {diffBadge(stat.current, stat.prevAvg)}
-                    </div>
-                    {[
-                      { label: 'This session', value: stat.current!, color: stat.color },
-                      { label: 'Your avg', value: stat.prevAvg!, color: '#d0d8e8' },
-                    ].map(row => (
-                      <div key={row.label} style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '6px' }}>
-                        <span style={{ fontSize: '11px', color: '#aaa', width: '72px', fontWeight: '700', flexShrink: 0 }}>{row.label}</span>
-                        <div style={{ flex: 1, height: '10px', background: '#f0f2f7', borderRadius: '5px', overflow: 'hidden' }}>
-                          <div style={{ height: '100%', width: `${(row.value / maxVal) * 100}%`, background: row.color, borderRadius: '5px' }} />
-                        </div>
-                        <span style={{ fontSize: '12px', fontWeight: '800', color: '#1a1a2e', width: '52px', textAlign: 'right', flexShrink: 0 }}>
-                          {typeof row.value === 'number' && row.value % 1 !== 0 ? row.value.toFixed(1) : Math.round(row.value)} {stat.unit}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                )
-              })}
             </div>
           </div>
         )}
