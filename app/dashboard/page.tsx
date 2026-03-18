@@ -215,7 +215,7 @@ export default function ClientDashboard() {
       {/* Nav */}
       <nav style={{ background: 'white', padding: '0 24px', height: '80px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, boxShadow: '0 2px 12px rgba(0,24,64,0.08)', borderBottom: '3px solid #f88124' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <img src="/logo.png" alt="The Canine Gym" style={{ height: '56px', width: 'auto' }} />
+          <img src="/logo.png" alt="The Canine Gym" style={{ height: 'clamp(36px, 7vw, 56px)', width: 'auto' }} />
         </div>
 
         {/* Desktop nav */}
@@ -228,7 +228,7 @@ export default function ClientDashboard() {
             { href: '/membership', icon: <CreditCard size={15} />, label: selectedDog && membershipsMap[selectedDog?.id] ? `Membership (${membershipsMap[selectedDog.id].sessions_remaining} left)` : 'Membership' },
             { href: '/payments', icon: <Receipt size={15} />, label: 'Payments' },
           ].map(item => (
-            <a key={item.href} href={item.href} className="nav-link" style={{ color: '#001840', textDecoration: 'none', fontWeight: '600', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '5px', padding: '8px 12px', borderRadius: '8px', transition: 'all 0.15s', background: 'rgba(0,24,64,0.04)' }}>
+            <a key={item.href} href={item.href} className="nav-link" style={{ color: '#001840', textDecoration: 'none', fontWeight: '600', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '5px', padding: '8px 12px', borderRadius: '8px', transition: 'all 0.15s', background: 'rgba(0,24,64,0.04)', flexShrink: 0 }}>
               {item.icon} {item.label}
             </a>
           ))}
