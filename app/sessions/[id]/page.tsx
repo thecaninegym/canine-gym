@@ -120,13 +120,14 @@ export default function SessionDetail() {
         </div>
 
         {/* Main stat cards */}
-        <div className="stat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '12px', marginBottom: '20px' }}>
+        <div className="stat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '20px' }}>
           {[
             { icon: <Timer size={20} color="#2c5a9e" />, label: 'Duration', value: session.duration_minutes ? (session.duration_minutes % 1 === 0 ? String(session.duration_minutes) : session.duration_minutes.toFixed(1)) : '—', unit: session.duration_minutes ? 'min' : '', bg: '#eef2fb', accent: '#2c5a9e' },
             { icon: <MapPin size={20} color="#2c5a9e" />, label: 'Distance', value: session.distance_miles ? session.distance_miles.toFixed(2) : '—', unit: session.distance_miles ? 'mi' : '', bg: '#eef2fb', accent: '#2c5a9e' },
             { icon: <Gauge size={20} color="#2c5a9e" />, label: 'Avg Speed', value: session.avg_speed_mph ? session.avg_speed_mph.toFixed(1) : '—', unit: session.avg_speed_mph ? 'mph' : '', bg: '#eef2fb', accent: '#2c5a9e' },
             { icon: <Zap size={20} color="#f88124" />, label: 'Peak Speed', value: session.peak_speed_mph ? session.peak_speed_mph.toFixed(1) : '—', unit: session.peak_speed_mph ? 'mph' : '', bg: '#fff5e6', accent: '#f88124' },
             { icon: <Flame size={20} color="#f88124" />, label: 'Calories', value: session.calories ? Math.round(session.calories) : '—', unit: session.calories ? 'cal' : '', bg: '#fff5e6', accent: '#f88124' },
+            { icon: <PawPrint size={20} color="#2c5a9e" />, label: 'Weight', value: session.dog_weight_lbs ? session.dog_weight_lbs.toFixed(1) : '—', unit: session.dog_weight_lbs ? 'lbs' : '', bg: '#eef2fb', accent: '#2c5a9e' },
           ].map(stat => (
             <div key={stat.label} style={{ background: 'white', padding: '16px 12px', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5', textAlign: 'center' }}>
               <div style={{ width: '40px', height: '40px', background: stat.bg, borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px' }}>
