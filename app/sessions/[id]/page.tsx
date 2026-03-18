@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
-import { PawPrint, ArrowLeft, Timer, MapPin, Flame, Activity, BarChart2, FileText, Wifi } from 'lucide-react'
+import { PawPrint, ArrowLeft, Timer, MapPin, Flame, Zap, Gauge, FileText, TrendingUp, TrendingDown, Minus } from 'lucide-react'
 
 export default function SessionDetail() {
   const params = useParams()
@@ -14,21 +14,45 @@ export default function SessionDetail() {
 
   useEffect(() => {
     const init = async () => {
-      const { data: sessionData } = await supabase.from('sessions').select('*, dogs(name, breed, photo_url, owner_id)').eq('id', id).single()
+      const { data: sessionData } = await supabase
+        .from('sessions')
+        .select('*, dogs(name, breed, photo_url, owner_id)')
+        .eq('id', id)
+        .single()
       if (!sessionData) { setLoading(false); return }
       setSession(sessionData)
       setDog(sessionData.dogs)
-
-      const { data: prevSessions } = await supabase.from('sessions').select('*').eq('dog_id', sessionData.dog_id).neq('id', id).order('session_date', { ascending: false }).limit(5)
+      const { data: prevSessions } = await supabase
+        .from('sessions')
+        .select('*')
+        .eq('dog_id', sessionData.dog_id)
+        .neq('id', id)
+        .order('session_date', { ascending: false })
+        .limit(6)
       setPreviousSessions(prevSessions || [])
       setLoading(false)
     }
     init()
   }, [id])
 
-  const formatDate = (dateStr: string) => new Date(dateStr + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
-  const getIntensityColor = (score: number) => score >= 80 ? '#f88124' : score >= 50 ? '#f59e0b' : '#22c55e'
-  const getIntensityLabel = (score: number) => score >= 80 ? 'High' : score >= 50 ? 'Moderate' : 'Light'
+  const formatDate = (dateStr: string) =>
+    new Date(dateStr + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
+
+  const avg = (arr: number[]) => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null
+
+  const diffBadge = (current: number | null, previous: number | null) => {
+    if (!current || !previous) return null
+    const pct = ((current - previous) / previous * 100)
+    const isUp = pct >= 0
+    const color = isUp ? '#22c55e' : '#dc3545'
+    const bg = isUp ? '#f0fdf4' : '#ffeaea'
+    const Icon = isUp ? TrendingUp : TrendingDown
+    return (
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: '700', color, background: bg, padding: '3px 8px', borderRadius: '20px' }}>
+        <Icon size={11} /> {Math.abs(pct).toFixed(0)}% vs avg
+      </span>
+    )
+  }
 
   if (loading) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #001840 0%, #2c5a9e 100%)' }}>
@@ -46,33 +70,35 @@ export default function SessionDetail() {
     </div>
   )
 
-  const comparisonStats = [
-    { label: 'Distance', key: 'distance_miles', unit: 'mi', current: session.distance_miles },
-    { label: 'Calories', key: 'calories_burned', unit: 'cal', current: session.calories_burned },
-    { label: 'Steps', key: 'steps', unit: '', current: session.steps },
-    { label: 'Activity Score', key: 'activity_score', unit: '', current: session.activity_score },
-    { label: 'Peak Intensity', key: 'peak_intensity', unit: '', current: session.peak_intensity },
-  ]
+  const hasSlatmillData = session.distance_miles || session.avg_speed_mph || session.peak_speed_mph
 
-  const mainStats = [
-    { icon: <Timer size={22} color="#2c5a9e" />, label: 'Duration', value: session.duration_minutes ? `${session.duration_minutes} min` : '—', bg: '#eef2fb' },
-    { icon: <MapPin size={22} color="#2c5a9e" />, label: 'Distance', value: session.distance_miles ? `${session.distance_miles} mi` : '—', bg: '#eef2fb' },
-    { icon: <Flame size={22} color="#f88124" />, label: 'Calories', value: session.calories_burned ? `${session.calories_burned}` : '—', bg: '#fff5e6' },
-    { icon: <Activity size={22} color="#2c5a9e" />, label: 'Steps', value: session.steps ? session.steps.toLocaleString() : '—', bg: '#eef2fb' },
-  ]
+  // Previous session averages
+  const prevWithData = previousSessions.filter(s => s.distance_miles || s.avg_speed_mph)
+  const prevAvgDistance = avg(prevWithData.map((s: any) => s.distance_miles).filter(Boolean))
+  const prevAvgSpeed = avg(prevWithData.map((s: any) => s.avg_speed_mph).filter(Boolean))
+  const prevAvgCalories = avg(prevWithData.map((s: any) => s.calories).filter(Boolean))
+  const prevAvgDuration = avg(previousSessions.map((s: any) => s.duration_minutes).filter(Boolean))
+
+  // Chart data — last 6 sessions + current, oldest to newest
+  const chartSessions = [...previousSessions].reverse().concat([session])
+  const maxDist = Math.max(...chartSessions.map(s => s.distance_miles || 0), 0.1)
+  const maxSpeed = Math.max(...chartSessions.map(s => s.avg_speed_mph || 0), 1)
+
+  const CHART_H = 80
+  const CHART_W = 280
+  const BAR_W = Math.floor(CHART_W / chartSessions.length) - 4
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', fontFamily: "'Montserrat', system-ui, sans-serif" }}>
       <style>{`
         @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fillBar { from { width: 0%; } to { width: var(--w); } }
         * { box-sizing: border-box; }
+        @media (max-width: 600px) { .stat-grid { grid-template-columns: repeat(2, 1fr) !important; } }
       `}</style>
 
-      {/* Nav */}
       <nav style={{ background: 'white', padding: '0 24px', height: '80px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 12px rgba(0,24,64,0.08)', borderBottom: '3px solid #f88124' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <img src="/logo.png" alt="The Canine Gym" style={{ height: '56px', width: 'auto' }} />
-        </div>
+        <img src="/logo.png" alt="The Canine Gym" style={{ height: '56px', width: 'auto' }} />
         <a href="/dashboard" style={{ color: '#001840', textDecoration: 'none', fontWeight: '600', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px', borderRadius: '8px', background: 'rgba(0,24,64,0.04)' }}>
           <ArrowLeft size={15} /> Dashboard
         </a>
@@ -80,9 +106,9 @@ export default function SessionDetail() {
 
       <div style={{ padding: '28px 24px', maxWidth: '800px', margin: '0 auto', animation: 'fadeUp 0.35s ease' }}>
 
-        {/* Hero card */}
-        <div style={{ background: 'linear-gradient(135deg, #001840 0%, #2c5a9e 100%)', borderRadius: '20px', padding: '28px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '20px', position: 'relative', overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', top: -40, right: -40, width: '160px', height: '160px', borderRadius: '50%', background: 'rgba(255,107,53,0.1)' }} />
+        {/* Hero */}
+        <div style={{ background: 'linear-gradient(135deg, #001840 0%, #2c5a9e 100%)', borderRadius: '20px', padding: '28px 32px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '20px', position: 'relative', overflow: 'hidden' }}>
+          <div style={{ position: 'absolute', top: -40, right: -40, width: '180px', height: '180px', borderRadius: '50%', background: 'rgba(248,129,36,0.12)' }} />
           {dog?.photo_url ? (
             <img src={dog.photo_url} alt={dog.name} style={{ width: '80px', height: '80px', borderRadius: '18px', objectFit: 'cover', border: '3px solid rgba(255,255,255,0.2)', flexShrink: 0 }} />
           ) : (
@@ -90,96 +116,148 @@ export default function SessionDetail() {
               <PawPrint size={36} color="rgba(255,255,255,0.5)" />
             </div>
           )}
-          <div>
+          <div style={{ position: 'relative' }}>
             <h2 style={{ margin: '0 0 4px', fontSize: '26px', fontWeight: '800', color: 'white' }}>{dog?.name}</h2>
             <p style={{ margin: 0, color: 'rgba(255,255,255,0.7)', fontSize: '14px' }}>{formatDate(session.session_date)}</p>
           </div>
         </div>
 
-        {/* FitBark notice */}
-        {!session.distance_miles && !session.calories_burned && (
-          <div style={{ background: 'white', border: '1.5px solid #ffe08a', borderRadius: '14px', padding: '16px 20px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '12px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
-            <div style={{ width: '40px', height: '40px', background: '#fff5e6', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <Wifi size={20} color="#f88124" />
-            </div>
-            <div>
-              <p style={{ margin: '0 0 2px', fontWeight: '800', color: '#1a1a2e', fontSize: '14px' }}>FitBark Data Coming Soon</p>
-              <p style={{ margin: 0, color: '#888', fontSize: '13px' }}>Once FitBark is synced, this session will show full activity data.</p>
-            </div>
-          </div>
-        )}
-
-        {/* Main stats */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '14px', marginBottom: '20px' }}>
-          {mainStats.map(stat => (
-            <div key={stat.label} style={{ background: 'white', padding: '20px', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5', textAlign: 'center' }}>
-              <div style={{ width: '44px', height: '44px', background: stat.bg, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
+        {/* Main stat cards */}
+        <div className="stat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '12px', marginBottom: '20px' }}>
+          {[
+            { icon: <Timer size={20} color="#2c5a9e" />, label: 'Duration', value: session.duration_minutes ? `${typeof session.duration_minutes === 'number' ? session.duration_minutes % 1 === 0 ? session.duration_minutes : session.duration_minutes.toFixed(1) : session.duration_minutes}`, unit: 'min', bg: '#eef2fb', accent: '#2c5a9e' },
+            { icon: <MapPin size={20} color="#2c5a9e" />, label: 'Distance', value: session.distance_miles ? session.distance_miles.toFixed(2) : '—', unit: session.distance_miles ? 'mi' : '', bg: '#eef2fb', accent: '#2c5a9e' },
+            { icon: <Gauge size={20} color="#2c5a9e" />, label: 'Avg Speed', value: session.avg_speed_mph ? session.avg_speed_mph.toFixed(1) : '—', unit: session.avg_speed_mph ? 'mph' : '', bg: '#eef2fb', accent: '#2c5a9e' },
+            { icon: <Zap size={20} color="#f88124" />, label: 'Peak Speed', value: session.peak_speed_mph ? session.peak_speed_mph.toFixed(1) : '—', unit: session.peak_speed_mph ? 'mph' : '', bg: '#fff5e6', accent: '#f88124' },
+            { icon: <Flame size={20} color="#f88124" />, label: 'Calories', value: session.calories ? Math.round(session.calories) : '—', unit: session.calories ? 'cal' : '', bg: '#fff5e6', accent: '#f88124' },
+          ].map(stat => (
+            <div key={stat.label} style={{ background: 'white', padding: '16px 12px', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5', textAlign: 'center' }}>
+              <div style={{ width: '40px', height: '40px', background: stat.bg, borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px' }}>
                 {stat.icon}
               </div>
-              <div style={{ fontSize: '24px', fontWeight: '800', color: '#1a1a2e' }}>{stat.value}</div>
-              <div style={{ fontSize: '12px', color: '#888', marginTop: '4px', fontWeight: '600' }}>{stat.label}</div>
+              <div style={{ fontSize: '22px', fontWeight: '800', color: '#1a1a2e', lineHeight: 1 }}>{stat.value}</div>
+              {stat.unit && <div style={{ fontSize: '11px', color: stat.accent, fontWeight: '700', marginTop: '2px' }}>{stat.unit}</div>}
+              <div style={{ fontSize: '11px', color: '#aaa', marginTop: '4px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{stat.label}</div>
             </div>
           ))}
         </div>
 
-        {/* Intensity scores */}
-        {(session.activity_score || session.peak_intensity) && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '20px' }}>
-            {[
-              { label: 'Activity Score', value: session.activity_score },
-              { label: 'Peak Intensity', value: session.peak_intensity },
-            ].filter(s => s.value).map(({ label, value }) => (
-              <div key={label} style={{ background: 'white', padding: '20px', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5' }}>
-                <p style={{ margin: '0 0 12px', fontWeight: '800', color: '#1a1a2e', fontSize: '13px' }}>{label}</p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                  <div style={{ fontSize: '36px', fontWeight: '800', color: getIntensityColor(value), lineHeight: 1 }}>{value}</div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ height: '8px', background: '#f0f2f7', borderRadius: '4px', overflow: 'hidden', marginBottom: '5px' }}>
-                      <div style={{ height: '100%', width: `${value}%`, background: getIntensityColor(value), borderRadius: '4px' }} />
-                    </div>
-                    <p style={{ margin: 0, fontSize: '12px', color: '#888', fontWeight: '600' }}>{getIntensityLabel(value)}</p>
+        {/* Speed visual — avg vs peak gauge */}
+        {hasSlatmillData && session.avg_speed_mph && session.peak_speed_mph && (
+          <div style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5', marginBottom: '20px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+              <div style={{ width: '34px', height: '34px', background: '#eef2fb', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Gauge size={17} color="#2c5a9e" />
+              </div>
+              <span style={{ fontWeight: '800', color: '#1a1a2e', fontSize: '15px' }}>Speed Breakdown</span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {[
+                { label: 'Average Speed', value: session.avg_speed_mph, max: session.peak_speed_mph * 1.1, color: '#2c5a9e', unit: 'mph' },
+                { label: 'Peak Speed', value: session.peak_speed_mph, max: session.peak_speed_mph * 1.1, color: '#f88124', unit: 'mph' },
+              ].map(({ label, value, max, color, unit }) => (
+                <div key={label}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                    <span style={{ fontSize: '13px', fontWeight: '700', color: '#555' }}>{label}</span>
+                    <span style={{ fontSize: '15px', fontWeight: '800', color }}>{value.toFixed(1)} {unit}</span>
+                  </div>
+                  <div style={{ height: '10px', background: '#f0f2f7', borderRadius: '5px', overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: `${(value / max) * 100}%`, background: color, borderRadius: '5px', transition: 'width 0.8s ease' }} />
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+              <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#aaa', fontWeight: '600' }}>
+                Running at {((session.avg_speed_mph / session.peak_speed_mph) * 100).toFixed(0)}% of peak speed on average
+              </p>
+            </div>
           </div>
         )}
 
-        {/* Comparison */}
-        {previousSessions.length > 0 && (
+        {/* Session history chart */}
+        {chartSessions.length > 1 && (
+          <div style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5', marginBottom: '20px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+              <div style={{ width: '34px', height: '34px', background: '#eef2fb', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <TrendingUp size={17} color="#2c5a9e" />
+              </div>
+              <span style={{ fontWeight: '800', color: '#1a1a2e', fontSize: '15px' }}>Session History</span>
+              <div style={{ marginLeft: 'auto', display: 'flex', gap: '12px' }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', color: '#888', fontWeight: '600' }}>
+                  <span style={{ display: 'inline-block', width: '10px', height: '10px', borderRadius: '2px', background: '#2c5a9e' }} /> Distance
+                </span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', color: '#888', fontWeight: '600' }}>
+                  <span style={{ display: 'inline-block', width: '10px', height: '10px', borderRadius: '2px', background: '#f88124' }} /> Avg Speed
+                </span>
+              </div>
+            </div>
+            <div style={{ overflowX: 'auto' }}>
+              <svg width="100%" viewBox={`0 0 ${Math.max(CHART_W, chartSessions.length * (BAR_W + 4) + 20)} ${CHART_H + 40}`} style={{ display: 'block' }}>
+                {chartSessions.map((s, i) => {
+                  const isCurrent = s.id === session.id
+                  const distH = s.distance_miles ? (s.distance_miles / maxDist) * CHART_H : 0
+                  const speedH = s.avg_speed_mph ? (s.avg_speed_mph / maxSpeed) * CHART_H : 0
+                  const x = i * (BAR_W + 4) + 2
+                  const halfBar = Math.floor(BAR_W / 2) - 2
+                  const dateLabel = s.session_date ? new Date(s.session_date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''
+                  return (
+                    <g key={s.id}>
+                      {/* Distance bar */}
+                      <rect x={x} y={CHART_H - distH} width={halfBar} height={distH} rx="3"
+                        fill={isCurrent ? '#2c5a9e' : '#c8d4f0'} />
+                      {/* Speed bar */}
+                      <rect x={x + halfBar + 2} y={CHART_H - speedH} width={halfBar} height={speedH} rx="3"
+                        fill={isCurrent ? '#f88124' : '#fdd9b5'} />
+                      {/* Date label */}
+                      <text x={x + BAR_W / 2} y={CHART_H + 16} textAnchor="middle"
+                        style={{ fontSize: '9px', fill: isCurrent ? '#1a1a2e' : '#aaa', fontWeight: isCurrent ? '800' : '600', fontFamily: 'inherit' }}>
+                        {isCurrent ? 'Today' : dateLabel}
+                      </text>
+                    </g>
+                  )
+                })}
+                {/* Baseline */}
+                <line x1="0" y1={CHART_H} x2={chartSessions.length * (BAR_W + 4)} y2={CHART_H} stroke="#e5e8f0" strokeWidth="1" />
+              </svg>
+            </div>
+            {maxDist === 0.1 && <p style={{ margin: '8px 0 0', fontSize: '12px', color: '#bbb', textAlign: 'center' }}>Distance data will appear once the slatmill sensor is active</p>}
+          </div>
+        )}
+
+        {/* Comparison vs previous */}
+        {prevWithData.length > 0 && hasSlatmillData && (
           <div style={{ background: 'white', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5', overflow: 'hidden', marginBottom: '20px' }}>
             <div style={{ padding: '18px 24px', borderBottom: '1.5px solid #f0f2f7', display: 'flex', alignItems: 'center', gap: '10px' }}>
               <div style={{ width: '34px', height: '34px', background: '#eef2fb', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <BarChart2 size={17} color="#2c5a9e" />
+                <Minus size={17} color="#2c5a9e" />
               </div>
               <span style={{ fontWeight: '800', color: '#1a1a2e', fontSize: '15px' }}>vs Previous Sessions</span>
+              <span style={{ fontSize: '12px', color: '#aaa', fontWeight: '600' }}>avg of last {prevWithData.length}</span>
             </div>
-            <div style={{ padding: '20px 24px' }}>
-              {comparisonStats.map(stat => {
-                const prevValues = previousSessions.map(s => s[stat.key] || 0).filter(v => v > 0)
-                const prevAvg = prevValues.length > 0 ? prevValues.reduce((a, b) => a + b, 0) / prevValues.length : null
-                const current = stat.current || 0
-                const diff = prevAvg ? ((current - prevAvg) / prevAvg * 100).toFixed(0) : null
-                if (!current && !prevAvg) return null
-                const maxVal = Math.max(current, prevAvg || 0) * 1.2 || 1
+            <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              {[
+                { label: 'Distance', current: session.distance_miles, prevAvg: prevAvgDistance, unit: 'mi', color: '#2c5a9e' },
+                { label: 'Avg Speed', current: session.avg_speed_mph, prevAvg: prevAvgSpeed, unit: 'mph', color: '#2c5a9e' },
+                { label: 'Calories', current: session.calories, prevAvg: prevAvgCalories, unit: 'cal', color: '#f88124' },
+                { label: 'Duration', current: session.duration_minutes, prevAvg: prevAvgDuration, unit: 'min', color: '#2c5a9e' },
+              ].filter(s => s.current && s.prevAvg).map(stat => {
+                const maxVal = Math.max(stat.current!, stat.prevAvg!) * 1.15
                 return (
-                  <div key={stat.key} style={{ marginBottom: '20px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <div key={stat.label}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                       <span style={{ fontWeight: '800', color: '#1a1a2e', fontSize: '13px' }}>{stat.label}</span>
-                      {diff !== null && (
-                        <span style={{ fontSize: '12px', fontWeight: '700', color: Number(diff) >= 0 ? '#22c55e' : '#dc3545', background: Number(diff) >= 0 ? '#f0fdf4' : '#ffeaea', padding: '2px 8px', borderRadius: '20px' }}>
-                          {Number(diff) >= 0 ? '↑' : '↓'} {Math.abs(Number(diff))}% vs avg
-                        </span>
-                      )}
+                      {diffBadge(stat.current, stat.prevAvg)}
                     </div>
-                    {[{ label: 'This session', value: current, color: '#f88124' }, { label: 'Avg', value: prevAvg, color: '#2c5a9e' }].filter(r => r.value).map(row => (
-                      <div key={row.label} style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '5px' }}>
-                        <span style={{ fontSize: '12px', color: '#888', width: '76px', fontWeight: '600' }}>{row.label}</span>
+                    {[
+                      { label: 'This session', value: stat.current!, color: stat.color },
+                      { label: 'Your avg', value: stat.prevAvg!, color: '#d0d8e8' },
+                    ].map(row => (
+                      <div key={row.label} style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '6px' }}>
+                        <span style={{ fontSize: '11px', color: '#aaa', width: '72px', fontWeight: '700', flexShrink: 0 }}>{row.label}</span>
                         <div style={{ flex: 1, height: '10px', background: '#f0f2f7', borderRadius: '5px', overflow: 'hidden' }}>
-                          <div style={{ height: '100%', width: `${((row.value as number) / maxVal) * 100}%`, background: row.color, borderRadius: '5px' }} />
+                          <div style={{ height: '100%', width: `${(row.value / maxVal) * 100}%`, background: row.color, borderRadius: '5px' }} />
                         </div>
-                        <span style={{ fontSize: '12px', fontWeight: '800', color: '#1a1a2e', width: '56px', textAlign: 'right' }}>
-                          {typeof row.value === 'number' ? (Number.isInteger(row.value) ? row.value : row.value.toFixed(1)) : '—'} {stat.unit}
+                        <span style={{ fontSize: '12px', fontWeight: '800', color: '#1a1a2e', width: '52px', textAlign: 'right', flexShrink: 0 }}>
+                          {typeof row.value === 'number' && row.value % 1 !== 0 ? row.value.toFixed(1) : Math.round(row.value)} {stat.unit}
                         </span>
                       </div>
                     ))}
