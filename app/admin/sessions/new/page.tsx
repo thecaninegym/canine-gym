@@ -167,9 +167,10 @@ export default function LogSession() {
           sessionDate: new Date(sessionDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }),
           duration: selectedSlatmill ? selectedSlatmill.duration_minutes : duration,
           miles: selectedSlatmill?.distance_miles || null,
+          avgSpeedMph: selectedSlatmill?.avg_speed_mph || null,
+          peakSpeedMph: selectedSlatmill?.peak_speed_mph || null,
           calories: calories || null,
-          activeMinutes: fitbarkStats.activeMinutes || null,
-          activityTotal: fitbarkStats.totalActivity || null,
+          dogWeightLbs: dogWeightLbs ? parseFloat(dogWeightLbs) : null,
           notes,
           achievementsUnlocked: newAchievements.map((a: any) => a.label)
         })
