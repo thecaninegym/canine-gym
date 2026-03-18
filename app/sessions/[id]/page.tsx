@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
 import { PawPrint, ArrowLeft, Timer, MapPin, Flame, Zap, Gauge, FileText, TrendingUp, TrendingDown } from 'lucide-react'
@@ -14,6 +14,13 @@ export default function SessionDetail() {
   const [previousSessions, setPreviousSessions] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<Tab>('duration')
+  const chartScrollRef = useRef<HTMLDivElement>(null)
+
+useEffect(() => {
+  if (chartScrollRef.current) {
+    chartScrollRef.current.scrollLeft = chartScrollRef.current.scrollWidth
+  }
+}, [activeTab, session])
 
   useEffect(() => {
     const init = async () => {
@@ -100,7 +107,7 @@ export default function SessionDetail() {
         * { box-sizing: border-box; }
         @media (max-width: 600px) { .stat-grid { grid-template-columns: repeat(2, 1fr) !important; } }
         .tab-btn { transition: all 0.15s ease; cursor: pointer; white-space: nowrap; }
-        .tab-btn:hover { background: #eef2fb !important; }
+        .tab-btn:not(.tab-active):hover { background: #eef2fb !important; }
       `}</style>
 
       <nav style={{ background: 'white', padding: '0 24px', height: '80px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 12px rgba(0,24,64,0.08)', borderBottom: '3px solid #f88124' }}>
@@ -177,7 +184,7 @@ export default function SessionDetail() {
             {/* Tab buttons */}
             <div style={{ display: 'flex', gap: '6px', marginBottom: '24px', overflowX: 'auto', paddingBottom: '4px' }}>
               {tabs.map(tab => (
-                <button key={tab.key} className="tab-btn" onClick={() => setActiveTab(tab.key)}
+                <button key={tab.key} className={`tab-btn${activeTab === tab.key ? ' tab-active' : ''}`} onClick={() => setActiveTab(tab.key)}
                   style={{ padding: '7px 14px', borderRadius: '20px', border: 'none', fontSize: '12px', fontWeight: '700', fontFamily: 'inherit', background: activeTab === tab.key ? '#2c5a9e' : '#f0f2f7', color: activeTab === tab.key ? 'white' : '#888', flexShrink: 0 }}>
                   {tab.label}
                 </button>
@@ -185,7 +192,7 @@ export default function SessionDetail() {
             </div>
 
             {/* Bar chart */}
-            <div style={{ overflowX: 'auto' }}>
+            <div ref={chartScrollRef} style={{ overflowX: 'auto' }}>
               <svg width={Math.max(500, CHART_TOTAL_W + 20)} viewBox={`0 0 ${Math.max(500, CHART_TOTAL_W + 20)} ${CHART_H + 50}`} style={{ display: 'block', minWidth: '100%' }}>
                 {/* Y axis gridlines */}
                 {[0.25, 0.5, 0.75, 1].map(pct => (
