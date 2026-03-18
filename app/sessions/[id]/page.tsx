@@ -83,7 +83,7 @@ export default function SessionDetail() {
   const pctChange = currentVal && prevAvg ? ((currentVal - prevAvg) / prevAvg * 100) : null
 
   const CHART_H = 120
-  const BAR_W = Math.max(28, Math.floor(560 / chartSessions.length) - 10)
+  const BAR_W = 60
   const CHART_TOTAL_W = chartSessions.length * (BAR_W + 10)
 
   const formatVal = (val: number | null, unit: string) => {
@@ -140,11 +140,11 @@ export default function SessionDetail() {
           ].map(stat => (
             <div key={stat.label} onClick={() => setActiveTab(stat.tab)}
               style={{ background: activeTab === stat.tab ? 'linear-gradient(135deg, #001840, #2c5a9e)' : 'white', padding: '16px 12px', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: activeTab === stat.tab ? '1.5px solid #2c5a9e' : '1.5px solid #eef0f5', textAlign: 'center', cursor: 'pointer', transition: 'all 0.15s' }}>
-              <div style={{ width: '40px', height: '40px', background: activeTab === stat.tab ? 'rgba(255,255,255,0.15)' : stat.bg, borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px' }}>
-                {activeTab === stat.tab
-                  ? <div style={{ color: 'white' }}>{stat.icon}</div>
-                  : stat.icon}
-              </div>
+              <div style={{ width: '40px', height: '40px', background: activeTab === stat.tab ? 'rgba(255,255,255,0.2)' : stat.bg, borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px' }}>
+  {activeTab === stat.tab ? (
+    <div style={{ filter: 'brightness(0) invert(1)' }}>{stat.icon}</div>
+  ) : stat.icon}
+</div>
               <div style={{ fontSize: '22px', fontWeight: '800', color: activeTab === stat.tab ? 'white' : '#1a1a2e', lineHeight: 1 }}>{stat.value}</div>
               {stat.unit && <div style={{ fontSize: '11px', color: activeTab === stat.tab ? 'rgba(255,255,255,0.7)' : stat.accent, fontWeight: '700', marginTop: '2px' }}>{stat.unit}</div>}
               <div style={{ fontSize: '11px', color: activeTab === stat.tab ? 'rgba(255,255,255,0.6)' : '#aaa', marginTop: '4px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{stat.label}</div>
@@ -186,7 +186,7 @@ export default function SessionDetail() {
 
             {/* Bar chart */}
             <div style={{ overflowX: 'auto' }}>
-              <svg width="100%" viewBox={`0 0 ${Math.max(400, CHART_TOTAL_W + 20)} ${CHART_H + 50}`} style={{ display: 'block' }}>
+              <svg width={Math.max(500, CHART_TOTAL_W + 20)} viewBox={`0 0 ${Math.max(500, CHART_TOTAL_W + 20)} ${CHART_H + 50}`} style={{ display: 'block', minWidth: '100%' }}>
                 {/* Y axis gridlines */}
                 {[0.25, 0.5, 0.75, 1].map(pct => (
                   <line key={pct} x1="0" y1={CHART_H - pct * CHART_H} x2={Math.max(400, CHART_TOTAL_W + 20)} y2={CHART_H - pct * CHART_H} stroke="#f0f2f7" strokeWidth="1" />
