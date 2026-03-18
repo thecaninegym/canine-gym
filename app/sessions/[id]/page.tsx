@@ -72,14 +72,12 @@ export default function SessionDetail() {
 
   const hasSlatmillData = session.distance_miles || session.avg_speed_mph || session.peak_speed_mph
 
-  // Previous session averages
   const prevWithData = previousSessions.filter(s => s.distance_miles || s.avg_speed_mph)
   const prevAvgDistance = avg(prevWithData.map((s: any) => s.distance_miles).filter(Boolean))
   const prevAvgSpeed = avg(prevWithData.map((s: any) => s.avg_speed_mph).filter(Boolean))
   const prevAvgCalories = avg(prevWithData.map((s: any) => s.calories).filter(Boolean))
   const prevAvgDuration = avg(previousSessions.map((s: any) => s.duration_minutes).filter(Boolean))
 
-  // Chart data — last 6 sessions + current, oldest to newest
   const chartSessions = [...previousSessions].reverse().concat([session])
   const maxDist = Math.max(...chartSessions.map(s => s.distance_miles || 0), 0.1)
   const maxSpeed = Math.max(...chartSessions.map(s => s.avg_speed_mph || 0), 1)
@@ -92,7 +90,6 @@ export default function SessionDetail() {
     <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', fontFamily: "'Montserrat', system-ui, sans-serif" }}>
       <style>{`
         @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fillBar { from { width: 0%; } to { width: var(--w); } }
         * { box-sizing: border-box; }
         @media (max-width: 600px) { .stat-grid { grid-template-columns: repeat(2, 1fr) !important; } }
       `}</style>
@@ -125,7 +122,7 @@ export default function SessionDetail() {
         {/* Main stat cards */}
         <div className="stat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '12px', marginBottom: '20px' }}>
           {[
-            { icon: <Timer size={20} color="#2c5a9e" />, label: 'Duration', value: session.duration_minutes ? `${typeof session.duration_minutes === 'number' ? session.duration_minutes % 1 === 0 ? session.duration_minutes : session.duration_minutes.toFixed(1) : session.duration_minutes}`, unit: 'min', bg: '#eef2fb', accent: '#2c5a9e' },
+            { icon: <Timer size={20} color="#2c5a9e" />, label: 'Duration', value: session.duration_minutes ? (session.duration_minutes % 1 === 0 ? String(session.duration_minutes) : session.duration_minutes.toFixed(1)) : '—', unit: session.duration_minutes ? 'min' : '', bg: '#eef2fb', accent: '#2c5a9e' },
             { icon: <MapPin size={20} color="#2c5a9e" />, label: 'Distance', value: session.distance_miles ? session.distance_miles.toFixed(2) : '—', unit: session.distance_miles ? 'mi' : '', bg: '#eef2fb', accent: '#2c5a9e' },
             { icon: <Gauge size={20} color="#2c5a9e" />, label: 'Avg Speed', value: session.avg_speed_mph ? session.avg_speed_mph.toFixed(1) : '—', unit: session.avg_speed_mph ? 'mph' : '', bg: '#eef2fb', accent: '#2c5a9e' },
             { icon: <Zap size={20} color="#f88124" />, label: 'Peak Speed', value: session.peak_speed_mph ? session.peak_speed_mph.toFixed(1) : '—', unit: session.peak_speed_mph ? 'mph' : '', bg: '#fff5e6', accent: '#f88124' },
@@ -142,7 +139,7 @@ export default function SessionDetail() {
           ))}
         </div>
 
-        {/* Speed visual — avg vs peak gauge */}
+        {/* Speed Breakdown */}
         {hasSlatmillData && session.avg_speed_mph && session.peak_speed_mph && (
           <div style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5', marginBottom: '20px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
@@ -162,7 +159,7 @@ export default function SessionDetail() {
                     <span style={{ fontSize: '15px', fontWeight: '800', color }}>{value.toFixed(1)} {unit}</span>
                   </div>
                   <div style={{ height: '10px', background: '#f0f2f7', borderRadius: '5px', overflow: 'hidden' }}>
-                    <div style={{ height: '100%', width: `${(value / max) * 100}%`, background: color, borderRadius: '5px', transition: 'width 0.8s ease' }} />
+                    <div style={{ height: '100%', width: `${(value / max) * 100}%`, background: color, borderRadius: '5px' }} />
                   </div>
                 </div>
               ))}
@@ -173,7 +170,7 @@ export default function SessionDetail() {
           </div>
         )}
 
-        {/* Session history chart */}
+        {/* Session History Chart */}
         {chartSessions.length > 1 && (
           <div style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5', marginBottom: '20px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
@@ -201,13 +198,8 @@ export default function SessionDetail() {
                   const dateLabel = s.session_date ? new Date(s.session_date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''
                   return (
                     <g key={s.id}>
-                      {/* Distance bar */}
-                      <rect x={x} y={CHART_H - distH} width={halfBar} height={distH} rx="3"
-                        fill={isCurrent ? '#2c5a9e' : '#c8d4f0'} />
-                      {/* Speed bar */}
-                      <rect x={x + halfBar + 2} y={CHART_H - speedH} width={halfBar} height={speedH} rx="3"
-                        fill={isCurrent ? '#f88124' : '#fdd9b5'} />
-                      {/* Date label */}
+                      <rect x={x} y={CHART_H - distH} width={halfBar} height={distH} rx="3" fill={isCurrent ? '#2c5a9e' : '#c8d4f0'} />
+                      <rect x={x + halfBar + 2} y={CHART_H - speedH} width={halfBar} height={speedH} rx="3" fill={isCurrent ? '#f88124' : '#fdd9b5'} />
                       <text x={x + BAR_W / 2} y={CHART_H + 16} textAnchor="middle"
                         style={{ fontSize: '9px', fill: isCurrent ? '#1a1a2e' : '#aaa', fontWeight: isCurrent ? '800' : '600', fontFamily: 'inherit' }}>
                         {isCurrent ? 'Today' : dateLabel}
@@ -215,7 +207,6 @@ export default function SessionDetail() {
                     </g>
                   )
                 })}
-                {/* Baseline */}
                 <line x1="0" y1={CHART_H} x2={chartSessions.length * (BAR_W + 4)} y2={CHART_H} stroke="#e5e8f0" strokeWidth="1" />
               </svg>
             </div>
@@ -223,7 +214,7 @@ export default function SessionDetail() {
           </div>
         )}
 
-        {/* Comparison vs previous */}
+        {/* vs Previous Sessions */}
         {prevWithData.length > 0 && hasSlatmillData && (
           <div style={{ background: 'white', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5', overflow: 'hidden', marginBottom: '20px' }}>
             <div style={{ padding: '18px 24px', borderBottom: '1.5px solid #f0f2f7', display: 'flex', alignItems: 'center', gap: '10px' }}>
