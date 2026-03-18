@@ -295,7 +295,7 @@ export default function AdminSchedule() {
 
         {/* LIST VIEW */}
         {view === 'list' && (
-          loading ? <div style={{ textAlign: 'center', padding: '48px', color: '#aaa' }}>Loading...</div> :
+          loading ? <div style={{ textAlign: 'center', padding: '48px' }}><div style={{ width: '120px', height: '3px', background: '#f0f2f7', borderRadius: '2px', overflow: 'hidden', margin: '0 auto' }}><div style={{ height: '100%', background: '#f88124', borderRadius: '2px', animation: 'sweep 1.2s ease-in-out infinite' }} /></div></div> :
           bookings.length === 0 ? (
             <div style={{ background: 'white', padding: '48px', borderRadius: '16px', textAlign: 'center', border: '1.5px solid #eef0f5' }}>
               <Calendar size={48} color="#e5e8f0" style={{ marginBottom: '12px' }} />

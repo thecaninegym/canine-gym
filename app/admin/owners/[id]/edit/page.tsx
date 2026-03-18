@@ -44,8 +44,20 @@ export default function EditOwner() {
   }
 
   if (loading) return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Montserrat', system-ui, sans-serif" }}>
-      <p style={{ color: '#aaa' }}>Loading...</p>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'white' }}>
+      <div style={{ textAlign: 'center' }}>
+        <img src="/logo.png" alt="The Canine Gym" style={{ height: '64px', width: 'auto', display: 'block', margin: '0 auto 12px' }} />
+        <div style={{ width: '180px', height: '3px', background: '#f0f2f7', borderRadius: '2px', overflow: 'hidden', margin: '0 auto' }}>
+          <div style={{ height: '100%', background: '#f88124', borderRadius: '2px', animation: 'sweep 1.2s ease-in-out infinite' }} />
+        </div>
+        <style>{`
+          @keyframes sweep {
+            0% { width: 0%; marginLeft: 0%; }
+            50% { width: 60%; }
+            100% { width: 0%; marginLeft: 100%; }
+          }
+        `}</style>
+      </div>
     </div>
   )
 
