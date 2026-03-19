@@ -634,17 +634,17 @@ export default function ClientDashboard() {
                         style={{ padding: '16px 20px', borderBottom: i < sessions.length - 1 ? '1px solid #f0f2f7' : 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', transition: 'background 0.15s' }}>
                         <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
                           <div style={{ width: '42px', height: '42px', background: '#f0f2f7', borderRadius: '12px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                            <span style={{ fontSize: '14px', fontWeight: '800', color: '#2c5a9e', lineHeight: 1 }}>{new Date(session.session_date).getDate()}</span>
-                            <span style={{ fontSize: '9px', color: '#888', textTransform: 'uppercase' }}>{new Date(session.session_date).toLocaleDateString('en-US', { month: 'short' })}</span>
+                            <span style={{ fontSize: '14px', fontWeight: '800', color: '#2c5a9e', lineHeight: 1 }}>{new Date(session.session_date + 'T12:00:00').getDate()}</span>
+                            <span style={{ fontSize: '9px', color: '#888', textTransform: 'uppercase' }}>{new Date(session.session_date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short' })}</span>
                           </div>
                           <div>
                             <p style={{ margin: '0 0 3px', fontWeight: '700', color: '#1a1a2e', fontSize: '14px' }}>
-                              {new Date(session.session_date).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
+                              {new Date(session.session_date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
                             </p>
                             <p style={{ margin: 0, fontSize: '13px', color: '#888' }}>
                               {session.duration_minutes} min
                               {session.distance_miles ? ` · ${session.distance_miles} mi` : ''}
-                              {session.calories_burned ? ` · ${session.calories_burned} cal` : ''}
+                              {(session.calories || session.calories_burned) ? ` · ${session.calories || session.calories_burned} cal` : ''}
                             </p>
                             {session.notes && <p style={{ margin: '3px 0 0', fontSize: '12px', color: '#aaa', fontStyle: 'italic' }}>{session.notes}</p>}
                           </div>
