@@ -13,7 +13,7 @@ export default function LogSession() {
   const [dogId, setDogId] = useState('')
   const [bookingId, setBookingId] = useState('')
   const [deviceSlug, setDeviceSlug] = useState('')
-  const [sessionDate, setSessionDate] = useState(new Date().toISOString().split('T')[0])
+  const [sessionDate, setSessionDate] = useState(() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}` })
   const [startTime, setStartTime] = useState('')
   const [endTime, setEndTime] = useState('')
   const [notes, setNotes] = useState('')
@@ -90,7 +90,7 @@ export default function LogSession() {
     // Build session row — include slatmill data if a session was selected
     const sessionRow: any = {
       dog_id: dogId,
-      fitbark_device_slug: deviceSlug,
+      fitbark_device_slug: deviceSlug || null,
       session_date: sessionDate,
       start_time: start.toISOString(),
       end_time: end.toISOString(),
@@ -341,14 +341,7 @@ export default function LogSession() {
                 {dogs.map(dog => <option key={dog.id} value={dog.id}>{dog.name} ({dog.owners?.name})</option>)}
               </select>
             </div>
-            <div style={{ marginBottom: '16px' }}>
-              <label style={labelStyle}>FitBark Device</label>
-              <select value={deviceSlug} onChange={(e) => setDeviceSlug(e.target.value)} required style={{ ...inputStyle, background: 'white' }}>
-                <option value="">Select a device...</option>
-                {devices.length === 0 && <option disabled>No devices added yet</option>}
-                {devices.map(device => <option key={device.id} value={device.fitbark_slug}>{device.device_name}</option>)}
-              </select>
-            </div>
+
             <div style={{ marginBottom: '16px' }}>
               <label style={labelStyle}>Session Date</label>
               <input type="date" value={sessionDate} onChange={(e) => setSessionDate(e.target.value)} required style={inputStyle} />
