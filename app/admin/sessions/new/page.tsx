@@ -164,7 +164,7 @@ export default function LogSession() {
           ownerEmail: ownerData.email,
           ownerName: ownerData.name,
           dogName: selectedDogData?.name,
-          sessionDate: new Date(sessionDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }),
+          sessionDate: new Date(sessionDate + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }),
           duration: selectedSlatmill ? selectedSlatmill.duration_minutes : duration,
           miles: selectedSlatmill?.distance_miles || null,
           avgSpeedMph: selectedSlatmill?.avg_speed_mph || null,
