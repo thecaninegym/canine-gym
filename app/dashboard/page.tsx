@@ -66,7 +66,7 @@ export default function ClientDashboard() {
     if (!friendDogs || friendDogs.length === 0) return
     const friendDogIds = friendDogs.map((d: any) => d.id)
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-    const { data: recentSessions } = await supabase.from('sessions').select('id, dog_id, session_date, distance_miles, calories_burned, duration_minutes').in('dog_id', friendDogIds).gte('session_date', sevenDaysAgo).order('session_date', { ascending: false }).limit(10)
+    const { data: recentSessions } = await supabase.from('sessions').select('id, dog_id, session_date, distance_miles, calories_burned, calories, duration_minutes').in('dog_id', friendDogIds).gte('session_date', sevenDaysAgo).order('session_date', { ascending: false }).limit(10)
     if (!recentSessions) return
     const dogMap: Record<string, any> = {}
     friendDogs.forEach((d: any) => { dogMap[d.id] = d })
@@ -90,7 +90,7 @@ export default function ClientDashboard() {
 
   const totalSessions = sessions.length
   const totalMiles = sessions.reduce((sum, s) => sum + (s.distance_miles || 0), 0).toFixed(2)
-  const totalCalories = sessions.reduce((sum, s) => sum + (s.calories_burned || 0), 0)
+  const totalCalories = sessions.reduce((sum, s) => sum + (s.calories || s.calories_burned || 0), 0)
 
   // Last session date
   const lastSessionDate = sessions.length > 0
