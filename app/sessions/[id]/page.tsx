@@ -279,28 +279,23 @@ export default function SessionDetail() {
                 <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.5)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', margin: '2px 0 6px' }}>Effort</div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
                   <span style={{ fontSize: '11px', fontWeight: '700', color, background: 'rgba(255,255,255,0.15)', padding: '2px 8px', borderRadius: '8px' }}>{label}</span>
-
+                  <span
+                    onClick={(e) => { e.stopPropagation(); setOpenTip(openTip === 'effort' ? null : 'effort') }}
+                    style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '14px', height: '14px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)', color: 'white', fontSize: '9px', fontWeight: '800', cursor: 'pointer', flexShrink: 0, zIndex: 200, position: 'relative' }}>
+                    i
+                  </span>
                 </div>
               </div>
             )
           })()}
         </div>
 
-        {/* Effort tooltip — outside hero to avoid overflow clipping */}
-        {/* Effort score info button + tooltip — outside hero to avoid overflow clipping */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '-10px', marginBottom: '8px', position: 'relative' }}>
-          <span
-            onClick={(e) => { e.stopPropagation(); setOpenTip(openTip === 'effort' ? null : 'effort') }}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: '600', color: '#888', cursor: 'pointer', padding: '4px 8px', borderRadius: '8px', background: 'white', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
-            <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '14px', height: '14px', borderRadius: '50%', background: '#e5e8f0', color: '#888', fontSize: '9px', fontWeight: '800' }}>i</span>
-            What is the Effort Score?
-          </span>
-          {openTip === 'effort' && (
-            <div style={{ position: 'absolute', top: '30px', right: 0, background: '#1a1a2e', color: 'white', fontSize: '12px', fontWeight: '500', lineHeight: 1.6, padding: '10px 14px', borderRadius: '10px', width: '260px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)', zIndex: 10 }}>
-              A 0–100 score combining how active your dog was, how consistent their pace was, and how close their average speed was to their peak.
-            </div>
-          )}
-        </div>
+        {/* Effort tooltip — rendered below hero to avoid overflow:hidden clipping */}
+        {openTip === 'effort' && (
+          <div onClick={(e) => e.stopPropagation()} style={{ background: '#1a1a2e', color: 'white', fontSize: '12px', fontWeight: '500', lineHeight: 1.6, padding: '10px 14px', borderRadius: '10px', marginTop: '-12px', marginBottom: '12px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)', zIndex: 10, position: 'relative' }}>
+            A 0–100 score combining how active your dog was, how consistent their pace was, and how close their average speed was to their peak.
+          </div>
+        )}
 
         {/* Weight trend banner */}
         {weightChange !== null && Math.abs(weightChange) >= 0.5 && (
