@@ -6,6 +6,8 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY as string
 )
 
+const nullIfUndefined = (val: any) => val === undefined ? null : val
+
 export async function POST(request: Request) {
   const body = await request.json()
 
@@ -38,13 +40,14 @@ export async function POST(request: Request) {
     peak_speed_mph: safePeakSpeed,
     pulses,
     slatmill_id: slatmill_id || 'slatmill_1',
-    pace_consistency: pace_consistency || null,
-    active_seconds: active_seconds || null,
-    avg_acceleration: avg_acceleration || null,
-    top_speed_duration: top_speed_duration || null,
-    low_zone_seconds: low_zone_seconds || null,
-    moderate_zone_seconds: moderate_zone_seconds || null,
-    high_zone_seconds: high_zone_seconds || null,
+    // Use nullIfUndefined so 0 is stored as 0, not converted to null
+    pace_consistency: nullIfUndefined(pace_consistency),
+    active_seconds: nullIfUndefined(active_seconds),
+    avg_acceleration: nullIfUndefined(avg_acceleration),
+    top_speed_duration: nullIfUndefined(top_speed_duration),
+    low_zone_seconds: nullIfUndefined(low_zone_seconds),
+    moderate_zone_seconds: nullIfUndefined(moderate_zone_seconds),
+    high_zone_seconds: nullIfUndefined(high_zone_seconds),
     used: false
   })
 
