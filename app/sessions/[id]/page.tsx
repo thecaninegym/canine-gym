@@ -356,7 +356,9 @@ export default function SessionDetail() {
               {pctChange !== null && (
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: '700', color: (activeTab === 'weight' ? pctChange <= 0 : pctChange >= 0) ? '#22c55e' : '#dc3545',
 background: (activeTab === 'weight' ? pctChange <= 0 : pctChange >= 0) ? '#f0fdf4' : '#ffeaea', padding: '4px 10px', borderRadius: '20px' }}>
-                  {(activeTab === 'weight' ? pctChange <= 0 : pctChange >= 0) ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+                  {activeTab === 'weight'
+  ? (pctChange <= 0 ? <TrendingDown size={12} /> : <TrendingUp size={12} />)
+  : (pctChange >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />)}
                   {Math.abs(pctChange).toFixed(0)}% vs your average
                 </span>
               )}
@@ -372,7 +374,7 @@ background: (activeTab === 'weight' ? pctChange <= 0 : pctChange >= 0) ? '#f0fdf
             </div>
 
             <div ref={chartScrollRef} style={{ overflowX: 'auto' }}>
-              <svg width={Math.max(500, CHART_TOTAL_W + 20)} viewBox={`0 0 ${Math.max(500, CHART_TOTAL_W + 20)} ${CHART_H + 50}`} style={{ display: 'block', minWidth: '100%' }}>
+              <svg width={Math.max(500, CHART_TOTAL_W + 20)} viewBox={`0 0 ${Math.max(500, CHART_TOTAL_W + 20)} ${CHART_H + 65}`} style={{ display: 'block', minWidth: '100%' }}>
                 {[0.25, 0.5, 0.75, 1].map(pct => (
                   <line key={pct} x1="0" y1={CHART_H - pct * CHART_H} x2={Math.max(400, CHART_TOTAL_W + 20)} y2={CHART_H - pct * CHART_H} stroke="#f0f2f7" strokeWidth="1" />
                 ))}
