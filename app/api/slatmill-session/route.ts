@@ -14,20 +14,27 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const { duration_minutes, distance_miles, avg_speed_mph, peak_speed_mph, pulses, slatmill_id } = body
+  const { duration_minutes, distance_miles, avg_speed_mph, peak_speed_mph, pulses, slatmill_id, pace_consistency, active_seconds } = body
 
   // Basic validation
   if (!duration_minutes) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
   }
 
+  // Sanity cap — reject obviously bad sensor readings (dog slatmill max ~15 mph)
+  const MAX_SPEED = 15
+  const safePeakSpeed = peak_speed_mph && peak_speed_mph <= MAX_SPEED ? peak_speed_mph : null
+  const safeAvgSpeed = avg_speed_mph && avg_speed_mph <= MAX_SPEED ? avg_speed_mph : null
+
   const { error } = await supabase.from('slatmill_sessions').insert({
     duration_minutes,
     distance_miles,
-    avg_speed_mph,
-    peak_speed_mph,
+    avg_speed_mph: safeAvgSpeed,
+    peak_speed_mph: safePeakSpeed,
     pulses,
     slatmill_id: slatmill_id || 'slatmill_1',
+    pace_consistency: pace_consistency || null,
+    active_seconds: active_seconds || null,
     used: false
   })
 

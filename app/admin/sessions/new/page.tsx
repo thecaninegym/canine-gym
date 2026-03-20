@@ -100,6 +100,8 @@ export default function LogSession() {
         distance_miles: selectedSlatmill.distance_miles,
         avg_speed_mph: selectedSlatmill.avg_speed_mph,
         peak_speed_mph: selectedSlatmill.peak_speed_mph,
+        pace_consistency: selectedSlatmill.pace_consistency || null,
+        active_seconds: selectedSlatmill.active_seconds || null,
         slatmill_session_id: selectedSlatmill.id,
       }),
       ...(dogWeightLbs && { dog_weight_lbs: parseFloat(dogWeightLbs) }),

@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
-import { PawPrint, ArrowLeft, Timer, MapPin, Flame, Zap, Gauge, FileText, TrendingUp, TrendingDown } from 'lucide-react'
+import { PawPrint, ArrowLeft, Timer, MapPin, Flame, Zap, Gauge, FileText, TrendingUp, TrendingDown, Activity } from 'lucide-react'
 
 type Tab = 'duration' | 'distance' | 'avg_speed' | 'peak_speed' | 'calories' | 'weight'
 
@@ -16,14 +16,14 @@ export default function SessionDetail() {
   const [activeTab, setActiveTab] = useState<Tab>('duration')
   const chartScrollRef = useRef<HTMLDivElement>(null)
 
-useEffect(() => {
-  const timer = setTimeout(() => {
-    if (chartScrollRef.current) {
-      chartScrollRef.current.scrollLeft = chartScrollRef.current.scrollWidth
-    }
-  }, 100)
-  return () => clearTimeout(timer)
-}, [activeTab, session])
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (chartScrollRef.current) {
+        chartScrollRef.current.scrollLeft = chartScrollRef.current.scrollWidth
+      }
+    }, 100)
+    return () => clearTimeout(timer)
+  }, [activeTab, session])
 
   useEffect(() => {
     const init = async () => {
@@ -60,13 +60,7 @@ useEffect(() => {
         <div style={{ width: '180px', height: '3px', background: '#f0f2f7', borderRadius: '2px', overflow: 'hidden', margin: '0 auto' }}>
           <div style={{ height: '100%', background: '#f88124', borderRadius: '2px', animation: 'sweep 1.2s ease-in-out infinite' }} />
         </div>
-        <style>{`
-          @keyframes sweep {
-            0% { width: 0%; marginLeft: 0%; }
-            50% { width: 60%; }
-            100% { width: 0%; marginLeft: 100%; }
-          }
-        `}</style>
+        <style>{`@keyframes sweep { 0% { width: 0%; marginLeft: 0%; } 50% { width: 60%; } 100% { width: 0%; marginLeft: 100%; } }`}</style>
       </div>
     </div>
   )
@@ -79,10 +73,48 @@ useEffect(() => {
 
   const hasSlatmillData = session.distance_miles || session.avg_speed_mph || session.peak_speed_mph
 
-  // All sessions oldest to newest including current
+  // Effort score — 0 to 100
+  // Weighted: active ratio (40pts) + speed consistency (30pts) + speed vs peak (30pts)
+  const calcEffortScore = (s: any): number | null => {
+    if (!s.avg_speed_mph || !s.peak_speed_mph || !s.duration_minutes) return null
+    const totalSeconds = s.duration_minutes * 60
+    const activeRatio = s.active_seconds ? Math.min(s.active_seconds / totalSeconds, 1) : 0.7 // default 70% if no data
+    const speedRatio = Math.min(s.avg_speed_mph / s.peak_speed_mph, 1)
+    // Pace consistency: lower std dev is better. Assume 2.0 mph std dev = 0 score, 0 = 100 score
+    const consistencyScore = s.pace_consistency !== null && s.pace_consistency !== undefined
+      ? Math.max(0, 1 - (s.pace_consistency / 2.0))
+      : 0.6 // default if no data
+    const score = (activeRatio * 40) + (consistencyScore * 30) + (speedRatio * 30)
+    return Math.round(Math.min(100, Math.max(0, score)))
+  }
+
+  const effortScore = calcEffortScore(session)
+
+  const getEffortLabel = (score: number) => {
+    if (score >= 85) return { label: 'Elite', color: '#f88124' }
+    if (score >= 70) return { label: 'Strong', color: '#2c5a9e' }
+    if (score >= 55) return { label: 'Good', color: '#22c55e' }
+    if (score >= 40) return { label: 'Moderate', color: '#f59e0b' }
+    return { label: 'Light', color: '#94a3b8' }
+  }
+
+  // Active vs rest
+  const totalSeconds = session.duration_minutes ? Math.round(session.duration_minutes * 60) : null
+  const activeSeconds = session.active_seconds || null
+  const restSeconds = totalSeconds && activeSeconds ? totalSeconds - activeSeconds : null
+  const activeRatio = totalSeconds && activeSeconds ? (activeSeconds / totalSeconds) * 100 : null
+
+  // Pace consistency label
+  const getPaceLabel = (stdDev: number) => {
+    if (stdDev < 0.3) return { label: 'Very Consistent', color: '#22c55e' }
+    if (stdDev < 0.6) return { label: 'Consistent', color: '#2c5a9e' }
+    if (stdDev < 1.0) return { label: 'Variable', color: '#f59e0b' }
+    return { label: 'Highly Variable', color: '#dc3545' }
+  }
+
+  // Chart setup
   const chartSessions = [...previousSessions].reverse().concat([session])
 
-  // Tab definitions
   const tabs: { key: Tab; label: string; unit: string; color: string; getValue: (s: any) => number | null }[] = [
     { key: 'duration',   label: 'Duration',   unit: 'min', color: '#2c5a9e', getValue: s => s.duration_minutes || null },
     { key: 'distance',   label: 'Distance',   unit: 'mi',  color: '#2c5a9e', getValue: s => s.distance_miles || null },
@@ -109,6 +141,12 @@ useEffect(() => {
     if (unit === 'cal') return Math.round(val).toString()
     if (unit === 'min') return val % 1 === 0 ? val.toString() : val.toFixed(1)
     return val.toFixed(2)
+  }
+
+  const formatSeconds = (secs: number) => {
+    const m = Math.floor(secs / 60)
+    const s = secs % 60
+    return m > 0 ? `${m}m ${s}s` : `${s}s`
   }
 
   return (
@@ -140,10 +178,23 @@ useEffect(() => {
               <PawPrint size={36} color="rgba(255,255,255,0.5)" />
             </div>
           )}
-          <div style={{ position: 'relative' }}>
+          <div style={{ position: 'relative', flex: 1 }}>
             <h2 style={{ margin: '0 0 4px', fontSize: '26px', fontWeight: '800', color: 'white' }}>{dog?.name}</h2>
             <p style={{ margin: 0, color: 'rgba(255,255,255,0.7)', fontSize: '14px' }}>{formatDate(session.session_date)}</p>
           </div>
+          {/* Effort Score badge in hero */}
+          {effortScore !== null && (() => {
+            const { label, color } = getEffortLabel(effortScore)
+            return (
+              <div style={{ textAlign: 'center', flexShrink: 0, position: 'relative' }}>
+                <div style={{ width: '70px', height: '70px', borderRadius: '50%', border: '3px solid rgba(255,255,255,0.3)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.1)' }}>
+                  <span style={{ fontSize: '22px', fontWeight: '800', color: 'white', lineHeight: 1 }}>{effortScore}</span>
+                  <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.6)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>effort</span>
+                </div>
+                <span style={{ display: 'block', marginTop: '5px', fontSize: '10px', fontWeight: '700', color, background: 'rgba(255,255,255,0.15)', padding: '2px 8px', borderRadius: '10px' }}>{label}</span>
+              </div>
+            )
+          })()}
         </div>
 
         {/* Stat cards */}
@@ -159,10 +210,10 @@ useEffect(() => {
             <div key={stat.label} onClick={() => setActiveTab(stat.tab)}
               style={{ background: activeTab === stat.tab ? 'linear-gradient(135deg, #001840, #2c5a9e)' : 'white', padding: '16px 12px', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: activeTab === stat.tab ? '1.5px solid #2c5a9e' : '1.5px solid #eef0f5', textAlign: 'center', cursor: 'pointer', transition: 'all 0.15s' }}>
               <div style={{ width: '40px', height: '40px', background: activeTab === stat.tab ? 'rgba(255,255,255,0.2)' : stat.bg, borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px' }}>
-  {activeTab === stat.tab ? (
-    <div style={{ filter: 'brightness(0) invert(1)' }}>{stat.icon}</div>
-  ) : stat.icon}
-</div>
+                {activeTab === stat.tab ? (
+                  <div style={{ filter: 'brightness(0) invert(1)' }}>{stat.icon}</div>
+                ) : stat.icon}
+              </div>
               <div style={{ fontSize: '22px', fontWeight: '800', color: activeTab === stat.tab ? 'white' : '#1a1a2e', lineHeight: 1 }}>{stat.value}</div>
               {stat.unit && <div style={{ fontSize: '11px', color: activeTab === stat.tab ? 'rgba(255,255,255,0.7)' : stat.accent, fontWeight: '700', marginTop: '2px' }}>{stat.unit}</div>}
               <div style={{ fontSize: '11px', color: activeTab === stat.tab ? 'rgba(255,255,255,0.6)' : '#aaa', marginTop: '4px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{stat.label}</div>
@@ -173,16 +224,12 @@ useEffect(() => {
         {/* Tabbed chart */}
         {chartSessions.length > 1 && (
           <div style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5', marginBottom: '20px' }}>
-
-            {/* Chart header */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <div style={{ width: '34px', height: '34px', background: '#eef2fb', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <TrendingUp size={17} color="#2c5a9e" />
                 </div>
-                <span style={{ fontWeight: '800', color: '#1a1a2e', fontSize: '15px' }}>
-                  {activeTabDef.label} Over Time
-                </span>
+                <span style={{ fontWeight: '800', color: '#1a1a2e', fontSize: '15px' }}>{activeTabDef.label} Over Time</span>
               </div>
               {pctChange !== null && (
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: '700', color: pctChange >= 0 ? '#22c55e' : '#dc3545', background: pctChange >= 0 ? '#f0fdf4' : '#ffeaea', padding: '4px 10px', borderRadius: '20px' }}>
@@ -192,7 +239,6 @@ useEffect(() => {
               )}
             </div>
 
-            {/* Tab buttons */}
             <div style={{ display: 'flex', gap: '6px', marginBottom: '24px', overflowX: 'auto', paddingBottom: '4px' }}>
               {tabs.map(tab => (
                 <button key={tab.key} className={`tab-btn${activeTab === tab.key ? ' tab-active' : ''}`} onClick={() => setActiveTab(tab.key)}
@@ -202,14 +248,11 @@ useEffect(() => {
               ))}
             </div>
 
-            {/* Bar chart */}
             <div ref={chartScrollRef} style={{ overflowX: 'auto' }}>
               <svg width={Math.max(500, CHART_TOTAL_W + 20)} viewBox={`0 0 ${Math.max(500, CHART_TOTAL_W + 20)} ${CHART_H + 50}`} style={{ display: 'block', minWidth: '100%' }}>
-                {/* Y axis gridlines */}
                 {[0.25, 0.5, 0.75, 1].map(pct => (
                   <line key={pct} x1="0" y1={CHART_H - pct * CHART_H} x2={Math.max(400, CHART_TOTAL_W + 20)} y2={CHART_H - pct * CHART_H} stroke="#f0f2f7" strokeWidth="1" />
                 ))}
-                {/* Bars */}
                 {chartValues.map((c, i) => {
                   const isCurrent = c.session.id === session.id
                   const barH = c.value ? (c.value / maxVal) * CHART_H : 0
@@ -219,24 +262,18 @@ useEffect(() => {
                     : ''
                   return (
                     <g key={c.session.id}>
-                      {/* Bar */}
-                      <rect
-                        x={x} y={CHART_H - barH} width={BAR_W} height={barH} rx="4"
-                        fill={isCurrent ? activeTabDef.color : activeTabDef.color === '#f88124' ? '#fdd9b5' : '#c8d4f0'}
-                      />
-                      {/* Value label on top of bar */}
+                      <rect x={x} y={CHART_H - barH} width={BAR_W} height={barH} rx="4"
+                        fill={isCurrent ? activeTabDef.color : activeTabDef.color === '#f88124' ? '#fdd9b5' : '#c8d4f0'} />
                       {c.value !== null && barH > 16 && (
                         <text x={x + BAR_W / 2} y={CHART_H - barH + 14} textAnchor="middle"
                           style={{ fontSize: '9px', fill: 'white', fontWeight: '800', fontFamily: 'inherit' }}>
                           {formatVal(c.value, activeTabDef.unit)}
                         </text>
                       )}
-                      {/* Date label */}
                       <text x={x + BAR_W / 2} y={CHART_H + 18} textAnchor="middle"
                         style={{ fontSize: '10px', fill: isCurrent ? '#1a1a2e' : '#aaa', fontWeight: isCurrent ? '800' : '600', fontFamily: 'inherit' }}>
                         {isCurrent ? 'Today' : dateLabel}
                       </text>
-                      {/* Unit label */}
                       <text x={x + BAR_W / 2} y={CHART_H + 32} textAnchor="middle"
                         style={{ fontSize: '9px', fill: isCurrent ? activeTabDef.color : '#ccc', fontWeight: '700', fontFamily: 'inherit' }}>
                         {c.value !== null ? activeTabDef.unit : ''}
@@ -244,27 +281,78 @@ useEffect(() => {
                     </g>
                   )
                 })}
-                {/* Baseline */}
                 <line x1="0" y1={CHART_H} x2={Math.max(400, CHART_TOTAL_W + 20)} y2={CHART_H} stroke="#e5e8f0" strokeWidth="1.5" />
-                {/* Avg line */}
                 {prevAvg && (
                   <>
                     <line x1="0" y1={CHART_H - (prevAvg / maxVal) * CHART_H} x2={Math.max(400, CHART_TOTAL_W + 20)} y2={CHART_H - (prevAvg / maxVal) * CHART_H} stroke="#f88124" strokeWidth="1.5" strokeDasharray="4 3" />
                     <text x="6" y={CHART_H - (prevAvg / maxVal) * CHART_H - 4}
-                      style={{ fontSize: '9px', fill: '#f88124', fontWeight: '700', fontFamily: 'inherit' }}>
-                      avg
-                    </text>
+                      style={{ fontSize: '9px', fill: '#f88124', fontWeight: '700', fontFamily: 'inherit' }}>avg</text>
                   </>
                 )}
               </svg>
             </div>
 
-            {/* No data note */}
             {chartValues.every(c => c.value === null) && (
               <p style={{ margin: '8px 0 0', fontSize: '12px', color: '#bbb', textAlign: 'center' }}>
                 No {activeTabDef.label.toLowerCase()} data yet — will populate once sessions are logged
               </p>
             )}
+          </div>
+        )}
+
+        {/* Performance Analysis — Pace Consistency + Active vs Rest */}
+        {hasSlatmillData && (session.pace_consistency !== null || activeSeconds !== null) && (
+          <div style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5', marginBottom: '20px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+              <div style={{ width: '34px', height: '34px', background: '#eef2fb', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Activity size={17} color="#2c5a9e" />
+              </div>
+              <span style={{ fontWeight: '800', color: '#1a1a2e', fontSize: '15px' }}>Performance Analysis</span>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+
+              {/* Pace Consistency */}
+              {session.pace_consistency !== null && session.pace_consistency !== undefined && (() => {
+                const { label, color } = getPaceLabel(session.pace_consistency)
+                const consistencyPct = Math.max(0, Math.min(100, (1 - session.pace_consistency / 2.0) * 100))
+                return (
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <div>
+                        <span style={{ fontSize: '13px', fontWeight: '700', color: '#555' }}>Pace Consistency</span>
+                        <span style={{ marginLeft: '8px', fontSize: '11px', fontWeight: '700', color, background: color + '18', padding: '2px 8px', borderRadius: '10px' }}>{label}</span>
+                      </div>
+                      <span style={{ fontSize: '13px', fontWeight: '800', color: '#1a1a2e' }}>±{session.pace_consistency.toFixed(2)} mph</span>
+                    </div>
+                    <div style={{ height: '10px', background: '#f0f2f7', borderRadius: '5px', overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${consistencyPct}%`, background: color, borderRadius: '5px' }} />
+                    </div>
+                    <p style={{ margin: '6px 0 0', fontSize: '12px', color: '#aaa', fontWeight: '600' }}>
+                      Speed varied by ±{session.pace_consistency.toFixed(2)} mph from average — {label.toLowerCase()} pace
+                    </p>
+                  </div>
+                )
+              })()}
+
+              {/* Active vs Rest */}
+              {activeSeconds !== null && totalSeconds !== null && restSeconds !== null && activeRatio !== null && (
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <span style={{ fontSize: '13px', fontWeight: '700', color: '#555' }}>Active vs Rest Time</span>
+                    <span style={{ fontSize: '13px', fontWeight: '800', color: '#2c5a9e' }}>{activeRatio.toFixed(0)}% active</span>
+                  </div>
+                  <div style={{ height: '10px', background: '#f0f2f7', borderRadius: '5px', overflow: 'hidden', position: 'relative' }}>
+                    <div style={{ height: '100%', width: `${activeRatio}%`, background: '#2c5a9e', borderRadius: '5px 0 0 5px' }} />
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px' }}>
+                    <span style={{ fontSize: '12px', color: '#2c5a9e', fontWeight: '700' }}>🏃 Active: {formatSeconds(activeSeconds)}</span>
+                    <span style={{ fontSize: '12px', color: '#aaa', fontWeight: '700' }}>💤 Rest: {formatSeconds(restSeconds)}</span>
+                  </div>
+                </div>
+              )}
+
+            </div>
           </div>
         )}
 
