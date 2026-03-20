@@ -275,16 +275,14 @@ export default function SessionDetail() {
           {effortScore !== null && (() => {
             const { label, color } = getEffortLabel(effortScore)
             return (
-              <div style={{ textAlign: 'center', flexShrink: 0 }}>
-                <div style={{ width: '70px', height: '70px', borderRadius: '50%', border: '3px solid rgba(255,255,255,0.3)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.1)' }}>
-                  <span style={{ fontSize: '22px', fontWeight: '800', color: 'white', lineHeight: 1 }}>{effortScore}</span>
-                  <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.6)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>effort</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', marginTop: '5px' }}>
-                  <span style={{ fontSize: '10px', fontWeight: '700', color, background: 'rgba(255,255,255,0.15)', padding: '2px 8px', borderRadius: '10px' }}>{label}</span>
+              <div style={{ flexShrink: 0, background: 'rgba(255,255,255,0.1)', borderRadius: '14px', padding: '12px 16px', textAlign: 'center', minWidth: '72px' }}>
+                <div style={{ fontSize: '32px', fontWeight: '800', color: 'white', lineHeight: 1 }}>{effortScore}</div>
+                <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.5)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', margin: '2px 0 6px' }}>Effort</div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                  <span style={{ fontSize: '11px', fontWeight: '700', color, background: 'rgba(255,255,255,0.15)', padding: '2px 8px', borderRadius: '8px' }}>{label}</span>
                   <span
                     onClick={(e) => { e.stopPropagation(); setOpenTip(openTip === 'effort' ? null : 'effort') }}
-                    style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '16px', height: '16px', borderRadius: '50%', background: 'rgba(255,255,255,0.25)', color: 'white', fontSize: '10px', fontWeight: '800', cursor: 'pointer', flexShrink: 0 }}>
+                    style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '14px', height: '14px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)', color: 'white', fontSize: '9px', fontWeight: '800', cursor: 'pointer', flexShrink: 0 }}>
                     i
                   </span>
                 </div>
@@ -354,11 +352,8 @@ export default function SessionDetail() {
                 <span style={{ fontWeight: '800', color: '#1a1a2e', fontSize: '15px' }}>{activeTabDef.label} Over Time</span>
               </div>
               {pctChange !== null && (
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: '700', color: (activeTab === 'weight' ? pctChange <= 0 : pctChange >= 0) ? '#22c55e' : '#dc3545',
-background: (activeTab === 'weight' ? pctChange <= 0 : pctChange >= 0) ? '#f0fdf4' : '#ffeaea', padding: '4px 10px', borderRadius: '20px' }}>
-                  {activeTab === 'weight'
-  ? (pctChange <= 0 ? <TrendingDown size={12} /> : <TrendingUp size={12} />)
-  : (pctChange >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />)}
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: '700', color: pctChange >= 0 ? '#22c55e' : '#dc3545', background: pctChange >= 0 ? '#f0fdf4' : '#ffeaea', padding: '4px 10px', borderRadius: '20px' }}>
+                  {pctChange >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
                   {Math.abs(pctChange).toFixed(0)}% vs your average
                 </span>
               )}
@@ -374,7 +369,7 @@ background: (activeTab === 'weight' ? pctChange <= 0 : pctChange >= 0) ? '#f0fdf
             </div>
 
             <div ref={chartScrollRef} style={{ overflowX: 'auto' }}>
-              <svg width={Math.max(500, CHART_TOTAL_W + 20)} viewBox={`0 0 ${Math.max(500, CHART_TOTAL_W + 20)} ${CHART_H + 65}`} style={{ display: 'block', minWidth: '100%' }}>
+              <svg width={Math.max(500, CHART_TOTAL_W + 20)} viewBox={`0 0 ${Math.max(500, CHART_TOTAL_W + 20)} ${CHART_H + 50}`} style={{ display: 'block', minWidth: '100%' }}>
                 {[0.25, 0.5, 0.75, 1].map(pct => (
                   <line key={pct} x1="0" y1={CHART_H - pct * CHART_H} x2={Math.max(400, CHART_TOTAL_W + 20)} y2={CHART_H - pct * CHART_H} stroke="#f0f2f7" strokeWidth="1" />
                 ))}
@@ -416,7 +411,7 @@ background: (activeTab === 'weight' ? pctChange <= 0 : pctChange >= 0) ? '#f0fdf
                   </>
                 )}
                 {/* All-time best line */}
-                {tabAllTimeBest && tabAllTimeBest !== currentVal && (
+                {tabAllTimeBest && tabAllTimeBest > (maxVal * 0.95) === false && (
                   <>
                     <line x1="0" y1={CHART_H - (tabAllTimeBest / maxVal) * CHART_H} x2={Math.max(400, CHART_TOTAL_W + 20)} y2={CHART_H - (tabAllTimeBest / maxVal) * CHART_H} stroke="#22c55e" strokeWidth="1.5" strokeDasharray="4 3" />
                     <text x="6" y={CHART_H - (tabAllTimeBest / maxVal) * CHART_H - 4}
