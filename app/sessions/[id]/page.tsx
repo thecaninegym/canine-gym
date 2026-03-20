@@ -199,34 +199,29 @@ export default function SessionDetail() {
             <h2 style={{ margin: '0 0 4px', fontSize: '26px', fontWeight: '800', color: 'white' }}>{dog?.name}</h2>
             <p style={{ margin: 0, color: 'rgba(255,255,255,0.7)', fontSize: '14px' }}>{formatDate(session.session_date)}</p>
           </div>
-          {/* Effort Score badge in hero */}
-          {effortScore !== null && (() => {
-            const { label, color } = getEffortLabel(effortScore)
-            return (
-              <div style={{ textAlign: 'center', flexShrink: 0 }}>
-                <div style={{ width: '70px', height: '70px', borderRadius: '50%', border: '3px solid rgba(255,255,255,0.3)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.1)' }}>
-                  <span style={{ fontSize: '22px', fontWeight: '800', color: 'white', lineHeight: 1 }}>{effortScore}</span>
-                  <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.6)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>effort</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', marginTop: '5px' }}>
-                  <span style={{ fontSize: '10px', fontWeight: '700', color, background: 'rgba(255,255,255,0.15)', padding: '2px 8px', borderRadius: '10px' }}>{label}</span>
-                  <span
-                    onClick={(e) => { e.stopPropagation(); setOpenTip(openTip === 'effort' ? null : 'effort') }}
-                    style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '16px', height: '16px', borderRadius: '50%', background: 'rgba(255,255,255,0.25)', color: 'white', fontSize: '10px', fontWeight: '800', cursor: 'pointer', flexShrink: 0 }}>
-                    i
-                  </span>
-                </div>
-              </div>
-            )
-          })()}
         </div>
 
-        {/* Effort tooltip — rendered outside hero to avoid overflow clipping */}
-        {openTip === 'effort' && (
-          <div style={{ background: '#1a1a2e', color: 'white', fontSize: '12px', fontWeight: '500', lineHeight: 1.6, padding: '10px 14px', borderRadius: '10px', marginBottom: '12px', marginTop: '-8px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)', position: 'relative', zIndex: 10 }}>
-            A 0–100 score combining how active your dog was, how consistent their pace was, and how close their average speed was to their peak.
-          </div>
-        )}
+        {/* Effort Score banner */}
+        {effortScore !== null && (() => {
+          const { label, color } = getEffortLabel(effortScore)
+          return (
+            <div style={{ background: 'white', borderRadius: '16px', padding: '14px 20px', marginBottom: '20px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{ width: '52px', height: '52px', borderRadius: '50%', border: '3px solid #2c5a9e', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#eef2fb' }}>
+                  <span style={{ fontSize: '18px', fontWeight: '800', color: '#001840', lineHeight: 1 }}>{effortScore}</span>
+                  <span style={{ fontSize: '8px', color: '#888', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>effort</span>
+                </div>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ fontSize: '15px', fontWeight: '800', color: '#1a1a2e' }}>Effort Score</span>
+                    <TipIcon id="effort" text="A 0–100 score combining how active your dog was, how consistent their pace was, and how close their average speed was to their peak." />
+                  </div>
+                  <span style={{ fontSize: '12px', fontWeight: '700', color }}>{label}</span>
+                </div>
+              </div>
+            </div>
+          )
+        })()}
 
         {/* Stat cards */}
         <div className="stat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '20px' }}>
