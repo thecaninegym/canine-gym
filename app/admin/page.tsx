@@ -65,7 +65,7 @@ export default function AdminDashboard() {
     { label: 'Memberships', href: '/admin/memberships', icon: <CreditCard size={24} color="white" />, orange: false },
     { label: 'Reports', href: '/admin/reports', icon: <BarChart2 size={24} color="white" />, orange: false },
     { label: 'Send Broadcast', href: '/admin/broadcast', icon: <Bell size={24} color="white" />, orange: false },
-    { label: 'FitBark Settings', href: '/admin/fitbark', icon: <Zap size={24} color="white" />, orange: false },
+
   ]
 
   return (

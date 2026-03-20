@@ -9,10 +9,8 @@ const labelStyle = { display: 'block', marginBottom: '6px', fontWeight: '700' as
 
 export default function LogSession() {
   const [dogs, setDogs] = useState<any[]>([])
-  const [devices, setDevices] = useState<any[]>([])
   const [dogId, setDogId] = useState('')
   const [bookingId, setBookingId] = useState('')
-  const [deviceSlug, setDeviceSlug] = useState('')
   const [sessionDate, setSessionDate] = useState(() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}` })
   const [startTime, setStartTime] = useState('')
   const [endTime, setEndTime] = useState('')
@@ -57,8 +55,6 @@ export default function LogSession() {
     const fetchData = async () => {
       const { data: dogsData } = await supabase.from('dogs').select('*, owner_id, owners(name), leaderboard_settings(city)').order('name')
       setDogs(dogsData || [])
-      const { data: devicesData } = await supabase.from('devices').select('*').order('device_name')
-      setDevices(devicesData || [])
     }
     fetchData()
     fetchPendingSlatmillSessions()
@@ -90,7 +86,6 @@ export default function LogSession() {
     // Build session row — include slatmill data if a session was selected
     const sessionRow: any = {
       dog_id: dogId,
-      fitbark_device_slug: deviceSlug || null,
       session_date: sessionDate,
       start_time: start.toISOString(),
       end_time: end.toISOString(),
@@ -140,25 +135,6 @@ export default function LogSession() {
       body: JSON.stringify({ dogId })
     })
 
-    // Pull FitBark activity data for the session window (non-blocking)
-    let fitbarkStats: any = {}
-    if (deviceSlug) {
-      try {
-        const { data: sessionRow } = await supabase.from('sessions')
-          .select('id').eq('dog_id', dogId).eq('session_date', sessionDate)
-          .order('created_at', { ascending: false }).limit(1).single()
-        if (sessionRow?.id) {
-          const fbRes = await fetch('/api/fitbark/activity', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ sessionId: sessionRow.id, deviceSlug, startTime: start.toISOString(), endTime: end.toISOString() })
-          })
-          if (fbRes.ok) fitbarkStats = await fbRes.json()
-        }
-      } catch (e) {
-        console.warn('FitBark fetch failed (non-blocking):', e)
-      }
-    }
 
     const newAchievements = await checkAchievements(dogId)
     const selectedDogData = dogs.find(d => d.id === dogId)
@@ -184,7 +160,6 @@ export default function LogSession() {
       })
     }
     setSuccess(true)
-    setDeviceSlug('')
     setNotes('')
     setLoading(false)
   }

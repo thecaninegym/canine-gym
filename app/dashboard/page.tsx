@@ -66,7 +66,7 @@ export default function ClientDashboard() {
     if (!friendDogs || friendDogs.length === 0) return
     const friendDogIds = friendDogs.map((d: any) => d.id)
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-    const { data: recentSessions } = await supabase.from('sessions').select('id, dog_id, session_date, distance_miles, calories_burned, calories, duration_minutes').in('dog_id', friendDogIds).gte('session_date', sevenDaysAgo).order('session_date', { ascending: false }).limit(10)
+    const { data: recentSessions } = await supabase.from('sessions').select('id, dog_id, session_date, distance_miles, calories, duration_minutes').in('dog_id', friendDogIds).gte('session_date', sevenDaysAgo).order('session_date', { ascending: false }).limit(10)
     if (!recentSessions) return
     const dogMap: Record<string, any> = {}
     friendDogs.forEach((d: any) => { dogMap[d.id] = d })
@@ -90,7 +90,7 @@ export default function ClientDashboard() {
 
   const totalSessions = sessions.length
   const totalMiles = sessions.reduce((sum, s) => sum + (s.distance_miles || 0), 0).toFixed(2)
-  const totalCalories = sessions.reduce((sum, s) => sum + (s.calories || s.calories_burned || 0), 0)
+  const totalCalories = sessions.reduce((sum, s) => sum + (s.calories || 0), 0)
 
   // Last session date
   const lastSessionDate = sessions.length > 0
@@ -644,7 +644,7 @@ export default function ClientDashboard() {
                             <p style={{ margin: 0, fontSize: '13px', color: '#888' }}>
                               {session.duration_minutes} min
                               {session.distance_miles ? ` · ${session.distance_miles} mi` : ''}
-                              {(session.calories || session.calories_burned) ? ` · ${session.calories || session.calories_burned} cal` : ''}
+                              {session.calories ? ` · ${session.calories} cal` : ''}
                             </p>
                             {session.notes && <p style={{ margin: '3px 0 0', fontSize: '12px', color: '#aaa', fontStyle: 'italic' }}>{session.notes}</p>}
                           </div>
@@ -691,7 +691,7 @@ export default function ClientDashboard() {
                             <p style={{ margin: 0, fontSize: '12px', color: '#aaa' }}>
                               {item.duration_minutes && `${item.duration_minutes} min`}
                               {item.distance_miles ? ` · ${item.distance_miles} mi` : ''}
-                              {item.calories_burned ? ` · ${item.calories_burned} cal` : ''}
+                              {item.calories ? ` · ${item.calories} cal` : ''}
                             </p>
                           </div>
                           <span style={{ fontSize: '12px', color: '#bbb', flexShrink: 0 }}>{timeLabel}</span>
