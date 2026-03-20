@@ -249,48 +249,45 @@ export default function SessionDetail() {
 
         {/* Hero */}
         <div style={{ background: 'linear-gradient(135deg, #001840 0%, #2c5a9e 100%)', borderRadius: '20px', padding: '24px', marginBottom: '20px', position: 'relative', overflow: 'hidden' }}>
-          {/* Top row: photo + effort score */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px' }}>
-            {dog?.photo_url ? (
-              <img src={dog.photo_url} alt={dog.name} style={{ width: '72px', height: '72px', borderRadius: '16px', objectFit: 'cover', border: '3px solid rgba(255,255,255,0.2)', flexShrink: 0 }} />
-            ) : (
-              <div style={{ width: '72px', height: '72px', borderRadius: '16px', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <PawPrint size={32} color="rgba(255,255,255,0.5)" />
-              </div>
-            )}
-            {effortScore !== null && (() => {
-              const { label, color } = getEffortLabel(effortScore)
-              return (
-                <div style={{ flexShrink: 0, background: 'rgba(255,255,255,0.1)', borderRadius: '14px', padding: '10px 14px', textAlign: 'center', minWidth: '72px' }}>
-                  <div style={{ fontSize: '28px', fontWeight: '800', color: 'white', lineHeight: 1 }}>{effortScore}</div>
-                  <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.5)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', margin: '2px 0 6px' }}>Effort</div>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-                    <span style={{ fontSize: '11px', fontWeight: '700', color, background: 'rgba(255,255,255,0.15)', padding: '2px 8px', borderRadius: '8px' }}>{label}</span>
-                    <span
-                      onClick={(e) => { e.stopPropagation(); setOpenTip(openTip === 'effort' ? null : 'effort') }}
-                      style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '14px', height: '14px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)', color: 'white', fontSize: '9px', fontWeight: '800', cursor: 'pointer', flexShrink: 0, zIndex: 200, position: 'relative' }}>
-                      i
-                    </span>
-                  </div>
-                </div>
-              )
-            })()}
-          </div>
-          {/* Bottom: name, session number, date, motivational line */}
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '4px' }}>
-              <h2 style={{ margin: 0, fontSize: '24px', fontWeight: '800', color: 'white' }}>{dog?.name}</h2>
+          {dog?.photo_url ? (
+            <img src={dog.photo_url} alt={dog.name} style={{ width: '80px', height: '80px', borderRadius: '18px', objectFit: 'cover', border: '3px solid rgba(255,255,255,0.2)', flexShrink: 0 }} />
+          ) : (
+            <div style={{ width: '80px', height: '80px', borderRadius: '18px', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <PawPrint size={36} color="rgba(255,255,255,0.5)" />
+            </div>
+          )}
+          <div style={{ position: 'relative', flex: 1, minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+              <h2 style={{ margin: '0 0 4px', fontSize: '26px', fontWeight: '800', color: 'white' }}>{dog?.name}</h2>
               {sessionNumber && (
-                <span style={{ fontSize: '11px', fontWeight: '700', color: 'rgba(255,255,255,0.6)', background: 'rgba(255,255,255,0.12)', padding: '2px 8px', borderRadius: '10px' }}>
+                <span style={{ fontSize: '11px', fontWeight: '700', color: 'rgba(255,255,255,0.6)', background: 'rgba(255,255,255,0.12)', padding: '2px 8px', borderRadius: '10px', marginBottom: '4px' }}>
                   Session #{sessionNumber}
                 </span>
               )}
             </div>
-            <p style={{ margin: '0 0 4px', color: 'rgba(255,255,255,0.7)', fontSize: '13px' }}>{formatDate(session.session_date)}</p>
+            <p style={{ margin: '0 0 4px', color: 'rgba(255,255,255,0.7)', fontSize: '14px' }}>{formatDate(session.session_date)}</p>
             {motivationalLine && (
               <p style={{ margin: 0, color: 'rgba(255,255,255,0.55)', fontSize: '12px', fontStyle: 'italic' }}>{motivationalLine}</p>
             )}
           </div>
+          {/* Effort Score */}
+          {effortScore !== null && (() => {
+            const { label, color } = getEffortLabel(effortScore)
+            return (
+              <div style={{ flexShrink: 0, background: 'rgba(255,255,255,0.1)', borderRadius: '14px', padding: '12px 16px', textAlign: 'center', minWidth: '72px' }}>
+                <div style={{ fontSize: '32px', fontWeight: '800', color: 'white', lineHeight: 1 }}>{effortScore}</div>
+                <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.5)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', margin: '2px 0 6px' }}>Effort</div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                  <span style={{ fontSize: '11px', fontWeight: '700', color, background: 'rgba(255,255,255,0.15)', padding: '2px 8px', borderRadius: '8px' }}>{label}</span>
+                  <span
+                    onClick={(e) => { e.stopPropagation(); setOpenTip(openTip === 'effort' ? null : 'effort') }}
+                    style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '14px', height: '14px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)', color: 'white', fontSize: '9px', fontWeight: '800', cursor: 'pointer', flexShrink: 0, zIndex: 200, position: 'relative' }}>
+                    i
+                  </span>
+                </div>
+              </div>
+            )
+          })()}
         </div>
 
         {/* Effort tooltip — rendered below hero to avoid overflow:hidden clipping */}
