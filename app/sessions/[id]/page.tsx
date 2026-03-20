@@ -248,54 +248,55 @@ export default function SessionDetail() {
       <div style={{ padding: '28px 24px', maxWidth: '800px', margin: '0 auto', animation: 'fadeUp 0.35s ease' }}>
 
         {/* Hero */}
-        <div style={{ background: 'linear-gradient(135deg, #001840 0%, #2c5a9e 100%)', borderRadius: '20px', padding: '24px', marginBottom: '20px', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ background: 'linear-gradient(135deg, #001840 0%, #2c5a9e 100%)', borderRadius: '20px', padding: '24px 28px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '16px', position: 'relative', overflow: 'hidden' }}>
           {dog?.photo_url ? (
-            <img src={dog.photo_url} alt={dog.name} style={{ width: '80px', height: '80px', borderRadius: '18px', objectFit: 'cover', border: '3px solid rgba(255,255,255,0.2)', flexShrink: 0 }} />
+            <img src={dog.photo_url} alt={dog.name} style={{ width: '76px', height: '76px', borderRadius: '16px', objectFit: 'cover', border: '3px solid rgba(255,255,255,0.2)', flexShrink: 0 }} />
           ) : (
-            <div style={{ width: '80px', height: '80px', borderRadius: '18px', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <PawPrint size={36} color="rgba(255,255,255,0.5)" />
+            <div style={{ width: '76px', height: '76px', borderRadius: '16px', background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <PawPrint size={32} color="rgba(255,255,255,0.5)" />
             </div>
           )}
-          <div style={{ position: 'relative', flex: 1, minWidth: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-              <h2 style={{ margin: '0 0 4px', fontSize: '26px', fontWeight: '800', color: 'white' }}>{dog?.name}</h2>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '4px' }}>
+              <h2 style={{ margin: 0, fontSize: '24px', fontWeight: '800', color: 'white' }}>{dog?.name}</h2>
               {sessionNumber && (
-                <span style={{ fontSize: '11px', fontWeight: '700', color: 'rgba(255,255,255,0.6)', background: 'rgba(255,255,255,0.12)', padding: '2px 8px', borderRadius: '10px', marginBottom: '4px' }}>
+                <span style={{ fontSize: '11px', fontWeight: '700', color: 'rgba(255,255,255,0.6)', background: 'rgba(255,255,255,0.12)', padding: '2px 8px', borderRadius: '10px' }}>
                   Session #{sessionNumber}
                 </span>
               )}
             </div>
-            <p style={{ margin: '0 0 4px', color: 'rgba(255,255,255,0.7)', fontSize: '14px' }}>{formatDate(session.session_date)}</p>
+            <p style={{ margin: '0 0 3px', color: 'rgba(255,255,255,0.7)', fontSize: '13px' }}>{formatDate(session.session_date)}</p>
             {motivationalLine && (
               <p style={{ margin: 0, color: 'rgba(255,255,255,0.55)', fontSize: '12px', fontStyle: 'italic' }}>{motivationalLine}</p>
             )}
           </div>
-          {/* Effort Score */}
-          {effortScore !== null && (() => {
-            const { label, color } = getEffortLabel(effortScore)
-            return (
-              <div style={{ flexShrink: 0, background: 'rgba(255,255,255,0.1)', borderRadius: '14px', padding: '12px 16px', textAlign: 'center', minWidth: '72px' }}>
-                <div style={{ fontSize: '32px', fontWeight: '800', color: 'white', lineHeight: 1 }}>{effortScore}</div>
-                <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.5)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', margin: '2px 0 6px' }}>Effort</div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-                  <span style={{ fontSize: '11px', fontWeight: '700', color, background: 'rgba(255,255,255,0.15)', padding: '2px 8px', borderRadius: '8px' }}>{label}</span>
-                  <span
-                    onClick={(e) => { e.stopPropagation(); setOpenTip(openTip === 'effort' ? null : 'effort') }}
-                    style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '14px', height: '14px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)', color: 'white', fontSize: '9px', fontWeight: '800', cursor: 'pointer', flexShrink: 0, zIndex: 200, position: 'relative' }}>
-                    i
-                  </span>
-                </div>
-              </div>
-            )
-          })()}
         </div>
 
-        {/* Effort tooltip — rendered below hero to avoid overflow:hidden clipping */}
-        {openTip === 'effort' && (
-          <div onClick={(e) => e.stopPropagation()} style={{ background: '#1a1a2e', color: 'white', fontSize: '12px', fontWeight: '500', lineHeight: 1.6, padding: '10px 14px', borderRadius: '10px', marginTop: '-12px', marginBottom: '12px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)', zIndex: 10, position: 'relative' }}>
-            A 0–100 score combining how active your dog was, how consistent their pace was, and how close their average speed was to their peak.
-          </div>
-        )}
+        {/* Effort Score — full width banner below hero */}
+        {effortScore !== null && (() => {
+          const { label, color } = getEffortLabel(effortScore)
+          return (
+            <div style={{ background: 'white', borderRadius: '14px', padding: '14px 20px', marginBottom: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: '#eef2fb', border: '2.5px solid #2c5a9e', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <span style={{ fontSize: '16px', fontWeight: '800', color: '#001840', lineHeight: 1 }}>{effortScore}</span>
+                </div>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ fontSize: '14px', fontWeight: '800', color: '#1a1a2e' }}>Effort Score</span>
+                    <TipIcon id="effort" text="A 0–100 score combining how active your dog was, how consistent their pace was, and how close their average speed was to their peak." />
+                  </div>
+                  <span style={{ fontSize: '12px', fontWeight: '700', color }}>{label}</span>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: '4px' }}>
+                {[20,40,60,80,100].map(threshold => (
+                  <div key={threshold} style={{ width: '20px', height: '8px', borderRadius: '4px', background: effortScore >= threshold ? (effortScore >= 85 ? '#f88124' : effortScore >= 70 ? '#2c5a9e' : effortScore >= 55 ? '#22c55e' : '#f59e0b') : '#f0f2f7' }} />
+                ))}
+              </div>
+            </div>
+          )
+        })()}
 
         {/* Weight trend banner */}
         {weightChange !== null && Math.abs(weightChange) >= 0.5 && (
