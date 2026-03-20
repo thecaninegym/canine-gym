@@ -14,6 +14,7 @@ export default function SessionDetail() {
   const [previousSessions, setPreviousSessions] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<Tab>('duration')
+  const [openTip, setOpenTip] = useState<string | null>(null)
   const chartScrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -149,8 +150,24 @@ export default function SessionDetail() {
     return m > 0 ? `${m}m ${s}s` : `${s}s`
   }
 
+  const TipIcon = ({ id, text }: { id: string; text: string }) => (
+    <span style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
+      <span
+        onClick={(e) => { e.stopPropagation(); setOpenTip(openTip === id ? null : id) }}
+        style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '16px', height: '16px', borderRadius: '50%', background: '#e5e8f0', color: '#888', fontSize: '10px', fontWeight: '800', cursor: 'pointer', marginLeft: '6px', flexShrink: 0, userSelect: 'none' }}>
+        i
+      </span>
+      {openTip === id && (
+        <span style={{ position: 'absolute', top: '22px', left: '50%', transform: 'translateX(-50%)', background: '#1a1a2e', color: 'white', fontSize: '12px', fontWeight: '500', lineHeight: 1.5, padding: '8px 12px', borderRadius: '8px', width: '220px', zIndex: 50, boxShadow: '0 4px 16px rgba(0,0,0,0.2)', pointerEvents: 'none' }}>
+          {text}
+          <span style={{ position: 'absolute', top: '-4px', left: '50%', transform: 'translateX(-50%)', width: '8px', height: '8px', background: '#1a1a2e', borderRadius: '1px', rotate: '45deg' }} />
+        </span>
+      )}
+    </span>
+  )
+
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', fontFamily: "'Montserrat', system-ui, sans-serif" }}>
+    <div onClick={() => setOpenTip(null)} style={{ minHeight: '100vh', backgroundColor: '#f0f2f7', fontFamily: "'Montserrat', system-ui, sans-serif" }}>
       <style>{`
         @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
         * { box-sizing: border-box; }
@@ -191,7 +208,10 @@ export default function SessionDetail() {
                   <span style={{ fontSize: '22px', fontWeight: '800', color: 'white', lineHeight: 1 }}>{effortScore}</span>
                   <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.6)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>effort</span>
                 </div>
-                <span style={{ display: 'block', marginTop: '5px', fontSize: '10px', fontWeight: '700', color, background: 'rgba(255,255,255,0.15)', padding: '2px 8px', borderRadius: '10px' }}>{label}</span>
+                <span style={{ display: 'block', marginTop: '5px', fontSize: '10px', fontWeight: '700', color, background: 'rgba(255,255,255,0.15)', padding: '2px 8px', borderRadius: '10px', position: 'relative' }}>
+                  {label}
+                  <TipIcon id="effort" text="A 0–100 score combining how active your dog was, how consistent their pace was, and how close their average speed was to their peak." />
+                </span>
               </div>
             )
           })()}
@@ -307,7 +327,7 @@ export default function SessionDetail() {
               <div style={{ width: '34px', height: '34px', background: '#eef2fb', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Activity size={17} color="#2c5a9e" />
               </div>
-              <span style={{ fontWeight: '800', color: '#1a1a2e', fontSize: '15px' }}>Performance Analysis</span>
+              <span style={{ fontWeight: '800', color: '#1a1a2e', fontSize: '15px', display: 'flex', alignItems: 'center' }}>Performance Analysis</span>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -320,7 +340,7 @@ export default function SessionDetail() {
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                       <div>
-                        <span style={{ fontSize: '13px', fontWeight: '700', color: '#555' }}>Pace Consistency</span>
+                        <span style={{ fontSize: '13px', fontWeight: '700', color: '#555', display: 'inline-flex', alignItems: 'center' }}>Pace Consistency<TipIcon id="pace" text="Measures how steady your dog's speed was. Lower variation means a more even pace throughout the session." /></span>
                         <span style={{ marginLeft: '8px', fontSize: '11px', fontWeight: '700', color, background: color + '18', padding: '2px 8px', borderRadius: '10px' }}>{label}</span>
                       </div>
                       <span style={{ fontSize: '13px', fontWeight: '800', color: '#1a1a2e' }}>±{session.pace_consistency.toFixed(2)} mph</span>
@@ -339,15 +359,15 @@ export default function SessionDetail() {
               {activeSeconds !== null && totalSeconds !== null && restSeconds !== null && activeRatio !== null && (
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                    <span style={{ fontSize: '13px', fontWeight: '700', color: '#555' }}>Active vs Rest Time</span>
+                    <span style={{ fontSize: '13px', fontWeight: '700', color: '#555', display: 'inline-flex', alignItems: 'center' }}>Active vs Rest Time<TipIcon id="active" text="How much of the session the belt was actually moving vs. stopped. Higher active time means more continuous effort." /></span>
                     <span style={{ fontSize: '13px', fontWeight: '800', color: '#2c5a9e' }}>{activeRatio.toFixed(0)}% active</span>
                   </div>
                   <div style={{ height: '10px', background: '#f0f2f7', borderRadius: '5px', overflow: 'hidden', position: 'relative' }}>
                     <div style={{ height: '100%', width: `${activeRatio}%`, background: '#2c5a9e', borderRadius: '5px 0 0 5px' }} />
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px' }}>
-                    <span style={{ fontSize: '12px', color: '#2c5a9e', fontWeight: '700' }}>🏃 Active: {formatSeconds(activeSeconds)}</span>
-                    <span style={{ fontSize: '12px', color: '#aaa', fontWeight: '700' }}>💤 Rest: {formatSeconds(restSeconds)}</span>
+                    <span style={{ fontSize: '12px', color: '#2c5a9e', fontWeight: '700' }}>Active: {formatSeconds(activeSeconds)}</span>
+                    <span style={{ fontSize: '12px', color: '#aaa', fontWeight: '700' }}>Rest: {formatSeconds(restSeconds)}</span>
                   </div>
                 </div>
               )}
@@ -363,7 +383,7 @@ export default function SessionDetail() {
               <div style={{ width: '34px', height: '34px', background: '#eef2fb', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Gauge size={17} color="#2c5a9e" />
               </div>
-              <span style={{ fontWeight: '800', color: '#1a1a2e', fontSize: '15px' }}>Speed Breakdown</span>
+              <span style={{ fontWeight: '800', color: '#1a1a2e', fontSize: '15px', display: 'inline-flex', alignItems: 'center' }}>Speed Breakdown<TipIcon id="speed" text="Compares your dog's average running speed to their fastest burst during the session." /></span>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {[
