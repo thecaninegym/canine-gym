@@ -443,7 +443,7 @@ export default function SessionDetail() {
         )}
 
         {/* Performance Analysis */}
-        {hasSlatmillData && (session.pace_consistency !== null || activeSeconds !== null) && (
+        {hasSlatmillData && (session.pace_consistency !== null || activeSeconds !== null || session.avg_acceleration !== null || session.low_zone_seconds !== null) && (
           <div style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5', marginBottom: '20px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
               <div style={{ width: '34px', height: '34px', background: '#eef2fb', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

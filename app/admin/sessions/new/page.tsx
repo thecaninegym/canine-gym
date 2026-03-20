@@ -80,11 +80,6 @@ export default function LogSession() {
     e.preventDefault()
     setLoading(true)
     setError(null)
-if (selectedSlatmill && !dogWeightLbs) {
-  setError('Please enter the dog\'s weight to calculate calories.')
-  setLoading(false)
-  return
-}
 
     const start = new Date(`${sessionDate}T${startTime}`)
     const end = new Date(`${sessionDate}T${endTime}`)
@@ -107,6 +102,11 @@ if (selectedSlatmill && !dogWeightLbs) {
         peak_speed_mph: selectedSlatmill.peak_speed_mph,
         pace_consistency: selectedSlatmill.pace_consistency || null,
         active_seconds: selectedSlatmill.active_seconds || null,
+        avg_acceleration: selectedSlatmill.avg_acceleration || null,
+        top_speed_duration: selectedSlatmill.top_speed_duration || null,
+        low_zone_seconds: selectedSlatmill.low_zone_seconds || null,
+        moderate_zone_seconds: selectedSlatmill.moderate_zone_seconds || null,
+        high_zone_seconds: selectedSlatmill.high_zone_seconds || null,
         slatmill_session_id: selectedSlatmill.id,
       }),
       ...(dogWeightLbs && { dog_weight_lbs: parseFloat(dogWeightLbs) }),
@@ -297,14 +297,13 @@ if (selectedSlatmill && !dogWeightLbs) {
                 <label style={labelStyle}>Dog's Weight Today (lbs)</label>
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                   <input
-  type="number"
-  value={dogWeightLbs}
-  onChange={e => setDogWeightLbs(e.target.value)}
-  placeholder="e.g. 45"
-  min="1" max="200" step="0.1"
-  required
-  style={{ ...inputStyle, width: '140px' }}
-/>
+                    type="number"
+                    value={dogWeightLbs}
+                    onChange={e => setDogWeightLbs(e.target.value)}
+                    placeholder="e.g. 45"
+                    min="1" max="200" step="0.1"
+                    style={{ ...inputStyle, width: '140px' }}
+                  />
                   {calories !== null && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#fff3e0', padding: '8px 14px', borderRadius: '10px', border: '1.5px solid #f88124' }}>
                       <Zap size={14} color="#f88124" />

@@ -14,7 +14,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const { duration_minutes, distance_miles, avg_speed_mph, peak_speed_mph, pulses, slatmill_id, pace_consistency, active_seconds } = body
+  const {
+    duration_minutes, distance_miles, avg_speed_mph, peak_speed_mph,
+    pulses, slatmill_id, pace_consistency, active_seconds,
+    avg_acceleration, top_speed_duration,
+    low_zone_seconds, moderate_zone_seconds, high_zone_seconds
+  } = body
 
   // Basic validation
   if (!duration_minutes) {
@@ -35,6 +40,11 @@ export async function POST(request: Request) {
     slatmill_id: slatmill_id || 'slatmill_1',
     pace_consistency: pace_consistency || null,
     active_seconds: active_seconds || null,
+    avg_acceleration: avg_acceleration || null,
+    top_speed_duration: top_speed_duration || null,
+    low_zone_seconds: low_zone_seconds || null,
+    moderate_zone_seconds: moderate_zone_seconds || null,
+    high_zone_seconds: high_zone_seconds || null,
     used: false
   })
 
