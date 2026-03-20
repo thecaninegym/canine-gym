@@ -413,7 +413,7 @@ export default function SessionDetail() {
                   </>
                 )}
                 {/* All-time best line */}
-                {tabAllTimeBest && tabAllTimeBest > (maxVal * 0.95) === false && (
+                {tabAllTimeBest && (tabAllTimeBest / maxVal) < 0.98 && (
                   <>
                     <line x1="0" y1={CHART_H - (tabAllTimeBest / maxVal) * CHART_H} x2={Math.max(400, CHART_TOTAL_W + 20)} y2={CHART_H - (tabAllTimeBest / maxVal) * CHART_H} stroke="#22c55e" strokeWidth="1.5" strokeDasharray="4 3" />
                     <text x="6" y={CHART_H - (tabAllTimeBest / maxVal) * CHART_H - 4}
