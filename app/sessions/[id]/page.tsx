@@ -492,6 +492,86 @@ export default function SessionDetail() {
                   </div>
                 </div>
               )}
+
+              {/* Speed Zones */}
+              {session.low_zone_seconds !== null && session.moderate_zone_seconds !== null && session.high_zone_seconds !== null && (() => {
+                const low = session.low_zone_seconds || 0
+                const mod = session.moderate_zone_seconds || 0
+                const high = session.high_zone_seconds || 0
+                const total = low + mod + high
+                if (total === 0) return null
+                const lowPct = Math.round((low / total) * 100)
+                const modPct = Math.round((mod / total) * 100)
+                const highPct = 100 - lowPct - modPct
+                return (
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                      <span style={{ fontSize: '13px', fontWeight: '700', color: '#555', display: 'inline-flex', alignItems: 'center' }}>
+                        Speed Zones<TipIcon id="zones" text="Breaks down time spent at low (0–40%), moderate (40–75%), and high (75–100%) intensity relative to peak speed. Stopped time is excluded." />
+                      </span>
+                    </div>
+                    <div style={{ height: '12px', borderRadius: '6px', overflow: 'hidden', display: 'flex', marginBottom: '10px' }}>
+                      {lowPct > 0 && <div style={{ width: `${lowPct}%`, background: '#94a3b8' }} />}
+                      {modPct > 0 && <div style={{ width: `${modPct}%`, background: '#f59e0b' }} />}
+                      {highPct > 0 && <div style={{ width: `${highPct}%`, background: '#f88124' }} />}
+                    </div>
+                    <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
+                      {[
+                        { label: 'Low', pct: lowPct, secs: low, color: '#94a3b8' },
+                        { label: 'Moderate', pct: modPct, secs: mod, color: '#f59e0b' },
+                        { label: 'High', pct: highPct, secs: high, color: '#f88124' },
+                      ].map(z => (
+                        <div key={z.label} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                          <span style={{ width: '10px', height: '10px', borderRadius: '2px', background: z.color, display: 'inline-block', flexShrink: 0 }} />
+                          <span style={{ fontSize: '11px', fontWeight: '700', color: '#555' }}>{z.label}</span>
+                          <span style={{ fontSize: '11px', color: '#aaa', fontWeight: '600' }}>{z.pct}% · {Math.floor(z.secs / 60) > 0 ? `${Math.floor(z.secs / 60)}m ` : ''}{z.secs % 60}s</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })()}
+
+              {/* Acceleration */}
+              {session.avg_acceleration !== null && session.avg_acceleration !== undefined && (
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <span style={{ fontSize: '13px', fontWeight: '700', color: '#555', display: 'inline-flex', alignItems: 'center' }}>
+                      Avg Acceleration<TipIcon id="accel" text="How quickly your dog gets up to speed during running bursts, ignoring starts after long stops. Higher means faster acceleration." />
+                    </span>
+                    <span style={{ fontSize: '13px', fontWeight: '800', color: '#2c5a9e' }}>{session.avg_acceleration.toFixed(2)} mph/s</span>
+                  </div>
+                  <div style={{ height: '10px', background: '#f0f2f7', borderRadius: '5px', overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: `${Math.min((session.avg_acceleration / 3.0) * 100, 100)}%`, background: '#2c5a9e', borderRadius: '5px' }} />
+                  </div>
+                  <p style={{ margin: '6px 0 0', fontSize: '12px', color: '#aaa', fontWeight: '600' }}>
+                    {session.avg_acceleration >= 2.0 ? 'Explosive acceleration' : session.avg_acceleration >= 1.0 ? 'Good acceleration' : 'Gradual acceleration'}
+                  </p>
+                </div>
+              )}
+
+              {/* Top Speed Duration */}
+              {session.top_speed_duration !== null && session.top_speed_duration !== undefined && (
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <span style={{ fontSize: '13px', fontWeight: '700', color: '#555', display: 'inline-flex', alignItems: 'center' }}>
+                      Top Speed Duration<TipIcon id="topspeed" text="How many consecutive seconds your dog sustained their peak speed (within 0.5 mph). Shows high-intensity endurance." />
+                    </span>
+                    <span style={{ fontSize: '13px', fontWeight: '800', color: '#f88124' }}>
+                      {session.top_speed_duration >= 60
+                        ? `${Math.floor(session.top_speed_duration / 60)}m ${session.top_speed_duration % 60}s`
+                        : `${session.top_speed_duration}s`}
+                    </span>
+                  </div>
+                  <div style={{ height: '10px', background: '#f0f2f7', borderRadius: '5px', overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: `${Math.min((session.top_speed_duration / 30) * 100, 100)}%`, background: '#f88124', borderRadius: '5px' }} />
+                  </div>
+                  <p style={{ margin: '6px 0 0', fontSize: '12px', color: '#aaa', fontWeight: '600' }}>
+                    {session.top_speed_duration >= 20 ? 'Excellent high-speed endurance' : session.top_speed_duration >= 10 ? 'Good sustained effort' : 'Building peak speed endurance'}
+                  </p>
+                </div>
+              )}
+
             </div>
           </div>
         )}
