@@ -210,7 +210,18 @@ export default function SessionDetail() {
                 </div>
                 <span style={{ display: 'block', marginTop: '5px', fontSize: '10px', fontWeight: '700', color, background: 'rgba(255,255,255,0.15)', padding: '2px 8px', borderRadius: '10px', position: 'relative' }}>
                   {label}
-                  <TipIcon id="effort" text="A 0–100 score combining how active your dog was, how consistent their pace was, and how close their average speed was to their peak." />
+                  <span style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
+  <span
+    onClick={(e) => { e.stopPropagation(); setOpenTip(openTip === 'effort' ? null : 'effort') }}
+    style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '16px', height: '16px', borderRadius: '50%', background: 'rgba(255,255,255,0.3)', color: 'white', fontSize: '10px', fontWeight: '800', cursor: 'pointer', marginLeft: '6px', flexShrink: 0 }}>
+    i
+  </span>
+  {openTip === 'effort' && (
+    <span style={{ position: 'absolute', top: '0px', right: '24px', background: '#1a1a2e', color: 'white', fontSize: '12px', fontWeight: '500', lineHeight: 1.5, padding: '8px 12px', borderRadius: '8px', width: '200px', zIndex: 50, boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
+      A 0–100 score combining how active your dog was, how consistent their pace was, and how close their average speed was to their peak.
+    </span>
+  )}
+</span>
                 </span>
               </div>
             )
