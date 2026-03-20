@@ -354,8 +354,9 @@ export default function SessionDetail() {
                 <span style={{ fontWeight: '800', color: '#1a1a2e', fontSize: '15px' }}>{activeTabDef.label} Over Time</span>
               </div>
               {pctChange !== null && (
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: '700', color: pctChange >= 0 ? '#22c55e' : '#dc3545', background: pctChange >= 0 ? '#f0fdf4' : '#ffeaea', padding: '4px 10px', borderRadius: '20px' }}>
-                  {pctChange >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: '700', color: (activeTab === 'weight' ? pctChange <= 0 : pctChange >= 0) ? '#22c55e' : '#dc3545',
+background: (activeTab === 'weight' ? pctChange <= 0 : pctChange >= 0) ? '#f0fdf4' : '#ffeaea', padding: '4px 10px', borderRadius: '20px' }}>
+                  {(activeTab === 'weight' ? pctChange <= 0 : pctChange >= 0) ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
                   {Math.abs(pctChange).toFixed(0)}% vs your average
                 </span>
               )}
@@ -413,7 +414,7 @@ export default function SessionDetail() {
                   </>
                 )}
                 {/* All-time best line */}
-                {tabAllTimeBest && (tabAllTimeBest / maxVal) < 0.98 && (
+                {tabAllTimeBest && tabAllTimeBest !== currentVal && (
                   <>
                     <line x1="0" y1={CHART_H - (tabAllTimeBest / maxVal) * CHART_H} x2={Math.max(400, CHART_TOTAL_W + 20)} y2={CHART_H - (tabAllTimeBest / maxVal) * CHART_H} stroke="#22c55e" strokeWidth="1.5" strokeDasharray="4 3" />
                     <text x="6" y={CHART_H - (tabAllTimeBest / maxVal) * CHART_H - 4}
