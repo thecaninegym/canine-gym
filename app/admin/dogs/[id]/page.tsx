@@ -54,7 +54,7 @@ export default function DogProfile() {
   const peakEver = sessions.reduce((max, s) => Math.max(max, s.peak_speed_mph || 0), 0)
 
   // ── Mini bar chart data ─────────────────────────────────────
-  const chartSessions = [...sessions].reverse().slice(-12) // last 12 chronological
+  const chartSessions = [...sessions].filter(s => s[chartMetric] && s[chartMetric] > 0).reverse().slice(-12)
   const chartValues = chartSessions.map(s => s[chartMetric] || 0)
   const chartMax = Math.max(...chartValues, 0.01)
 
