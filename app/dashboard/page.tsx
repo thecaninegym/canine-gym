@@ -384,6 +384,10 @@ export default function ClientDashboard() {
                       <a href="/book" className="action-btn" style={{ backgroundColor: '#f88124', color: 'white', padding: '11px 20px', borderRadius: '12px', textDecoration: 'none', fontWeight: '700', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '7px', transition: 'all 0.2s', boxShadow: '0 4px 16px rgba(255,107,53,0.4)', whiteSpace: 'nowrap' }}>
                         <Calendar size={15} /> Book Session
                       </a>
+                      <a href={selectedDog ? `/dogs/${selectedDog.id}` : '#'}
+                        style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '1.5px solid rgba(255,255,255,0.25)', padding: '9px 16px', borderRadius: '10px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', whiteSpace: 'nowrap', textDecoration: 'none' }}>
+                        <TrendingUp size={14} /> Overall Stats
+                      </a>
                       <button onClick={() => setShowShareModal(true)}
                         style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '1.5px solid rgba(255,255,255,0.25)', padding: '9px 16px', borderRadius: '10px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', whiteSpace: 'nowrap' }}>
                         <Share2 size={14} /> Share Stats
