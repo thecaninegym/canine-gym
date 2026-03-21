@@ -57,7 +57,7 @@ export default function Leaderboard() {
     const dogIds = settingsData.map(s => s.dog_id)
 
     const { data: sessionData } = await supabase
-      .from('sessions').select('dog_id, distance_miles, calories_burned')
+      .from('sessions').select('dog_id, distance_miles, calories')
       .in('dog_id', dogIds).gte('session_date', firstOfMonth)
 
     const statsMap: Record<string, any> = {}
@@ -66,7 +66,7 @@ export default function Leaderboard() {
       if (statsMap[session.dog_id]) {
         statsMap[session.dog_id].session_count++
         statsMap[session.dog_id].total_miles += session.distance_miles || 0
-        statsMap[session.dog_id].total_calories += session.calories_burned || 0
+        statsMap[session.dog_id].total_calories += session.calories || 0
       }
     })
 
