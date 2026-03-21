@@ -185,13 +185,15 @@ export default function DogProfile() {
             </div>
 
             {/* Bar chart */}
-            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '6px', height: '100px' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '6px', height: '120px', position: 'relative' }}>
               {chartSessions.map((s, i) => {
                 const val = s[chartMetric] || 0
-                const pct = chartMax > 0 ? (val / chartMax) * 100 : 0
+                const barH = chartMax > 0 ? Math.max((val / chartMax) * 90, 4) : 4
+                const label = chartMetric === 'calories' ? `${Math.round(val)}` : chartMetric === 'avg_speed_mph' ? `${val.toFixed(1)}` : `${val.toFixed(2)}`
                 return (
-                  <div key={s.id} className="chart-bar" title={`${fmtDate(s.session_date)}: ${val.toFixed(chartMetric === 'calories' ? 0 : 2)}`} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', cursor: 'default' }}>
-                    <div style={{ width: '100%', background: 'linear-gradient(180deg, #2c5a9e, #1a3d6e)', borderRadius: '4px 4px 0 0', height: `${Math.max(pct, 4)}px`, minHeight: '4px' }} />
+                  <div key={s.id} className="chart-bar" style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', height: '100%', cursor: 'default' }}>
+                    <span style={{ fontSize: '10px', fontWeight: '700', color: '#2c5a9e', marginBottom: '4px' }}>{label}</span>
+                    <div style={{ width: '100%', background: 'linear-gradient(180deg, #2c5a9e, #1a3d6e)', borderRadius: '4px 4px 0 0', height: `${barH}px` }} />
                   </div>
                 )
               })}
