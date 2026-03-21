@@ -191,7 +191,7 @@ export default function DogProfile() {
                 const pct = chartMax > 0 ? (val / chartMax) * 100 : 0
                 return (
                   <div key={s.id} className="chart-bar" title={`${fmtDate(s.session_date)}: ${val.toFixed(chartMetric === 'calories' ? 0 : 2)}`} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', cursor: 'default' }}>
-                    <div style={{ width: '100%', background: 'linear-gradient(180deg, #2c5a9e, #1a3d6e)', borderRadius: '4px 4px 0 0', height: `${Math.max(pct, 4)}%`, minHeight: '4px' }} />
+                    <div style={{ width: '100%', background: 'linear-gradient(180deg, #2c5a9e, #1a3d6e)', borderRadius: '4px 4px 0 0', height: `${Math.max(pct, 4)}px`, minHeight: '4px' }} />
                   </div>
                 )
               })}
