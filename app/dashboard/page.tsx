@@ -178,8 +178,9 @@ export default function ClientDashboard() {
           .hero-inner { flex-direction: column !important; align-items: flex-start !important; gap: 16px !important; }
           .hero-photo { width: 80px !important; height: 80px !important; }
           .hero-photo-placeholder { width: 80px !important; height: 80px !important; }
-          .hero-actions { flex-direction: row !important; width: 100%; }
-          .hero-actions a, .hero-actions button { flex: 1; justify-content: center; }
+          .hero-actions { flex-direction: row !important; width: 100%; flex-wrap: wrap !important; }
+          .hero-actions a:first-child { flex: 1 1 100% !important; justify-content: center; }
+          .hero-actions a:not(:first-child), .hero-actions button { flex: 1 1 auto !important; justify-content: center; }
 
           /* Stat cards: 1 col on small, 3 col still on medium */
           .stat-grid { grid-template-columns: 1fr !important; }
@@ -189,8 +190,9 @@ export default function ClientDashboard() {
           .booking-row .cancel-btn { align-self: flex-end; }
 
           /* Membership card stacks */
-          .membership-inner { flex-direction: column !important; gap: 12px !important; }
+          .membership-inner { flex-direction: column !important; gap: 12px !important; align-items: center !important; text-align: center !important; }
           .membership-manage { align-self: center; }
+          .membership-text { align-items: center !important; }
 
           /* Page padding tighter on mobile */
           .page-inner { padding: 96px 14px 16px !important; }
@@ -460,7 +462,7 @@ export default function ClientDashboard() {
                         <div style={{ width: '48px', height: '48px', background: 'rgba(255,255,255,0.12)', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                           <CreditCard size={24} color="white" />
                         </div>
-                        <div style={{ flex: 1 }}>
+                        <div className="membership-text" style={{ flex: 1 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
                             <p style={{ margin: 0, color: 'white', fontWeight: '800', fontSize: '16px' }}>
                               {{ starter: 'Standard', active: 'Pro', athlete: 'Elite' }[membership.plan] || membership.plan} Membership
