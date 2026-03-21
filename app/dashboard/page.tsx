@@ -89,6 +89,7 @@ export default function ClientDashboard() {
   }
 
   const totalSessions = sessions.length
+  const peakSpeed = sessions.reduce((max, s) => Math.max(max, s.peak_speed_mph || 0), 0)
   const totalMiles = sessions.reduce((sum, s) => sum + (s.distance_miles || 0), 0).toFixed(2)
   const totalCalories = sessions.reduce((sum, s) => sum + (s.calories || 0), 0)
 
@@ -412,15 +413,15 @@ export default function ClientDashboard() {
                         </button>
                       </div>
                       <div style={{ borderRadius: '12px', overflow: 'hidden', marginBottom: '20px', border: '1.5px solid #eef0f5' }}>
-                        <img src={`/api/session-card?dog=${encodeURIComponent(selectedDog.name)}&sessions=${totalSessions}&miles=${totalMiles}&calories=${totalCalories}&city=${encodeURIComponent(selectedDog.leaderboard_settings?.city || '')}&photo=${encodeURIComponent(selectedDog.photo_url || '')}`} style={{ width: '100%', display: 'block' }} alt="Stats card" />
+                        <img src={`/api/session-card?dog=${encodeURIComponent(selectedDog.name)}&sessions=${totalSessions}&miles=${totalMiles}&calories=${totalCalories}&peak=${peakSpeed > 0 ? peakSpeed.toFixed(1) : ''}&city=${encodeURIComponent(selectedDog.leaderboard_settings?.city || '')}&photo=${encodeURIComponent(selectedDog.photo_url || '')}`} style={{ width: '100%', display: 'block' }} alt="Stats card" />
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                        <a href={`/api/session-card?dog=${encodeURIComponent(selectedDog.name)}&sessions=${totalSessions}&miles=${totalMiles}&calories=${totalCalories}&city=${encodeURIComponent(selectedDog.leaderboard_settings?.city || '')}&photo=${encodeURIComponent(selectedDog.photo_url || '')}`} download={`${selectedDog.name}-stats.png`}
+                        <a href={`/api/session-card?dog=${encodeURIComponent(selectedDog.name)}&sessions=${totalSessions}&miles=${totalMiles}&calories=${totalCalories}&peak=${peakSpeed > 0 ? peakSpeed.toFixed(1) : ''}&city=${encodeURIComponent(selectedDog.leaderboard_settings?.city || '')}&photo=${encodeURIComponent(selectedDog.photo_url || '')}`} download={`${selectedDog.name}-stats.png`}
                           style={{ background: 'linear-gradient(135deg, #2c5a9e, #2c5a9e)', color: 'white', padding: '13px 20px', borderRadius: '12px', textDecoration: 'none', fontWeight: '700', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                           Save Image
                         </a>
-                        <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`https://app.thecaninegym.com/api/session-card?dog=${encodeURIComponent(selectedDog.name)}&sessions=${totalSessions}&miles=${totalMiles}&calories=${totalCalories}&city=${encodeURIComponent(selectedDog.leaderboard_settings?.city || '')}&photo=${encodeURIComponent(selectedDog.photo_url || '')}`)}`} target="_blank" rel="noopener noreferrer"
+                        <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`https://app.thecaninegym.com/api/session-card?dog=${encodeURIComponent(selectedDog.name)}&sessions=${totalSessions}&miles=${totalMiles}&calories=${totalCalories}&peak=${peakSpeed > 0 ? peakSpeed.toFixed(1) : ''}&city=${encodeURIComponent(selectedDog.leaderboard_settings?.city || '')}&photo=${encodeURIComponent(selectedDog.photo_url || '')}`)}`} target="_blank" rel="noopener noreferrer"
                           style={{ background: '#1877F2', color: 'white', padding: '13px 20px', borderRadius: '12px', textDecoration: 'none', fontWeight: '700', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
                           Share on Facebook
