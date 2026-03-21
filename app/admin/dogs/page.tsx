@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '../../../lib/supabase'
-import { PawPrint, ArrowLeft, Plus, Activity, Shield, ShieldCheck, Clock, ShieldAlert, Stethoscope, MapPin } from 'lucide-react'
+import { PawPrint, ArrowLeft, Plus, Activity, Shield, ShieldCheck, Clock, ShieldAlert, Stethoscope, MapPin, TrendingUp } from 'lucide-react'
 
 export default function AllDogs() {
   const [dogs, setDogs] = useState<any[]>([])
@@ -133,6 +133,9 @@ export default function AllDogs() {
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: '8px' }}>
+                    <a href={`/admin/dogs/${dog.id}`} style={{ background: '#eef2fb', color: '#2c5a9e', padding: '8px 14px', borderRadius: '10px', textDecoration: 'none', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px', border: '1.5px solid #c8d4f0' }}>
+                      <TrendingUp size={13} /> View Profile
+                    </a>
                     <a href="/admin/dogs/vaccines"
                       style={{ background: badge.label === 'Pending Review' ? '#fff3cd' : '#eef2fb', color: badge.label === 'Pending Review' ? '#856404' : '#2c5a9e', padding: '8px 14px', borderRadius: '10px', textDecoration: 'none', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px', border: badge.label === 'Pending Review' ? '1.5px solid #ffc107' : '1.5px solid #c8d4f0' }}>
                       <Shield size={13} /> Vaccines
