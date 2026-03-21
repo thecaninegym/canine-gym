@@ -209,10 +209,20 @@ export default function LogSession() {
           <div style={{ width: '42px', height: '42px', background: 'linear-gradient(135deg, #f88124, #f9a04e)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <ClipboardList size={22} color="white" />
           </div>
-          <div>
+          <div style={{ flex: 1 }}>
             <h2 style={{ color: '#1a1a2e', margin: '0 0 2px', fontSize: '20px', fontWeight: '800' }}>Log Session</h2>
             <p style={{ color: '#888', margin: 0, fontSize: '13px' }}>Record a completed workout</p>
           </div>
+          {process.env.NEXT_PUBLIC_SLATMILL_IP && (
+            <a
+              href={`http://${process.env.NEXT_PUBLIC_SLATMILL_IP}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: 'linear-gradient(135deg, #001840, #2c5a9e)', color: 'white', borderRadius: '10px', fontSize: '12px', fontWeight: '700', textDecoration: 'none', flexShrink: 0 }}
+            >
+              &#128249; View Live Stats
+            </a>
+          )}
         </div>
 
         {success && (
