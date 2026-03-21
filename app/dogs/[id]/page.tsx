@@ -120,7 +120,7 @@ export default function DogOverallStats() {
         </div>
 
         {/* ── Lifetime Stats ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '12px', marginBottom: '20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '20px' }}>
           {[
             { icon: <Calendar size={16} color="#2c5a9e" />, label: 'Sessions', value: totalSessions, unit: '' },
             { icon: <Navigation size={16} color="#2c5a9e" />, label: 'Total Miles', value: totalMiles.toFixed(2), unit: 'mi' },
@@ -221,7 +221,6 @@ export default function DogOverallStats() {
                       <div onClick={() => window.location.href = `/sessions/${s.id}`} role="button" style={{ flex: 1, cursor: 'pointer' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
                           <span style={{ fontWeight: '700', color: '#1a1a2e', fontSize: '14px' }}>{fmtDate(s.session_date)}</span>
-                          {hasSlatmill && <span style={{ background: '#eef2fb', color: '#2c5a9e', fontSize: '10px', fontWeight: '700', padding: '2px 8px', borderRadius: '20px' }}>📡 Sensor Data</span>}
                         </div>
                         <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
                           <span style={{ fontSize: '12px', color: '#888', display: 'flex', alignItems: 'center', gap: '4px' }}><Clock size={11} /> {fmtDuration(s.duration_minutes || 0)}</span>
