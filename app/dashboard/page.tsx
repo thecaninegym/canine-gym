@@ -190,9 +190,12 @@ export default function ClientDashboard() {
           .booking-row .cancel-btn { align-self: flex-end; }
 
           /* Membership card stacks */
-          .membership-inner { flex-direction: column !important; gap: 12px !important; align-items: center !important; text-align: center !important; }
-          .membership-manage { align-self: center; }
-          .membership-text { align-items: center !important; }
+          .membership-inner { flex-direction: column !important; gap: 4px !important; align-items: center !important; text-align: center !important; }
+          .membership-inner > div:first-child { display: none !important; }
+          .membership-manage { align-self: center !important; margin-top: 8px !important; }
+          .membership-text { align-items: center !important; display: flex !important; flex-direction: column !important; align-items: center !important; }
+          .membership-dog-pill { align-self: center !important; }
+          .membership-title-row { justify-content: center !important; }
 
           /* Page padding tighter on mobile */
           .page-inner { padding: 96px 14px 16px !important; }
@@ -463,7 +466,7 @@ export default function ClientDashboard() {
                           <CreditCard size={24} color="white" />
                         </div>
                         <div className="membership-text" style={{ flex: 1 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
+                          <div className="membership-title-row" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
                             <p style={{ margin: 0, color: 'white', fontWeight: '800', fontSize: '16px' }}>
                               {{ starter: 'Standard', active: 'Pro', athlete: 'Elite' }[membership.plan] || membership.plan} Membership
                             </p>
@@ -475,7 +478,7 @@ export default function ClientDashboard() {
                             <strong style={{ color: 'white', fontSize: '18px' }}>{membership.sessions_remaining}</strong>
                             <span> of {membership.sessions_per_month} sessions remaining</span>
                           </p>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', background: 'rgba(255,255,255,0.12)', padding: '3px 10px', borderRadius: '20px', width: 'fit-content' }}>
+                          <div className="membership-dog-pill" style={{ display: 'flex', alignItems: 'center', gap: '5px', background: 'rgba(255,255,255,0.12)', padding: '3px 10px', borderRadius: '20px', width: 'fit-content' }}>
                             {selectedDog.photo_url ? <img src={selectedDog.photo_url} alt={selectedDog.name} style={{ width: '16px', height: '16px', borderRadius: '50%', objectFit: 'cover' }} /> : <PawPrint size={11} color="rgba(255,255,255,0.8)" />}
                             <span style={{ color: 'white', fontSize: '12px', fontWeight: '700' }}>{selectedDog.name}</span>
                           </div>
