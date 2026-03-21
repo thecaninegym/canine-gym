@@ -105,7 +105,7 @@ export async function GET(request: NextRequest) {
           </div>
 
           {/* Footer */}
-          <div style={{ marginTop: '20px', fontSize: '13px', color: '#ccc', display: 'flex' }}>app.thecaninegym.com</div>
+          <div style={{ marginTop: '20px', fontSize: '13px', color: '#ccc', display: 'flex' }}>thecaninegym.com</div>
         </div>
 
       </div>
