@@ -200,7 +200,7 @@ export default function Membership() {
                   </div>
                 </div>
               </div>
-              <div className="membership-card-right" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '12px' }}>
+              <div className="membership-card-right" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
                 <div style={{ background: 'rgba(255,255,255,0.1)', border: '1.5px solid rgba(255,255,255,0.15)', padding: '16px 28px', borderRadius: '16px', textAlign: 'center' }}>
                   <p style={{ margin: '0 0 2px', fontSize: '12px', color: 'rgba(255,255,255,0.55)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Sessions Remaining</p>
                   <p style={{ margin: '0 0 2px', fontSize: '42px', fontWeight: '800', color: 'white', lineHeight: 1 }}>{selectedMembership.sessions_remaining}</p>
