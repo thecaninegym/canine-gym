@@ -11,13 +11,28 @@ const supabase = createClient(
 export async function POST(request: Request) {
   const { ownerId, ownerEmail, type, plan, dogCount, dogIds, bookingDate, slotHour, isAddon } = await request.json()
 
+  // Check if this owner already has another active membership (for 2nd dog pricing)
+  let isSecondDog = false
+  if (type === 'membership' && dogIds?.[0]) {
+    const { data: existingMemberships } = await supabase
+      .from('memberships')
+      .select('id, dog_id')
+      .eq('owner_id', ownerId)
+      .eq('status', 'active')
+      .neq('dog_id', dogIds[0])
+    isSecondDog = (existingMemberships?.length || 0) > 0
+  }
+
   const getPriceId = () => {
     if (type === 'alacarte') {
       return dogCount >= 2
         ? process.env.STRIPE_PRICE_ALACARTE_2DOGS!
         : process.env.STRIPE_PRICE_ALACARTE_1DOG!
     }
-    // Memberships are always per-dog (single-dog price)
+    // Use 2nd dog pricing if owner already has another active membership
+    if (isSecondDog) {
+      return process.env[`STRIPE_PRICE_${plan.toUpperCase()}_2DOG`]!
+    }
     return process.env[`STRIPE_PRICE_${plan.toUpperCase()}_1DOG`]!
   }
 

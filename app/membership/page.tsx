@@ -21,6 +21,7 @@ export default function Membership() {
   const [success, setSuccess] = useState(false)
   const [cancelled, setCancelled] = useState(false)
   const [cancelSuccess, setCancelSuccess] = useState(false)
+  const [hasOtherActiveMembership, setHasOtherActiveMembership] = useState(false)
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -42,6 +43,9 @@ export default function Membership() {
         const map: Record<string, any> = {}
         for (const m of membershipRows || []) map[m.dog_id] = m
         setMembershipsMap(map)
+        // Check if owner has at least one active membership (for 2nd dog pricing)
+        const activeMemberships = (membershipRows || []).filter((m: any) => m.status === 'active')
+        setHasOtherActiveMembership(activeMemberships.length > 0)
       }
       setLoading(false)
     }
@@ -232,10 +236,25 @@ export default function Membership() {
                     )}
                     <div style={{ padding: '24px' }}>
                       <h3 style={{ color: '#1a1a2e', margin: '0 0 4px', fontSize: '20px', fontWeight: '800' }}>{plan.name}</h3>
-                      <p style={{ color: '#888', margin: '0 0 18px', fontSize: '13px' }}>{plan.description}</p>
+                      <p style={{ color: '#888', margin: '0 0 12px', fontSize: '13px' }}>{plan.description}</p>
+                      {hasOtherActiveMembership && !selectedMembership && (
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', background: '#fff0ea', color: '#f88124', padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: '800', marginBottom: '10px' }}>
+                          🐾 2nd Dog Discount Applied
+                        </div>
+                      )}
                       <div style={{ marginBottom: '18px' }}>
-                        <span style={{ fontSize: '38px', fontWeight: '800', color: '#2c5a9e', letterSpacing: '-1px' }}>${plan.price}</span>
-                        <span style={{ color: '#aaa', fontSize: '14px' }}>/month</span>
+                        {hasOtherActiveMembership && !selectedMembership ? (
+                          <>
+                            <span style={{ fontSize: '38px', fontWeight: '800', color: '#2c5a9e', letterSpacing: '-1px' }}>${{ starter: 144, active: 272, athlete: 384 }[plan.key]}</span>
+                            <span style={{ color: '#aaa', fontSize: '14px', textDecoration: 'line-through', marginLeft: '6px' }}>${plan.price}</span>
+                            <span style={{ color: '#aaa', fontSize: '14px' }}>/month</span>
+                          </>
+                        ) : (
+                          <>
+                            <span style={{ fontSize: '38px', fontWeight: '800', color: '#2c5a9e', letterSpacing: '-1px' }}>${plan.price}</span>
+                            <span style={{ color: '#aaa', fontSize: '14px' }}>/month</span>
+                          </>
+                        )}
                       </div>
                       <div style={{ background: '#f0f2f7', padding: '14px', borderRadius: '12px', marginBottom: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         {[
