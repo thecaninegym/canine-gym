@@ -215,7 +215,8 @@ await supabase.from('payments').insert({
 
     if (cancelledMembership) {
       const periodEnd = new Date(cancelledMembership.current_period_end).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
-      const planName = cancelledMembership.plan.charAt(0).toUpperCase() + cancelledMembership.plan.slice(1)
+      const planDisplayNames: Record<string, string> = { starter: 'Standard', active: 'Pro', athlete: 'Elite' }
+      const planName = planDisplayNames[cancelledMembership.plan] || cancelledMembership.plan
 
       // Email client
       if (cancelledMembership.owners?.email) {
