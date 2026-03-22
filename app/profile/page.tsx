@@ -49,7 +49,14 @@ export default function Profile() {
     if (dogData && dogData.length > 0) {
       await supabase.from('leaderboard_settings').update({ city }).in('dog_id', dogData.map((d: any) => d.id))
     }
-    if (error) { setError(error.message); setSaving(false) } else { setSuccess(true); setTimeout(() => { window.location.href = '/dashboard' }, 1000) }
+    if (error) {
+      if (error.message.includes('owners_gym_tag_key') || error.message.includes('duplicate key')) {
+        setError('That gym tag is already taken — please choose a different one.')
+      } else {
+        setError(error.message)
+      }
+      setSaving(false)
+    } else { setSuccess(true); setTimeout(() => { window.location.href = '/dashboard' }, 1000) }
   }
 
   if (loading) return (

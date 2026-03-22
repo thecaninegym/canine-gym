@@ -278,13 +278,13 @@ export default function ClientDashboard() {
           <div style={{ maxWidth: '580px', margin: '0 auto', animation: 'fadeUp 0.4s ease' }}>
             <div style={{ background: 'linear-gradient(135deg, #001840, #2c5a9e)', borderRadius: '20px', padding: '40px', marginBottom: '16px', textAlign: 'center' }}>
               <div style={{ width: '80px', height: '80px', background: 'rgba(255,107,53,0.15)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
-                <PawPrint size={40} color="#f88124" />
+                <img src="/logo-white.png" alt="The Canine Gym" style={{ height: '48px', width: 'auto', objectFit: 'contain' }} />
               </div>
               <h2 style={{ color: 'white', margin: '0 0 8px', fontSize: '26px', fontWeight: '800' }}>Welcome to The Canine Gym!</h2>
               <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '15px', margin: '0 0 32px', lineHeight: '1.6' }}>The run comes to you. Complete these steps to book your first session.</p>
               <div style={{ display: 'grid', gap: '12px', textAlign: 'left' }}>
                 {[
-                  { done: hasAddress, href: '/profile', step: 1, title: 'Add Your Address', subtitle: 'We come to your home — we need your address!', doneTitle: 'Address Added', doneSubtitle: "We know where to find you on session day!", icon: <MapPin size={22} /> },
+                  { done: hasAddress, href: '/profile', step: 1, title: 'Add Your Address', subtitle: 'We come to your home. We need your address!', doneTitle: 'Address Added', doneSubtitle: "We know where to find you on session day!", icon: <MapPin size={22} /> },
                   { done: hasDogs, href: '/dogs', step: 2, title: 'Add Your Dog', subtitle: "Add your dog's details to start tracking and booking.", doneTitle: 'Dog Added', doneSubtitle: 'Your dog is ready to run!', icon: <PawPrint size={22} /> },
                   { done: hasWaiver, href: '/waiver', step: 3, title: 'Sign Waiver', subtitle: 'Read and sign our liability waiver before your first session.', doneTitle: 'Waiver Signed', doneSubtitle: "You're legally all set!", icon: <Activity size={22} /> },
                 ].map(item => (
