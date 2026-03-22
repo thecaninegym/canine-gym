@@ -410,6 +410,16 @@ export async function POST(request: Request) {
     `)
   }
 
+  if (type === 'new_follower') {
+    subject = `${data.followerName} started following you on The Canine Gym!`
+    html = emailWrapper('New Follower', `
+      ${h1(`You have a new follower! 🐾`)}
+      ${p(`Hi ${data.ownerName}, <strong>${data.followerName}</strong> just started following you on The Canine Gym.`)}
+      ${p(`They'll be able to see your dog's activity and cheer them on. Head over to the app to check out who's following you!`)}
+      ${btn('View My Friends', 'https://app.thecaninegym.com/friends')}
+    `)
+  }
+
   if (type === 'broadcast') {
     subject = data.subject
     const bodyLines = (data.message as string)

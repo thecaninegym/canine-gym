@@ -71,6 +71,22 @@ export default function Friends() {
 
   const handleFollow = async (targetId: string) => {
     await supabase.from('follows').insert([{ follower_owner_id: ownerId, following_owner_id: targetId }])
+
+    // Send new follower email to the person being followed
+    const { data: followerOwner } = await supabase.from('owners').select('name').eq('id', ownerId).single()
+    const { data: targetOwner } = await supabase.from('owners').select('name, email').eq('id', targetId).single()
+    if (targetOwner?.email && followerOwner?.name) {
+      await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'new_follower',
+          to: targetOwner.email,
+          data: { ownerName: targetOwner.name, followerName: followerOwner.name }
+        })
+      })
+    }
+
     await fetchAll(ownerId, ownerCity)
     setSearchResults(prev => [...prev])
   }
