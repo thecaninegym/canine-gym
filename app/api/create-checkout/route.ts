@@ -31,7 +31,7 @@ export async function POST(request: Request) {
     }
     // Use 2nd dog pricing if owner already has another active membership
     if (isSecondDog) {
-      return process.env[`STRIPE_PRICE_${plan.toUpperCase()}_2DOG`]!
+      return process.env[`STRIPE_PRICE_${plan.toUpperCase()}_ADDON`]!
     }
     return process.env[`STRIPE_PRICE_${plan.toUpperCase()}_1DOG`]!
   }
