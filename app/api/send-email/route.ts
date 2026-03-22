@@ -62,13 +62,13 @@ export async function POST(request: Request) {
     subject = `Welcome to The Canine Gym, ${data.ownerName}!`
     html = emailWrapper('Welcome to the Pack', `
       ${h1(`Hi ${data.ownerName}, you're in! 🎉`)}
-      ${p(`We're thrilled to have you and <strong>${data.dogName}</strong> join The Canine Gym. Your dog deserves the best workout, and now they've got it, delivered right to your home.`)}
+      ${p(`We're thrilled to have you join The Canine Gym. Your dog deserves the best workout, and now they've got it, delivered right to your home.`)}
       ${infoBox([
         `<p style="color:#1a1a2e;font-size:14px;font-weight:700;margin:0 0 12px;font-family:'Montserrat',Arial,sans-serif;">Here's how to get started:</p>`,
-        `<p style="color:#555;font-size:13px;margin:0 0 8px;font-family:'Montserrat',Arial,sans-serif;">📋 <strong>Upload vaccine records</strong> for ${data.dogName} to get cleared to run</p>`,
+        `<p style="color:#555;font-size:13px;margin:0 0 8px;font-family:'Montserrat',Arial,sans-serif;">📋 <strong>Upload vaccine records</strong> for your dog to get cleared to run</p>`,
         `<p style="color:#555;font-size:13px;margin:0 0 8px;font-family:'Montserrat',Arial,sans-serif;">📅 <strong>Book your first session</strong> and pick a time that works for you</p>`,
         `<p style="color:#555;font-size:13px;margin:0 0 8px;font-family:'Montserrat',Arial,sans-serif;">🏆 <strong>Track progress</strong>: sessions, milestones, and leaderboard rankings</p>`,
-        `<p style="color:#555;font-size:13px;margin:0;font-family:'Montserrat',Arial,sans-serif;">📸 <strong>Share ${data.dogName}'s stats</strong> with friends and family</p>`,
+        `<p style="color:#555;font-size:13px;margin:0;font-family:'Montserrat',Arial,sans-serif;">📸 <strong>Share your dog's stats</strong> with friends and family</p>`,
       ])}
       ${btn('Go to My Dashboard', 'https://app.thecaninegym.com/dashboard')}
     `)
@@ -394,6 +394,20 @@ export async function POST(request: Request) {
       ${p(`We'd love to see you both again. Book anytime, we'll come to you.`)}
       ${btn('Get Back on Track', 'https://app.thecaninegym.com/book')}
     `, unsubRe30)
+  }
+
+  if (type === 'new_client_admin') {
+    subject = `New Client: ${data.ownerName}`
+    html = emailWrapper('New Client Signed Up', `
+      ${h1('New Client Signed Up 🎉')}
+      ${infoBox([
+        row('Name', data.ownerName),
+        row('Email', data.email),
+        row('Date', data.date),
+        row('Time', data.time),
+      ])}
+      ${btn('View in Admin', 'https://app.thecaninegym.com/admin/owners', BLUE)}
+    `)
   }
 
   if (type === 'broadcast') {
