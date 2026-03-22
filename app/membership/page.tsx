@@ -295,7 +295,7 @@ export default function Membership() {
           <p style={{ color: '#888', margin: '0 0 20px 56px', fontSize: '13px' }}>No commitment. Pay per session.</p>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
             {[
-              { label: '1 Dog', price: '$55', type: 'alacarte' },
+              { label: '1 Dog', price: '$50', type: 'alacarte' },
               { label: '2 Dogs', price: '$90', type: 'alacarte2' },
             ].map(({ label, price, type }) => (
               <div key={type} style={{ background: '#f0f2f7', padding: '22px', borderRadius: '14px', textAlign: 'center' }}>
