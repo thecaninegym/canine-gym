@@ -86,10 +86,17 @@ export default function BookSession() {
       const data = await res.json()
       if (data.url) { window.location.href = data.url; return }
     }
-    // Decrement each covered dog's own membership
+    // Decrement each covered dog's own membership via service-key API (bypasses RLS)
+    const { data: { session: authSession } } = await supabase.auth.getSession()
     for (const dogId of coveredDogs) {
-      const m = membershipsMap[dogId]
-      await supabase.from('memberships').update({ sessions_remaining: m.sessions_remaining - 1 }).eq('id', m.id)
+      await fetch('/api/booking-decrement', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authSession?.access_token}`
+        },
+        body: JSON.stringify({ dogId })
+      })
     }
     const { error: bookingError } = await supabase.from('bookings').insert(selectedDogIds.map(dogId => ({ dog_id: dogId, booking_date: selectedDate.dateStr, slot_hour: selectedSlot, status: 'confirmed', client_note: clientNote.trim() || null })))
     if (bookingError) { setError(bookingError.message); setBooking(false); return }
