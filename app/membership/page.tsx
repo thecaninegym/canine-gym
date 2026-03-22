@@ -113,6 +113,12 @@ export default function Membership() {
         .plan-card:hover { transform: translateY(-2px); }
         .checkout-btn:hover { filter: brightness(1.05); transform: translateY(-1px); }
         * { box-sizing: border-box; }
+        @media (max-width: 520px) {
+          .membership-card-inner { flex-direction: column !important; align-items: center !important; text-align: center !important; }
+          .membership-card-left { align-items: center !important; }
+          .membership-card-left > div { justify-content: center !important; }
+          .membership-card-right { align-items: center !important; width: 100% !important; }
+        }
       `}</style>
 
       <nav style={{ background: 'white', padding: '0 24px', height: '80px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, zIndex: 100, boxShadow: '0 2px 12px rgba(0,24,64,0.08)', borderBottom: '3px solid #f88124' }}>
@@ -172,8 +178,8 @@ export default function Membership() {
         {selectedMembership && selectedDog && (
           <div style={{ background: selectedMembership.status === 'cancelled' ? 'linear-gradient(135deg, #4a5568, #6c757d)' : 'linear-gradient(135deg, #001840 0%, #2c5a9e 100%)', borderRadius: '20px', padding: '28px 32px', marginBottom: '28px', boxShadow: '0 8px 32px rgba(0,48,135,0.18)', position: 'relative', overflow: 'hidden' }}>
             <div style={{ position: 'absolute', right: '-20px', bottom: '-30px', opacity: 0.04, pointerEvents: 'none' }}><PawPrint size={220} color="white" /></div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative', flexWrap: 'wrap', gap: '20px' }}>
-              <div>
+            <div className="membership-card-inner" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative', flexWrap: 'wrap', gap: '20px' }}>
+              <div className="membership-card-left" style={{ display: 'flex', flexDirection: 'column' }}>
                 <p style={{ margin: '0 0 2px', fontSize: '12px', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '700' }}>
                   {selectedDog.name}'s Plan
                   {selectedMembership.status === 'cancelled' && <span style={{ marginLeft: '8px', background: 'rgba(255,255,255,0.15)', padding: '1px 8px', borderRadius: '20px', fontSize: '10px' }}>Cancelled</span>}
@@ -194,7 +200,7 @@ export default function Membership() {
                   </div>
                 </div>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '12px' }}>
+              <div className="membership-card-right" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '12px' }}>
                 <div style={{ background: 'rgba(255,255,255,0.1)', border: '1.5px solid rgba(255,255,255,0.15)', padding: '16px 28px', borderRadius: '16px', textAlign: 'center' }}>
                   <p style={{ margin: '0 0 2px', fontSize: '12px', color: 'rgba(255,255,255,0.55)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Sessions Remaining</p>
                   <p style={{ margin: '0 0 2px', fontSize: '42px', fontWeight: '800', color: 'white', lineHeight: 1 }}>{selectedMembership.sessions_remaining}</p>
@@ -295,7 +301,7 @@ export default function Membership() {
           <p style={{ color: '#888', margin: '0 0 20px 56px', fontSize: '13px' }}>No commitment. Pay per session.</p>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
             {[
-              { label: '1 Dog', price: '$50', type: 'alacarte' },
+              { label: '1 Dog', price: '$55', type: 'alacarte' },
               { label: '2 Dogs', price: '$90', type: 'alacarte2' },
             ].map(({ label, price, type }) => (
               <div key={type} style={{ background: '#f0f2f7', padding: '22px', borderRadius: '14px', textAlign: 'center' }}>
