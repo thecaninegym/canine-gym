@@ -277,9 +277,7 @@ export default function ClientDashboard() {
         {!hasAddress || !hasDogs || !hasWaiver ? (
           <div style={{ maxWidth: '580px', margin: '0 auto', animation: 'fadeUp 0.4s ease' }}>
             <div style={{ background: 'linear-gradient(135deg, #001840, #2c5a9e)', borderRadius: '20px', padding: '40px', marginBottom: '16px', textAlign: 'center' }}>
-              <div style={{ width: '80px', height: '80px', background: 'rgba(255,107,53,0.15)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
-                <img src="/logo-white.png" alt="The Canine Gym" style={{ height: '48px', width: 'auto', objectFit: 'contain' }} />
-              </div>
+              <img src="/logo-white.png" alt="The Canine Gym" style={{ height: '56px', width: 'auto', objectFit: 'contain', display: 'block', margin: '0 auto 20px' }} />
               <h2 style={{ color: 'white', margin: '0 0 8px', fontSize: '26px', fontWeight: '800' }}>Welcome to The Canine Gym!</h2>
               <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '15px', margin: '0 0 32px', lineHeight: '1.6' }}>The run comes to you. Complete these steps to book your first session.</p>
               <div style={{ display: 'grid', gap: '12px', textAlign: 'left' }}>
