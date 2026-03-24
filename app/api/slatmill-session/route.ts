@@ -20,7 +20,9 @@ export async function POST(request: Request) {
     duration_minutes, distance_miles, avg_speed_mph, peak_speed_mph,
     pulses, slatmill_id, pace_consistency, active_seconds,
     avg_acceleration, top_speed_duration,
-    low_zone_seconds, moderate_zone_seconds, high_zone_seconds
+    low_zone_seconds, moderate_zone_seconds, high_zone_seconds,
+    start_temp_f, end_temp_f, avg_temp_f, max_temp_f, min_temp_f,
+    start_humidity, end_humidity, avg_humidity, temp_log
   } = body
 
   // Basic validation
@@ -48,6 +50,15 @@ export async function POST(request: Request) {
     low_zone_seconds: nullIfUndefined(low_zone_seconds),
     moderate_zone_seconds: nullIfUndefined(moderate_zone_seconds),
     high_zone_seconds: nullIfUndefined(high_zone_seconds),
+    start_temp_f: nullIfUndefined(start_temp_f),
+    end_temp_f: nullIfUndefined(end_temp_f),
+    avg_temp_f: nullIfUndefined(avg_temp_f),
+    max_temp_f: nullIfUndefined(max_temp_f),
+    min_temp_f: nullIfUndefined(min_temp_f),
+    start_humidity: nullIfUndefined(start_humidity),
+    end_humidity: nullIfUndefined(end_humidity),
+    avg_humidity: nullIfUndefined(avg_humidity),
+    temp_log: temp_log ? JSON.parse(temp_log) : null,
     used: false
   })
 

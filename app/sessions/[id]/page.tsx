@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
-import { PawPrint, ArrowLeft, Timer, MapPin, Flame, Zap, Gauge, FileText, TrendingUp, TrendingDown, Activity, Trophy } from 'lucide-react'
+import { PawPrint, ArrowLeft, Timer, MapPin, Flame, Zap, Gauge, FileText, TrendingUp, TrendingDown, Activity, Trophy, Thermometer } from 'lucide-react'
 
 type Tab = 'duration' | 'distance' | 'avg_speed' | 'peak_speed' | 'calories' | 'weight'
 
@@ -607,6 +607,80 @@ export default function SessionDetail() {
                 Running at {((session.avg_speed_mph / session.peak_speed_mph) * 100).toFixed(0)}% of peak speed on average
               </p>
             </div>
+          </div>
+        )}
+
+        {/* Temperature & Humidity */}
+        {(session.avg_temp_f || session.start_temp_f) && (
+          <div style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5', marginBottom: '20px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+              <div style={{ width: '34px', height: '34px', background: '#fff5e6', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Thermometer size={17} color="#f88124" />
+              </div>
+              <span style={{ fontWeight: '800', color: '#1a1a2e', fontSize: '15px' }}>Van Environment</span>
+              <TipIcon id="temp" text="Temperature and humidity recorded inside the van during this session. Monitored for your dog's safety and comfort." />
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '10px', marginBottom: session.temp_log && session.temp_log.length > 1 ? '20px' : '0' }}>
+              {[
+                { label: 'Start Temp', value: session.start_temp_f ? `${session.start_temp_f.toFixed(1)}°F` : '—' },
+                { label: 'End Temp', value: session.end_temp_f ? `${session.end_temp_f.toFixed(1)}°F` : '—' },
+                { label: 'Avg Temp', value: session.avg_temp_f ? `${session.avg_temp_f.toFixed(1)}°F` : '—' },
+                { label: 'Max Temp', value: session.max_temp_f ? `${session.max_temp_f.toFixed(1)}°F` : '—' },
+                { label: 'Avg Humidity', value: session.avg_humidity ? `${session.avg_humidity.toFixed(1)}%` : '—' },
+                { label: 'Start Humidity', value: session.start_humidity ? `${session.start_humidity.toFixed(1)}%` : '—' },
+              ].map(stat => (
+                <div key={stat.label} style={{ background: '#f8f9fc', borderRadius: '10px', padding: '12px', border: '1.5px solid #eef0f5', textAlign: 'center' }}>
+                  <div style={{ fontSize: '10px', color: '#aaa', fontWeight: '700', marginBottom: '4px' }}>{stat.label}</div>
+                  <div style={{ fontSize: '16px', fontWeight: '800', color: '#1a1a2e' }}>{stat.value}</div>
+                </div>
+              ))}
+            </div>
+            {session.temp_log && session.temp_log.length > 1 && (() => {
+              const log = session.temp_log
+              const temps = log.map((e: any) => e.temp_f)
+              const humids = log.map((e: any) => e.humidity)
+              const maxTemp = Math.max(...temps)
+              const minTemp = Math.min(...temps)
+              const tempRange = maxTemp - minTemp || 1
+              const maxHumid = Math.max(...humids)
+              const minHumid = Math.min(...humids)
+              const humidRange = maxHumid - minHumid || 1
+              const chartH = 80
+              const ptW = Math.max(20, 300 / log.length)
+              const totalW = Math.max(300, ptW * log.length)
+              return (
+                <div>
+                  <div style={{ fontSize: '12px', fontWeight: '700', color: '#555', marginBottom: '10px' }}>Minute-by-Minute</div>
+                  <div style={{ overflowX: 'auto' }}>
+                    <svg width={totalW} height={chartH + 40} style={{ display: 'block', minWidth: '100%' }}>
+                      <polyline
+                        points={log.map((e: any, i: number) => `${i * ptW + ptW/2},${chartH - ((e.temp_f - minTemp) / tempRange) * chartH}`).join(' ')}
+                        fill="none" stroke="#f88124" strokeWidth="2" strokeLinejoin="round"
+                      />
+                      <polyline
+                        points={log.map((e: any, i: number) => `${i * ptW + ptW/2},${chartH - ((e.humidity - minHumid) / humidRange) * chartH}`).join(' ')}
+                        fill="none" stroke="#2c5a9e" strokeWidth="2" strokeLinejoin="round" strokeDasharray="4 2"
+                      />
+                      {log.map((e: any, i: number) => (
+                        <text key={i} x={i * ptW + ptW/2} y={chartH + 16} textAnchor="middle"
+                          style={{ fontSize: '9px', fill: '#aaa', fontFamily: 'inherit' }}>
+                          {e.minute}m
+                        </text>
+                      ))}
+                      <line x1="0" y1={chartH} x2={totalW} y2={chartH} stroke="#e5e8f0" strokeWidth="1" />
+                    </svg>
+                  </div>
+                  <div style={{ display: 'flex', gap: '16px', marginTop: '8px' }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', color: '#888', fontWeight: '600' }}>
+                      <span style={{ display: 'inline-block', width: '16px', height: '2px', background: '#f88124' }} /> Temperature °F
+                    </span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', color: '#888', fontWeight: '600' }}>
+                      <span style={{ display: 'inline-block', width: '16px', height: '2px', borderTop: '2px dashed #2c5a9e' }} /> Humidity %
+                    </span>
+                  </div>
+                </div>
+              )
+            })()}
           </div>
         )}
 
