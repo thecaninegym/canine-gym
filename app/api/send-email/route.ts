@@ -87,12 +87,12 @@ export async function POST(request: Request) {
 
   if (type === 'reminder') {
     const checklistItems = [
-      ['🚫', 'No food 2 hours before we arrive', "Please hold off on feeding ${data.dogName} at least 2 hours before the session. Exercising on a full stomach can cause discomfort."],
-      ['💧', "We'll bring fresh water", "No need to worry about hydration, we have fresh water on board for ${data.dogName} during and after the session."],
-      ['🐾', 'Have your dog leashed and ready', "When we pull up, have ${data.dogName} leashed and ready to go so we can get started right away."],
+      ['🚫', 'No food 2 hours before we arrive', `Please hold off on feeding ${data.dogName} at least 2 hours before the session. Exercising on a full stomach can cause discomfort.`],
+      ['💧', "We'll bring fresh water", `No need to worry about hydration, we have fresh water on board for ${data.dogName} during and after the session.`],
+      ['🐾', 'Have your dog leashed and ready', `When we pull up, have ${data.dogName} leashed and ready to go so we can get started right away.`],
       ['🐕', 'Let your dog potty before we arrive', 'A quick bathroom break before we get there means more time on the treadmill!'],
       ['👀', 'You are welcome to watch', "Feel free to stick around and watch the session, you're not required to, but you're always welcome!"],
-      ['🏠', "We'll bring your dog back up", "When the session is done, we'll walk ${data.dogName} right back up to your door. No need to come to us!"],
+      ['🏠', "We'll bring your dog back up", `When the session is done, we'll walk ${data.dogName} right back up to your door. No need to come to us!`],
     ]
     const checklistHtml = checklistItems.map(([icon, title, desc]) => `
       <div style="display:flex;gap:14px;align-items:flex-start;padding:10px 0;border-bottom:1px solid rgba(0,0,0,0.06);">
