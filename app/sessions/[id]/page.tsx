@@ -620,7 +620,7 @@ export default function SessionDetail() {
               <span style={{ fontWeight: '800', color: '#1a1a2e', fontSize: '15px' }}>Van Environment</span>
               <TipIcon id="temp" text="Temperature and humidity recorded inside the van during this session. Monitored for your dog's safety and comfort." />
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '10px', marginBottom: session.temp_log && session.temp_log.length > 1 ? '20px' : '0' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginBottom: session.temp_log && session.temp_log.length > 1 ? '20px' : '0' }}>
               {[
                 { label: 'Start Temp', value: session.start_temp_f ? `${session.start_temp_f.toFixed(1)}°F` : '—' },
                 { label: 'End Temp', value: session.end_temp_f ? `${session.end_temp_f.toFixed(1)}°F` : '—' },
