@@ -652,7 +652,7 @@ export default function SessionDetail() {
                 <div>
                   <div style={{ fontSize: '12px', fontWeight: '700', color: '#555', marginBottom: '10px' }}>Minute-by-Minute</div>
                   <div style={{ overflowX: 'auto' }}>
-                    <svg width={totalW} height={chartH + 40} style={{ display: 'block', minWidth: '100%' }}>
+                    <svg viewBox={`0 0 ${totalW} ${chartH + 40}`} width="100%" height={chartH + 40} style={{ display: 'block' }}>
                       <polyline
                         points={log.map((e: any, i: number) => `${i * ptW + ptW/2},${chartH - ((e.temp_f - minTemp) / tempRange) * chartH}`).join(' ')}
                         fill="none" stroke="#f88124" strokeWidth="2" strokeLinejoin="round"
