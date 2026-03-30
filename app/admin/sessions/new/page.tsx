@@ -221,16 +221,28 @@ export default function LogSession() {
             <h2 style={{ color: '#1a1a2e', margin: '0 0 2px', fontSize: '20px', fontWeight: '800' }}>Log Session</h2>
             <p style={{ color: '#888', margin: 0, fontSize: '13px' }}>Record a completed workout</p>
           </div>
-          {process.env.NEXT_PUBLIC_SLATMILL_IP && (
-            <a
-              href={`http://${process.env.NEXT_PUBLIC_SLATMILL_IP}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 14px', background: 'linear-gradient(135deg, #001840, #2c5a9e)', color: 'white', borderRadius: '10px', fontSize: '12px', fontWeight: '700', textDecoration: 'none', flexShrink: 0 }}
-            >
-              &#128249; View Live Stats
-            </a>
-          )}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flexShrink: 0 }}>
+            {process.env.NEXT_PUBLIC_SLATMILL_IP && (
+              <a
+                href={`http://${process.env.NEXT_PUBLIC_SLATMILL_IP}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '7px 12px', background: 'linear-gradient(135deg, #001840, #2c5a9e)', color: 'white', borderRadius: '10px', fontSize: '11px', fontWeight: '700', textDecoration: 'none' }}
+              >
+                &#128249; Mill 1 Live
+              </a>
+            )}
+            {process.env.NEXT_PUBLIC_SLATMILL_2_IP && (
+              <a
+                href={`http://${process.env.NEXT_PUBLIC_SLATMILL_2_IP}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '7px 12px', background: 'linear-gradient(135deg, #1a5c1a, #2e8b2e)', color: 'white', borderRadius: '10px', fontSize: '11px', fontWeight: '700', textDecoration: 'none' }}
+              >
+                &#128249; Mill 2 Live
+              </a>
+            )}
+          </div>
         </div>
 
         {success && (
