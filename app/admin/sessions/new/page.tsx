@@ -77,6 +77,13 @@ export default function LogSession() {
     setLoading(true)
     setError(null)
 
+    // Weight is required when a slatmill session is selected
+    if (selectedSlatmill && !dogWeightLbs) {
+      setError("Please enter the dog's weight to calculate calories.")
+      setLoading(false)
+      return
+    }
+
     const start = new Date(`${sessionDate}T${startTime}`)
     const end = new Date(`${sessionDate}T${endTime}`)
     const duration = Math.round((end.getTime() - start.getTime()) / 60000)
@@ -233,8 +240,8 @@ export default function LogSession() {
           </div>
         )}
 
-        {/* Slatmill pending sessions */}
-        {pendingSlatmillSessions.length > 0 && (
+        {/* Slatmill pending sessions — two column layout */}
+        {(pendingSlatmillSessions.length > 0 || slatmillLoading) && (
           <div style={{ background: 'white', borderRadius: '16px', padding: '20px', marginBottom: '20px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
               <Activity size={17} color="#2c5a9e" />
@@ -246,41 +253,64 @@ export default function LogSession() {
               </button>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {pendingSlatmillSessions.map(s => (
-                <div key={s.id}
-                  onClick={() => setSelectedSlatmillId(selectedSlatmillId === s.id ? null : s.id)}
-                  style={{
-                    padding: '12px 16px', borderRadius: '12px', cursor: 'pointer', transition: 'all 0.15s',
-                    border: selectedSlatmillId === s.id ? '2px solid #2c5a9e' : '2px solid #eef0f5',
-                    background: selectedSlatmillId === s.id ? '#eef2fb' : '#f8f9fc'
-                  }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                    <span style={{ fontWeight: '700', fontSize: '13px', color: '#2c5a9e' }}>
-                      {s.slatmill_id || 'slatmill_1'}
-                    </span>
-                    <span style={{ fontSize: '11px', color: '#aaa' }}>{formatTime(s.created_at)}</span>
-                  </div>
-                  <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '8px' }}>
-                    {[
-                      { label: 'Duration', value: `${s.duration_minutes?.toFixed(1)} min` },
-                      { label: 'Distance', value: `${s.distance_miles?.toFixed(2)} mi` },
-                      { label: 'Avg Speed', value: `${s.avg_speed_mph?.toFixed(1)} mph` },
-                      { label: 'Peak Speed', value: `${s.peak_speed_mph?.toFixed(1)} mph` },
-                    ].map(({ label, value }) => (
-                      <div key={label} style={{ textAlign: 'center' }}>
-                        <p style={{ margin: '0 0 2px', fontSize: '10px', color: '#aaa', fontWeight: '700', textTransform: 'uppercase' as const }}>{label}</p>
-                        <p style={{ margin: 0, fontSize: '13px', fontWeight: '800', color: '#1a1a2e' }}>{value}</p>
+            {/* Two-column grid — left: slatmill_1, right: slatmill_2 */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              {(['slatmill_1', 'slatmill_2'] as const).map(millId => {
+                const millSessions = pendingSlatmillSessions.filter(s => (s.slatmill_id || 'slatmill_1') === millId)
+                const millLabel = millId === 'slatmill_1' ? 'Slatmill 1 (Left)' : 'Slatmill 2 (Right)'
+                return (
+                  <div key={millId}>
+                    <p style={{ margin: '0 0 8px', fontSize: '11px', fontWeight: '800', color: '#2c5a9e', textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>
+                      {millLabel}
+                    </p>
+                    {millSessions.length === 0 ? (
+                      <div style={{ padding: '16px', borderRadius: '12px', border: '2px dashed #e5e8f0', background: '#fafbfc', textAlign: 'center' }}>
+                        <p style={{ margin: 0, fontSize: '12px', color: '#bbb', fontWeight: '600' }}>No data waiting</p>
                       </div>
-                    ))}
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        {millSessions.map(s => (
+                          <div key={s.id}
+                            onClick={() => setSelectedSlatmillId(selectedSlatmillId === s.id ? null : s.id)}
+                            style={{
+                              padding: '12px', borderRadius: '12px', cursor: 'pointer', transition: 'all 0.15s',
+                              border: selectedSlatmillId === s.id ? '2px solid #2c5a9e' : '2px solid #eef0f5',
+                              background: selectedSlatmillId === s.id ? '#eef2fb' : '#f8f9fc'
+                            }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                              <span style={{ fontSize: '10px', color: '#aaa', fontWeight: '600' }}>{formatTime(s.created_at)}</span>
+                              {selectedSlatmillId === s.id && (
+                                <span style={{ fontSize: '10px', fontWeight: '800', color: '#2c5a9e', background: '#dde8f8', padding: '2px 7px', borderRadius: '6px' }}>Selected</span>
+                              )}
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+                              {[
+                                { label: 'Duration', value: `${s.duration_minutes?.toFixed(1)} min` },
+                                { label: 'Distance', value: `${s.distance_miles?.toFixed(2)} mi` },
+                                { label: 'Avg Speed', value: s.avg_speed_mph != null ? `${s.avg_speed_mph.toFixed(1)} mph` : '-- mph' },
+                                { label: 'Peak Speed', value: s.peak_speed_mph != null ? `${s.peak_speed_mph.toFixed(1)} mph` : '-- mph' },
+                              ].map(({ label, value }) => (
+                                <div key={label} style={{ textAlign: 'center', background: 'white', borderRadius: '8px', padding: '6px 4px' }}>
+                                  <p style={{ margin: '0 0 2px', fontSize: '9px', color: '#aaa', fontWeight: '700', textTransform: 'uppercase' as const }}>{label}</p>
+                                  <p style={{ margin: 0, fontSize: '12px', fontWeight: '800', color: '#1a1a2e' }}>{value}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
 
+            {/* Weight input — shown below both columns when any session is selected */}
             {selectedSlatmill && (
-              <div style={{ marginTop: '14px', padding: '14px 16px', background: '#f0f2f7', borderRadius: '12px' }}>
-                <label style={labelStyle}>Dog's Weight Today (lbs)</label>
+              <div style={{ marginTop: '14px', padding: '14px 16px', background: '#f0f2f7', borderRadius: '12px', border: '1.5px solid #e0e4ee' }}>
+                <label style={{ ...labelStyle, color: '#1a1a2e' }}>
+                  Dog&apos;s Weight Today (lbs) <span style={{ color: '#e53e3e' }}>*</span>
+                </label>
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                   <input
                     type="number"
@@ -288,7 +318,8 @@ export default function LogSession() {
                     onChange={e => setDogWeightLbs(e.target.value)}
                     placeholder="e.g. 45"
                     min="1" max="200" step="0.1"
-                    style={{ ...inputStyle, width: '140px' }}
+                    required
+                    style={{ ...inputStyle, width: '140px', border: dogWeightLbs ? '1.5px solid #2c5a9e' : '1.5px solid #f88124' }}
                   />
                   {calories !== null && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#fff3e0', padding: '8px 14px', borderRadius: '10px', border: '1.5px solid #f88124' }}>
@@ -297,17 +328,18 @@ export default function LogSession() {
                     </div>
                   )}
                 </div>
-                {dogWeightLbs && <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#888' }}>Calories calculated from speed, duration, and weight.</p>}
+                {!dogWeightLbs && (
+                  <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#e53e3e', fontWeight: '600' }}>Required to calculate calories and log session.</p>
+                )}
+                {dogWeightLbs && (
+                  <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#888' }}>Calories calculated from speed, duration, and weight.</p>
+                )}
               </div>
             )}
           </div>
         )}
 
-        {slatmillLoading && (
-          <div style={{ background: 'white', borderRadius: '16px', padding: '16px 20px', marginBottom: '20px', color: '#888', fontSize: '13px', textAlign: 'center' }}>
-            Checking for slatmill data...
-          </div>
-        )}
+
 
         {selectedDog && (
           <div style={{ background: 'linear-gradient(135deg, #001840, #2c5a9e)', borderRadius: '16px', padding: '18px 20px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '14px' }}>
