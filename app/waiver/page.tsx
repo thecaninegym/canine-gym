@@ -36,7 +36,8 @@ export default function Waiver() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
-    if (typedName.trim().toLowerCase() !== ownerName.trim().toLowerCase()) {
+    const normalize = (s: string) => s.trim().toLowerCase().replace(/\s+/g, ' ')
+    if (normalize(typedName) !== normalize(ownerName)) {
       setError(`Please type your full name exactly as it appears: "${ownerName}"`)
       return
     }
