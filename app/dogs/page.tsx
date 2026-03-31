@@ -29,17 +29,21 @@ export default function MyDogs() {
   const [vaccinePreviews, setVaccinePreviews] = useState<Record<string, string>>({})
   const [vaccineSuccess, setVaccineSuccess] = useState<string | null>(null)
   const [vaccines, setVaccines] = useState<Record<string, any>>({})
+  const [showPostAddModal, setShowPostAddModal] = useState(false)
+  const [lastAddedDogName, setLastAddedDogName] = useState('')
+  const [hasWaiver, setHasWaiver] = useState(false)
 
   useEffect(() => {
     const init = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { window.location.href = '/'; return }
       setOwnerEmail(user.email || '')
-      const { data: ownerData } = await supabase.from('owners').select('id, city, name').eq('email', user.email).single()
+      const { data: ownerData } = await supabase.from('owners').select('id, city, name, waiver_signed').eq('email', user.email).single()
       if (ownerData) {
         setOwnerId(ownerData.id)
         setOwnerCity(ownerData.city || '')
         setOwnerName(ownerData.name || '')
+        setHasWaiver(!!ownerData.waiver_signed)
         fetchDogs(ownerData.id)
       }
       setLoading(false)
@@ -115,10 +119,13 @@ export default function MyDogs() {
       await supabase.from('dogs').update({ photo_url: urlData.publicUrl }).eq('id', dogData.id)
     }
     await supabase.from('leaderboard_settings').insert([{ dog_id: dogData.id, city: ownerCity, visibility: newDog.visibility, display_name: newDog.name }])
-    setSuccess(true); setSaving(false); setAddingDog(false)
+    const addedName = newDog.name
+    setSaving(false); setAddingDog(false)
     setNewDog({ name: '', breed: '', weight: '', birthday: '', visibility: 'anonymous' })
     setNewPhotoFile(null); setNewPhotoPreview(null)
-    fetchDogs(ownerId); setTimeout(() => setSuccess(false), 3000)
+    fetchDogs(ownerId)
+    setLastAddedDogName(addedName)
+    setShowPostAddModal(true)
   }
 
   const handleDelete = async (dogId: string, dogName: string) => {
@@ -578,6 +585,45 @@ export default function MyDogs() {
           )
         })}
       </div>
+
+      {/* Post-Add Dog Modal */}
+      {showPostAddModal && (
+        <div
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(4px)' }}
+          onClick={() => setShowPostAddModal(false)}
+        >
+          <div
+            style={{ background: 'white', borderRadius: '24px', padding: '36px 32px', maxWidth: '400px', width: '100%', boxShadow: '0 24px 64px rgba(0,0,0,0.2)', textAlign: 'center', animation: 'fadeUp 0.25s ease' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div style={{ width: '72px', height: '72px', background: 'linear-gradient(135deg, #d4edda, #c3e6cb)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+              <CheckCircle size={36} color="#28a745" />
+            </div>
+            <h2 style={{ color: '#1a1a2e', margin: '0 0 8px', fontSize: '22px', fontWeight: '800' }}>
+              {lastAddedDogName} is all set!
+            </h2>
+            <p style={{ color: '#888', fontSize: '14px', lineHeight: '1.6', margin: '0 0 28px' }}>
+              {hasWaiver
+                ? 'Your dog has been added. Want to add another, or head back to your dashboard?'
+                : 'Your dog has been added. Want to add another, or continue to the next onboarding step?'}
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <button
+                onClick={() => { setShowPostAddModal(false); setAddingDog(true) }}
+                style={{ width: '100%', padding: '13px', background: '#f0f2f7', color: '#1a1a2e', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontFamily: 'inherit' }}
+              >
+                <Plus size={16} /> Add Another Dog
+              </button>
+              <button
+                onClick={() => { window.location.href = hasWaiver ? '/dashboard' : '/waiver' }}
+                style={{ width: '100%', padding: '13px', background: 'linear-gradient(135deg, #f88124, #f9a04e)', color: 'white', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontFamily: 'inherit', boxShadow: '0 4px 14px rgba(248,129,36,0.35)' }}
+              >
+                {hasWaiver ? 'Back to Dashboard →' : 'Continue to Waiver →'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
