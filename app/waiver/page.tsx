@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
-import { PawPrint, ArrowLeft, CheckCircle, PenLine } from 'lucide-react'
+import { ArrowLeft, CheckCircle, PenLine } from 'lucide-react'
 
 const inputStyle = { width: '100%', padding: '10px 14px', border: '1.5px solid #e5e8f0', borderRadius: '10px', fontSize: '14px', boxSizing: 'border-box' as const, color: '#1a1a2e', outline: 'none', fontFamily: 'inherit' }
 const labelStyle = { display: 'block', marginBottom: '6px', fontWeight: '700', color: '#555', fontSize: '13px' }
@@ -36,17 +36,32 @@ export default function Waiver() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
-    if (typedName.trim().toLowerCase() !== ownerName.trim().toLowerCase()) { setError(`Please type your full name exactly as it appears: "${ownerName}"`); return }
+    if (typedName.trim().toLowerCase() !== ownerName.trim().toLowerCase()) {
+      setError(`Please type your full name exactly as it appears: "${ownerName}"`)
+      return
+    }
     if (!agreed) { setError('Please check the box to agree to the terms.'); return }
     setSaving(true)
-    const { error } = await supabase.from('owners').update({
-      waiver_signed: true,
-      waiver_signed_at: new Date().toISOString(),
-      waiver_name: typedName.trim(),
-      waiver_media_opt_out: optOutMedia,
-      waiver_spending_limit: spendingLimit ? parseFloat(spendingLimit) : null,
-    }).eq('id', ownerId)
-    if (error) { setError(error.message); setSaving(false); return }
+
+    // Call the server-side API route so IP and timestamp are captured server-side
+    const res = await fetch('/api/sign-waiver', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ownerId,
+        waiverName: typedName.trim(),
+        optOutMedia,
+        spendingLimit: spendingLimit || null,
+      }),
+    })
+
+    const data = await res.json()
+    if (!res.ok || data.error) {
+      setError(data.error || 'Something went wrong. Please try again.')
+      setSaving(false)
+      return
+    }
+
     window.location.href = '/dashboard'
   }
 
@@ -323,7 +338,7 @@ export default function Waiver() {
                 </button>
 
                 <p style={{ color: '#aaa', fontSize: '12px', textAlign: 'center', marginTop: '12px', marginBottom: 0 }}>
-                  Signed electronically on {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                  Signed electronically — timestamp and IP address recorded server-side.
                 </p>
               </form>
             </div>
