@@ -120,10 +120,10 @@ export default function Waiver() {
               <p>The Company provides mobile, in-van dog fitness sessions utilizing a non-motorized slatmill/treadmill housed inside the Company's mobile fitness unit ("Van").</p>
 
               <p style={{ ...subHeader }}>The Process:</p>
-              <p style={{ marginTop: 0 }}>Company staff will arrive at Client's designated address, signal their arrival, and receive Client's dog(s) directly from Client — or from an authorized adult representative (18+) designated by Client — at the doorway or curb ("Handoff Location"). Staff will attach a Company lead, walk the dog(s) to the Van, conduct a supervised 30-minute conditioning session on the slatmill, and return the dog(s) to Client at the same Handoff Location upon completion.</p>
+              <p style={{ marginTop: 0 }}>Company staff will arrive at Client's designated address, signal their arrival, and receive Client's dog(s) directly from Client, or from an authorized adult representative (18+) designated by Client, at the doorway or curb ("Handoff Location"). Staff will attach a Company lead, walk the dog(s) to the Van, conduct a supervised 30-minute conditioning session on the slatmill, and return the dog(s) to Client at the same Handoff Location upon completion.</p>
 
               <p style={subHeader}>Transfer of Control:</p>
-              <p style={{ marginTop: 0 }}>The Company assumes full custody and responsibility for the dog(s) once they are securely leashed by Company staff at the Handoff Location. Custody returns to Client upon physical handoff at the Handoff Location after the session. All risks during the Transfer of Control period — including the outdoor walk to and from the Van, loading, unloading, and time inside the Van — are addressed in Sections 2 and 4.</p>
+              <p style={{ marginTop: 0 }}>The Company assumes full custody and responsibility for the dog(s) once they are securely leashed by Company staff at the Handoff Location. Custody returns to Client upon physical handoff at the Handoff Location after the session. All risks during the Transfer of Control period, including the outdoor walk to and from the Van, loading, unloading, and time inside the Van, are addressed in Sections 2 and 4.</p>
 
               <p style={subHeader}>Harness Requirement:</p>
               <p style={{ marginTop: 0 }}>For safety, Client's dog(s) must be presented in a properly fitted, Y-front or back-clip body harness at the time of handoff. The Company will not exercise any dog on a neck collar. While Company staff may visually check the fit of a Client-supplied harness, the ultimate responsibility for the integrity and proper fit of the harness remains solely with the Client. If a suitable harness is not provided, the Company reserves the right to refuse service for that session and the full cancellation fee will apply. The Company does not supply harnesses.</p>
@@ -132,7 +132,7 @@ export default function Waiver() {
               <p style={{ marginTop: 0 }}>Company staff are strictly prohibited from entering Client's residence at any time.</p>
 
               <p style={subHeader}>Parking & Safe Work Zone:</p>
-              <p style={{ marginTop: 0 }}>Client is responsible for ensuring a legal, safe parking space for the Van within 50 feet of the Handoff Location. If Company staff determines that parking or the Handoff Location is unsafe — including due to traffic, lack of space, or obstruction — staff will notify Client and allow a reasonable opportunity to identify an alternative location. If no safe alternative can be identified, the session will be cancelled and treated as a late cancellation subject to the cancellation fee in Section 7.</p>
+              <p style={{ marginTop: 0 }}>Client is responsible for ensuring a legal, safe parking space for the Van within 50 feet of the Handoff Location. If Company staff determines that parking or the Handoff Location is unsafe, including due to traffic, lack of space, or obstruction, staff will notify Client and allow a reasonable opportunity to identify an alternative location. If no safe alternative can be identified, the session will be cancelled and treated as a late cancellation subject to the cancellation fee in Section 7.</p>
 
               <p style={subHeader}>Multiple Dog Sessions:</p>
               <p style={{ marginTop: 0 }}>For multi-dog sessions, dogs will be transported to and from the Van one at a time. Client or Client's authorized representative is responsible for maintaining control of all remaining dogs during each individual transfer. Company staff will not be responsible for any dog left unattended at the Handoff Location while another dog is being loaded or unloaded.</p>
@@ -162,10 +162,10 @@ export default function Waiver() {
               <p style={{ marginTop: 0 }}>Client's dog(s) are on a regular veterinarian-recommended flea, tick, and parasite prevention program.</p>
 
               <p style={subHeader}>Veterinary Clearance:</p>
-              <p style={{ marginTop: 0 }}>Client's dog(s) have been evaluated by a veterinarian within the preceding 12 months. Dogs aged 7 or older, or dogs with known cardiac, orthopedic, neurological, or respiratory conditions, must provide written veterinary clearance before their first session.</p>
+              <p style={{ marginTop: 0 }}>Client's dog(s) have been evaluated by a veterinarian within the preceding 12 months. Dogs with known cardiac, orthopedic, neurological, or respiratory conditions, must confirm veterinary clearance before their first session.</p>
 
               <p style={subHeader}>Age & Breed Restrictions:</p>
-              <p style={{ marginTop: 0 }}>Dogs must be at least six (6) months of age. Brachycephalic breeds (e.g., Bulldogs, Pugs, Boston Terriers, French Bulldogs, etc.) require additional written veterinary clearance specifically approving slatmill exercise before the first session.</p>
+              <p style={{ marginTop: 0 }}>Dogs must be at least six (6) months of age. Brachycephalic breeds (e.g., Bulldogs, Pugs, Boston Terriers, French Bulldogs, etc.) require additional confirmation of veterinary clearance specifically approving slatmill exercise before the first session.</p>
 
               <p style={subHeader}>Pre-Exercise Feeding & Cool-Down Protocol:</p>
               <p style={{ marginTop: 0 }}>Client agrees not to feed the dog a full meal or allow large amounts of water intake within two (2) hours prior to the scheduled session. Client further agrees not to feed the dog a full meal for at least sixty (60) minutes following the session. Client acknowledges that failure to follow this protocol increases the risk of life-threatening Gastric Dilatation-Volvulus (GDV / "bloat") and voluntarily assumes all risk associated with failure to follow this protocol. Client is advised to consult their veterinarian regarding breed-specific exercise and feeding guidelines.</p>
@@ -183,7 +183,7 @@ export default function Waiver() {
 
               {/* Section 4 */}
               <h4 style={sectionHeader}>4. Release of Liability</h4>
-              <p>To the fullest extent permitted by Indiana law, Client hereby releases, waives, and discharges the Company from any and all liability, claims, or causes of action — including those arising from the ordinary negligence of the Company (whether active or passive) — for:</p>
+              <p>To the fullest extent permitted by Indiana law, Client hereby releases, waives, and discharges the Company from any and all liability, claims, or causes of action, including those arising from the ordinary negligence of the Company (whether active or passive), for:</p>
               <div style={bullet}>Injury, illness, or death of Client's dog(s) during or after any session, during the Transfer of Control period, or during any emergency veterinary transport;</div>
               <div style={bullet}>Personal injury to Client while entering, inside, or exiting the Van;</div>
               <div style={{ ...bullet, marginBottom: '12px' }}>Any loss, damage, or escape occurring during the Transfer of Control period.</div>
@@ -211,7 +211,7 @@ export default function Waiver() {
               <p style={{ marginTop: 0 }}>All sessions must be booked and paid in full in advance through the Company's website. No session is confirmed until full payment is received and a booking confirmation is issued. The Company does not accept cash, checks, or in-person payments. Current pricing is displayed on the Company's website at the time of booking and may be updated at any time; confirmed and paid sessions are always honored at the rate paid.</p>
 
               <p style={subHeader}>Cancellation:</p>
-              <p style={{ marginTop: 0 }}>48 hours' notice is required to cancel or reschedule. Cancellations with less than 48 hours' notice, and no-shows, are charged the full session fee. Cancellations due to documented veterinary illness — written veterinary confirmation, which may be provided by email to the Company's designated address, required within 48 hours — are exempt from the cancellation fee.</p>
+              <p style={{ marginTop: 0 }}>48 hours' notice is required to cancel or reschedule. Cancellations with less than 48 hours' notice, and no-shows, are charged the full session fee. Cancellations due to documented veterinary illness, written veterinary confirmation, which may be provided by email to the Company's designated address, required within 48 hours, are exempt from the cancellation fee.</p>
 
               <p style={subHeader}>Equipment Refusal:</p>
               <p style={{ marginTop: 0 }}>If a dog refuses to use the slatmill or otherwise does not participate during the 30-minute session window, the full session fee still applies.</p>
@@ -241,7 +241,7 @@ export default function Waiver() {
               <p style={{ marginTop: 0 }}>The Company may amend this Agreement by providing Client with thirty (30) days' written notice (as defined under Termination above) of the updated terms. Continued booking of sessions after the effective date of any amendment constitutes Client's acceptance of the revised Agreement.</p>
 
               <p style={subHeader}>Electronic Signatures:</p>
-              <p style={{ marginTop: 0 }}>This Agreement may be executed electronically. An electronic signature — including via DocuSign or an equivalent platform — is as legally binding as a handwritten signature under Indiana's Uniform Electronic Transactions Act.</p>
+              <p style={{ marginTop: 0 }}>This Agreement may be executed electronically. An electronic signature, including via DocuSign or an equivalent platform, is as legally binding as a handwritten signature under Indiana's Uniform Electronic Transactions Act.</p>
 
               <p style={subHeader}>Severability:</p>
               <p style={{ marginTop: 0 }}>If any provision of this Agreement is found unenforceable, the remaining provisions continue in full effect.</p>
@@ -265,7 +265,7 @@ export default function Waiver() {
               {/* Closing statement */}
               <div style={{ background: 'linear-gradient(135deg, #001840, #2c5a9e)', borderRadius: '12px', padding: '16px 20px', marginBottom: '24px' }}>
                 <p style={{ margin: 0, color: 'white', fontSize: '13px', fontWeight: '700', lineHeight: 1.7 }}>
-                  BY SIGNING BELOW, CLIENT CONFIRMS THEY HAVE READ THIS AGREEMENT IN ITS ENTIRETY, UNDERSTAND ITS TERMS, AND AGREE TO BE BOUND BY THEM — INCLUDING THE RELEASE OF LIABILITY IN SECTION 4, THE INDEMNIFICATION OBLIGATIONS IN SECTION 5, AND THE MANDATORY ARBITRATION CLAUSE IN SECTION 9.
+                  BY SIGNING BELOW, CLIENT CONFIRMS THEY HAVE READ THIS AGREEMENT IN ITS ENTIRETY, UNDERSTAND ITS TERMS, AND AGREE TO BE BOUND BY THEM, INCLUDING THE RELEASE OF LIABILITY IN SECTION 4, THE INDEMNIFICATION OBLIGATIONS IN SECTION 5, AND THE MANDATORY ARBITRATION CLAUSE IN SECTION 9.
                 </p>
               </div>
 
@@ -277,7 +277,7 @@ export default function Waiver() {
                     <input type="checkbox" checked={optOutMedia} onChange={e => setOptOutMedia(e.target.checked)}
                       style={{ marginTop: '2px', width: '17px', height: '17px', cursor: 'pointer', flexShrink: 0, accentColor: '#2c5a9e' }} />
                     <span style={{ color: '#555', fontSize: '13px', lineHeight: '1.7' }}>
-                      <strong style={{ color: '#1a1a2e' }}>Section 8 — Media Opt-Out:</strong> Check here to OPT OUT of the Photo & Media Release. Opt-out takes effect within 5 business days of receipt. Previously published content need not be removed.
+                      <strong style={{ color: '#1a1a2e' }}>Section 8, Media Opt-Out:</strong> Check here to OPT OUT of the Photo & Media Release. Opt-out takes effect within 5 business days of receipt. Previously published content need not be removed.
                     </span>
                   </label>
                 </div>
@@ -285,7 +285,7 @@ export default function Waiver() {
                 {/* Emergency spending limit */}
                 <div style={{ marginBottom: '20px' }}>
                   <label style={labelStyle}>
-                    Section 6 — Emergency Veterinary Pre-Authorized Spending Limit ($)
+                    Section 6, Emergency Veterinary Pre-Authorized Spending Limit ($)
                   </label>
                   <p style={{ margin: '0 0 8px', color: '#888', fontSize: '12px', lineHeight: 1.6 }}>
                     If left blank, the Company will act in the best interest of your dog's life and safety with no spending limit.
