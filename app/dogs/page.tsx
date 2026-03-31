@@ -23,7 +23,15 @@ export default function MyDogs() {
   const [newPhotoPreview, setNewPhotoPreview] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [newDog, setNewDog] = useState({ name: '', breed: '', weight: '', birthday: '', visibility: 'anonymous' })
+  const [newDog, setNewDog] = useState({ name: '', breed: '', weight: '', birthday: '', visibility: 'anonymous', vet_clinic: '' })
+  const [openTooltip, setOpenTooltip] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!openTooltip) return
+    const close = () => setOpenTooltip(null)
+    document.addEventListener('click', close)
+    return () => document.removeEventListener('click', close)
+  }, [openTooltip])
   const [uploadingVaccine, setUploadingVaccine] = useState<string | null>(null)
   const [vaccineFiles, setVaccineFiles] = useState<Record<string, File>>({})
   const [vaccinePreviews, setVaccinePreviews] = useState<Record<string, string>>({})
@@ -110,6 +118,7 @@ export default function MyDogs() {
     const { data: dogData, error: dogError } = await supabase.from('dogs').insert([{
       owner_id: ownerId, name: newDog.name, breed: newDog.breed,
       weight: newDog.weight || null, birthday: newDog.birthday || null,
+      vet_clinic: newDog.vet_clinic || null,
     }]).select().single()
     if (dogError || !dogData) { setError(dogError?.message || 'Failed to add dog'); setSaving(false); return }
     if (newPhotoFile) {
@@ -121,7 +130,7 @@ export default function MyDogs() {
     await supabase.from('leaderboard_settings').insert([{ dog_id: dogData.id, city: ownerCity, visibility: newDog.visibility, display_name: newDog.name }])
     const addedName = newDog.name
     setSaving(false); setAddingDog(false)
-    setNewDog({ name: '', breed: '', weight: '', birthday: '', visibility: 'anonymous' })
+    setNewDog({ name: '', breed: '', weight: '', birthday: '', visibility: 'anonymous', vet_clinic: '' })
     setNewPhotoFile(null); setNewPhotoPreview(null)
     fetchDogs(ownerId)
     setLastAddedDogName(addedName)
@@ -260,7 +269,7 @@ export default function MyDogs() {
                 <h3 style={{ color: '#1a1a2e', margin: '0 0 3px', fontWeight: '800', fontSize: '17px' }}>Add New Dog</h3>
                 <p style={{ color: '#aaa', margin: 0, fontSize: '13px' }}>Fill in your dog's details below</p>
               </div>
-              <button onClick={() => { setAddingDog(false); setNewDog({ name: '', breed: '', weight: '', birthday: '', visibility: 'anonymous' }); setNewPhotoPreview(null) }}
+              <button onClick={() => { setAddingDog(false); setNewDog({ name: '', breed: '', weight: '', birthday: '', visibility: 'anonymous', vet_clinic: '' }); setNewPhotoPreview(null) }}
                 style={{ background: '#f0f2f7', border: 'none', cursor: 'pointer', color: '#666', width: '34px', height: '34px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <X size={16} />
               </button>
@@ -278,34 +287,108 @@ export default function MyDogs() {
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '14px' }}>
+                {/* Dog's Name */}
                 <div>
-                  <label style={labelStyle}>Dog's Name *</label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px', position: 'relative' }}>
+                    <label style={{ ...labelStyle, margin: 0 }}>Dog's Name <span style={{ color: '#e53e3e' }}>*</span></label>
+                    <button type="button" onClick={() => setOpenTooltip(openTooltip === 'name' ? null : 'name')}
+                      style={{ width: '16px', height: '16px', borderRadius: '50%', background: '#c8d4f0', border: 'none', cursor: 'pointer', fontSize: '10px', fontWeight: '800', color: '#2c5a9e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 }}>?</button>
+                    {openTooltip === 'name' && (
+                      <div style={{ position: 'absolute', top: '22px', left: 0, zIndex: 50, background: '#1a1a2e', color: 'white', borderRadius: '10px', padding: '10px 13px', fontSize: '12px', lineHeight: '1.5', width: '220px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
+                        This is how your dog will appear on the leaderboard and in session reports.
+                        <div style={{ position: 'absolute', top: '-5px', left: '14px', width: '10px', height: '10px', background: '#1a1a2e', transform: 'rotate(45deg)' }} />
+                      </div>
+                    )}
+                  </div>
                   <input required value={newDog.name} onChange={e => setNewDog({ ...newDog, name: e.target.value })} style={inputStyle} placeholder="e.g. Gravy" />
                 </div>
+
+                {/* Breed */}
                 <div>
-                  <label style={labelStyle}>Breed</label>
-                  <select value={newDog.breed} onChange={e => setNewDog({ ...newDog, breed: e.target.value })} style={inputStyle}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px', position: 'relative' }}>
+                    <label style={{ ...labelStyle, margin: 0 }}>Breed <span style={{ color: '#e53e3e' }}>*</span></label>
+                    <button type="button" onClick={() => setOpenTooltip(openTooltip === 'breed' ? null : 'breed')}
+                      style={{ width: '16px', height: '16px', borderRadius: '50%', background: '#c8d4f0', border: 'none', cursor: 'pointer', fontSize: '10px', fontWeight: '800', color: '#2c5a9e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 }}>?</button>
+                    {openTooltip === 'breed' && (
+                      <div style={{ position: 'absolute', top: '22px', left: 0, zIndex: 50, background: '#1a1a2e', color: 'white', borderRadius: '10px', padding: '10px 13px', fontSize: '12px', lineHeight: '1.5', width: '220px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
+                        Helps us understand your dog's fitness baseline and any breed-specific considerations during sessions.
+                        <div style={{ position: 'absolute', top: '-5px', left: '14px', width: '10px', height: '10px', background: '#1a1a2e', transform: 'rotate(45deg)' }} />
+                      </div>
+                    )}
+                  </div>
+                  <select required value={newDog.breed} onChange={e => setNewDog({ ...newDog, breed: e.target.value })} style={inputStyle}>
                     <option value="">Select breed</option>
                     {BREEDS.map(b => <option key={b} value={b}>{b}</option>)}
                   </select>
                 </div>
+
+                {/* Weight */}
                 <div>
-                  <label style={labelStyle}>Weight (lbs)</label>
-                  <input type="number" value={newDog.weight} onChange={e => setNewDog({ ...newDog, weight: e.target.value })} style={inputStyle} placeholder="e.g. 45" />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px', position: 'relative' }}>
+                    <label style={{ ...labelStyle, margin: 0 }}>Weight (lbs) <span style={{ color: '#e53e3e' }}>*</span></label>
+                    <button type="button" onClick={() => setOpenTooltip(openTooltip === 'weight' ? null : 'weight')}
+                      style={{ width: '16px', height: '16px', borderRadius: '50%', background: '#c8d4f0', border: 'none', cursor: 'pointer', fontSize: '10px', fontWeight: '800', color: '#2c5a9e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 }}>?</button>
+                    {openTooltip === 'weight' && (
+                      <div style={{ position: 'absolute', top: '22px', left: 0, zIndex: 50, background: '#1a1a2e', color: 'white', borderRadius: '10px', padding: '10px 13px', fontSize: '12px', lineHeight: '1.5', width: '220px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
+                        Used to calculate calories burned during each session. We will also provide updates as we will weigh your dog before each session.
+                        <div style={{ position: 'absolute', top: '-5px', left: '14px', width: '10px', height: '10px', background: '#1a1a2e', transform: 'rotate(45deg)' }} />
+                      </div>
+                    )}
+                  </div>
+                  <input required type="number" value={newDog.weight} onChange={e => setNewDog({ ...newDog, weight: e.target.value })} style={inputStyle} placeholder="e.g. 45" min="1" max="300" step="0.1" />
                 </div>
+
+                {/* Birthday */}
                 <div>
-                  <label style={labelStyle}>Birthday</label>
-                  <input type="date" value={newDog.birthday} onChange={e => setNewDog({ ...newDog, birthday: e.target.value })} style={inputStyle} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px', position: 'relative' }}>
+                    <label style={{ ...labelStyle, margin: 0 }}>Birthday <span style={{ color: '#e53e3e' }}>*</span></label>
+                    <button type="button" onClick={() => setOpenTooltip(openTooltip === 'birthday' ? null : 'birthday')}
+                      style={{ width: '16px', height: '16px', borderRadius: '50%', background: '#c8d4f0', border: 'none', cursor: 'pointer', fontSize: '10px', fontWeight: '800', color: '#2c5a9e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 }}>?</button>
+                    {openTooltip === 'birthday' && (
+                      <div style={{ position: 'absolute', top: '22px', left: 0, zIndex: 50, background: '#1a1a2e', color: 'white', borderRadius: '10px', padding: '10px 13px', fontSize: '12px', lineHeight: '1.5', width: '220px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
+                        We'll send your pup a birthday surprise and track age-appropriate fitness milestones!
+                        <div style={{ position: 'absolute', top: '-5px', left: '14px', width: '10px', height: '10px', background: '#1a1a2e', transform: 'rotate(45deg)' }} />
+                      </div>
+                    )}
+                  </div>
+                  <input required type="date" value={newDog.birthday} onChange={e => setNewDog({ ...newDog, birthday: e.target.value })} style={inputStyle} />
                 </div>
               </div>
 
-              <div style={{ marginBottom: '18px' }}>
-                <label style={labelStyle}>Leaderboard Visibility</label>
+              {/* Leaderboard Visibility */}
+              <div style={{ marginBottom: '14px', position: 'relative' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+                  <label style={{ ...labelStyle, margin: 0 }}>Leaderboard Visibility</label>
+                  <button type="button" onClick={() => setOpenTooltip(openTooltip === 'visibility' ? null : 'visibility')}
+                    style={{ width: '16px', height: '16px', borderRadius: '50%', background: '#c8d4f0', border: 'none', cursor: 'pointer', fontSize: '10px', fontWeight: '800', color: '#2c5a9e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 }}>?</button>
+                  {openTooltip === 'visibility' && (
+                    <div style={{ position: 'absolute', top: '22px', left: 0, zIndex: 50, background: '#1a1a2e', color: 'white', borderRadius: '10px', padding: '10px 13px', fontSize: '12px', lineHeight: '1.5', width: '240px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
+                      Controls whether your dog's name appears publicly on The Canine Gym leaderboard.
+                      <div style={{ position: 'absolute', top: '-5px', left: '14px', width: '10px', height: '10px', background: '#1a1a2e', transform: 'rotate(45deg)' }} />
+                    </div>
+                  )}
+                </div>
                 <select value={newDog.visibility} onChange={e => setNewDog({ ...newDog, visibility: e.target.value })} style={inputStyle}>
                   <option value="public">Public (show name)</option>
                   <option value="anonymous">Anonymous (hide name)</option>
                   <option value="private">Private (not on leaderboard)</option>
                 </select>
+              </div>
+
+              {/* Vet Clinic */}
+              <div style={{ marginBottom: '18px', position: 'relative' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+                  <label style={{ ...labelStyle, margin: 0 }}>Vet Clinic Name</label>
+                  <button type="button" onClick={() => setOpenTooltip(openTooltip === 'vet' ? null : 'vet')}
+                    style={{ width: '16px', height: '16px', borderRadius: '50%', background: '#c8d4f0', border: 'none', cursor: 'pointer', fontSize: '10px', fontWeight: '800', color: '#2c5a9e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 }}>?</button>
+                  {openTooltip === 'vet' && (
+                    <div style={{ position: 'absolute', top: '22px', left: 0, zIndex: 50, background: '#1a1a2e', color: 'white', borderRadius: '10px', padding: '10px 13px', fontSize: '12px', lineHeight: '1.5', width: '230px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
+                      Useful if we ever need to contact your vet in an emergency during a session.
+                      <div style={{ position: 'absolute', top: '-5px', left: '14px', width: '10px', height: '10px', background: '#1a1a2e', transform: 'rotate(45deg)' }} />
+                    </div>
+                  )}
+                </div>
+                <input value={newDog.vet_clinic} onChange={e => setNewDog({ ...newDog, vet_clinic: e.target.value })} style={inputStyle} placeholder="e.g. Carmel Animal Hospital" />
               </div>
 
               <div style={{ background: '#fff8e6', border: '1.5px solid #ffe08a', borderRadius: '12px', padding: '14px 16px', marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
