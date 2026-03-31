@@ -291,7 +291,7 @@ export default function MyDogs() {
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px', position: 'relative' }}>
                     <label style={{ ...labelStyle, margin: 0 }}>Dog's Name <span style={{ color: '#e53e3e' }}>*</span></label>
-                    <button type="button" onClick={() => setOpenTooltip(openTooltip === 'name' ? null : 'name')}
+                    <button type="button" onClick={e => { e.stopPropagation(); setOpenTooltip(openTooltip === 'name' ? null : 'name') }}
                       style={{ width: '16px', height: '16px', borderRadius: '50%', background: '#c8d4f0', border: 'none', cursor: 'pointer', fontSize: '10px', fontWeight: '800', color: '#2c5a9e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 }}>?</button>
                     {openTooltip === 'name' && (
                       <div style={{ position: 'absolute', top: '22px', left: 0, zIndex: 50, background: '#1a1a2e', color: 'white', borderRadius: '10px', padding: '10px 13px', fontSize: '12px', lineHeight: '1.5', width: '220px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
@@ -307,7 +307,7 @@ export default function MyDogs() {
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px', position: 'relative' }}>
                     <label style={{ ...labelStyle, margin: 0 }}>Breed <span style={{ color: '#e53e3e' }}>*</span></label>
-                    <button type="button" onClick={() => setOpenTooltip(openTooltip === 'breed' ? null : 'breed')}
+                    <button type="button" onClick={e => { e.stopPropagation(); setOpenTooltip(openTooltip === 'breed' ? null : 'breed') }}
                       style={{ width: '16px', height: '16px', borderRadius: '50%', background: '#c8d4f0', border: 'none', cursor: 'pointer', fontSize: '10px', fontWeight: '800', color: '#2c5a9e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 }}>?</button>
                     {openTooltip === 'breed' && (
                       <div style={{ position: 'absolute', top: '22px', left: 0, zIndex: 50, background: '#1a1a2e', color: 'white', borderRadius: '10px', padding: '10px 13px', fontSize: '12px', lineHeight: '1.5', width: '220px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
@@ -326,7 +326,7 @@ export default function MyDogs() {
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px', position: 'relative' }}>
                     <label style={{ ...labelStyle, margin: 0 }}>Weight (lbs) <span style={{ color: '#e53e3e' }}>*</span></label>
-                    <button type="button" onClick={() => setOpenTooltip(openTooltip === 'weight' ? null : 'weight')}
+                    <button type="button" onClick={e => { e.stopPropagation(); setOpenTooltip(openTooltip === 'weight' ? null : 'weight') }}
                       style={{ width: '16px', height: '16px', borderRadius: '50%', background: '#c8d4f0', border: 'none', cursor: 'pointer', fontSize: '10px', fontWeight: '800', color: '#2c5a9e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 }}>?</button>
                     {openTooltip === 'weight' && (
                       <div style={{ position: 'absolute', top: '22px', left: 0, zIndex: 50, background: '#1a1a2e', color: 'white', borderRadius: '10px', padding: '10px 13px', fontSize: '12px', lineHeight: '1.5', width: '220px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
@@ -342,7 +342,7 @@ export default function MyDogs() {
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px', position: 'relative' }}>
                     <label style={{ ...labelStyle, margin: 0 }}>Birthday <span style={{ color: '#e53e3e' }}>*</span></label>
-                    <button type="button" onClick={() => setOpenTooltip(openTooltip === 'birthday' ? null : 'birthday')}
+                    <button type="button" onClick={e => { e.stopPropagation(); setOpenTooltip(openTooltip === 'birthday' ? null : 'birthday') }}
                       style={{ width: '16px', height: '16px', borderRadius: '50%', background: '#c8d4f0', border: 'none', cursor: 'pointer', fontSize: '10px', fontWeight: '800', color: '#2c5a9e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 }}>?</button>
                     {openTooltip === 'birthday' && (
                       <div style={{ position: 'absolute', top: '22px', left: 0, zIndex: 50, background: '#1a1a2e', color: 'white', borderRadius: '10px', padding: '10px 13px', fontSize: '12px', lineHeight: '1.5', width: '220px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
@@ -359,7 +359,7 @@ export default function MyDogs() {
               <div style={{ marginBottom: '14px', position: 'relative' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
                   <label style={{ ...labelStyle, margin: 0 }}>Leaderboard Visibility</label>
-                  <button type="button" onClick={() => setOpenTooltip(openTooltip === 'visibility' ? null : 'visibility')}
+                  <button type="button" onClick={e => { e.stopPropagation(); setOpenTooltip(openTooltip === 'visibility' ? null : 'visibility') }}
                     style={{ width: '16px', height: '16px', borderRadius: '50%', background: '#c8d4f0', border: 'none', cursor: 'pointer', fontSize: '10px', fontWeight: '800', color: '#2c5a9e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 }}>?</button>
                   {openTooltip === 'visibility' && (
                     <div style={{ position: 'absolute', top: '22px', left: 0, zIndex: 50, background: '#1a1a2e', color: 'white', borderRadius: '10px', padding: '10px 13px', fontSize: '12px', lineHeight: '1.5', width: '240px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
@@ -379,7 +379,7 @@ export default function MyDogs() {
               <div style={{ marginBottom: '18px', position: 'relative' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
                   <label style={{ ...labelStyle, margin: 0 }}>Vet Clinic Name</label>
-                  <button type="button" onClick={() => setOpenTooltip(openTooltip === 'vet' ? null : 'vet')}
+                  <button type="button" onClick={e => { e.stopPropagation(); setOpenTooltip(openTooltip === 'vet' ? null : 'vet') }}
                     style={{ width: '16px', height: '16px', borderRadius: '50%', background: '#c8d4f0', border: 'none', cursor: 'pointer', fontSize: '10px', fontWeight: '800', color: '#2c5a9e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 }}>?</button>
                   {openTooltip === 'vet' && (
                     <div style={{ position: 'absolute', top: '22px', left: 0, zIndex: 50, background: '#1a1a2e', color: 'white', borderRadius: '10px', padding: '10px 13px', fontSize: '12px', lineHeight: '1.5', width: '230px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
@@ -489,35 +489,103 @@ export default function MyDogs() {
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '14px' }}>
+                    {/* Dog's Name */}
                     <div>
-                      <label style={labelStyle}>Dog's Name</label>
-                      <input value={editingDog.name} onChange={e => setEditingDog({ ...editingDog, name: e.target.value })} style={inputStyle} />
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px', position: 'relative' }}>
+                        <label style={{ ...labelStyle, margin: 0 }}>Dog's Name <span style={{ color: '#e53e3e' }}>*</span></label>
+                        <button type="button" onClick={e => { e.stopPropagation(); setOpenTooltip(openTooltip === 'edit_name' ? null : 'edit_name') }}
+                          style={{ width: '16px', height: '16px', borderRadius: '50%', background: '#c8d4f0', border: 'none', cursor: 'pointer', fontSize: '10px', fontWeight: '800', color: '#2c5a9e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 }}>?</button>
+                        {openTooltip === 'edit_name' && (
+                          <div style={{ position: 'absolute', top: '22px', left: 0, zIndex: 50, background: '#1a1a2e', color: 'white', borderRadius: '10px', padding: '10px 13px', fontSize: '12px', lineHeight: '1.5', width: '220px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
+                            This is how your dog will appear on the leaderboard and in session reports.
+                            <div style={{ position: 'absolute', top: '-5px', left: '14px', width: '10px', height: '10px', background: '#1a1a2e', transform: 'rotate(45deg)' }} />
+                          </div>
+                        )}
+                      </div>
+                      <input required value={editingDog.name} onChange={e => setEditingDog({ ...editingDog, name: e.target.value })} style={inputStyle} />
                     </div>
+
+                    {/* Breed */}
                     <div>
-                      <label style={labelStyle}>Breed</label>
-                      <select value={editingDog.breed} onChange={e => setEditingDog({ ...editingDog, breed: e.target.value })} style={inputStyle}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px', position: 'relative' }}>
+                        <label style={{ ...labelStyle, margin: 0 }}>Breed <span style={{ color: '#e53e3e' }}>*</span></label>
+                        <button type="button" onClick={e => { e.stopPropagation(); setOpenTooltip(openTooltip === 'edit_breed' ? null : 'edit_breed') }}
+                          style={{ width: '16px', height: '16px', borderRadius: '50%', background: '#c8d4f0', border: 'none', cursor: 'pointer', fontSize: '10px', fontWeight: '800', color: '#2c5a9e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 }}>?</button>
+                        {openTooltip === 'edit_breed' && (
+                          <div style={{ position: 'absolute', top: '22px', left: 0, zIndex: 50, background: '#1a1a2e', color: 'white', borderRadius: '10px', padding: '10px 13px', fontSize: '12px', lineHeight: '1.5', width: '220px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
+                            Helps us understand your dog's fitness baseline and any breed-specific considerations during sessions.
+                            <div style={{ position: 'absolute', top: '-5px', left: '14px', width: '10px', height: '10px', background: '#1a1a2e', transform: 'rotate(45deg)' }} />
+                          </div>
+                        )}
+                      </div>
+                      <select required value={editingDog.breed} onChange={e => setEditingDog({ ...editingDog, breed: e.target.value })} style={inputStyle}>
+                        <option value="">Select breed</option>
                         {BREEDS.map(b => <option key={b} value={b}>{b}</option>)}
                       </select>
                     </div>
+
+                    {/* Weight */}
                     <div>
-                      <label style={labelStyle}>Weight (lbs)</label>
-                      <input type="number" value={editingDog.weight || ''} onChange={e => setEditingDog({ ...editingDog, weight: e.target.value })} style={inputStyle} />
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px', position: 'relative' }}>
+                        <label style={{ ...labelStyle, margin: 0 }}>Weight (lbs) <span style={{ color: '#e53e3e' }}>*</span></label>
+                        <button type="button" onClick={e => { e.stopPropagation(); setOpenTooltip(openTooltip === 'edit_weight' ? null : 'edit_weight') }}
+                          style={{ width: '16px', height: '16px', borderRadius: '50%', background: '#c8d4f0', border: 'none', cursor: 'pointer', fontSize: '10px', fontWeight: '800', color: '#2c5a9e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 }}>?</button>
+                        {openTooltip === 'edit_weight' && (
+                          <div style={{ position: 'absolute', top: '22px', left: 0, zIndex: 50, background: '#1a1a2e', color: 'white', borderRadius: '10px', padding: '10px 13px', fontSize: '12px', lineHeight: '1.5', width: '220px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
+                            Used to calculate calories burned during each session. We will also provide updates as we will weigh your dog before each session.
+                            <div style={{ position: 'absolute', top: '-5px', left: '14px', width: '10px', height: '10px', background: '#1a1a2e', transform: 'rotate(45deg)' }} />
+                          </div>
+                        )}
+                      </div>
+                      <input required type="number" value={editingDog.weight || ''} onChange={e => setEditingDog({ ...editingDog, weight: e.target.value })} style={inputStyle} min="1" max="300" step="0.1" />
                     </div>
+
+                    {/* Birthday */}
                     <div>
-                      <label style={labelStyle}>Birthday</label>
-                      <input type="date" value={editingDog.birthday?.split('T')[0] || ''} onChange={e => setEditingDog({ ...editingDog, birthday: e.target.value })} style={inputStyle} />
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px', position: 'relative' }}>
+                        <label style={{ ...labelStyle, margin: 0 }}>Birthday <span style={{ color: '#e53e3e' }}>*</span></label>
+                        <button type="button" onClick={e => { e.stopPropagation(); setOpenTooltip(openTooltip === 'edit_birthday' ? null : 'edit_birthday') }}
+                          style={{ width: '16px', height: '16px', borderRadius: '50%', background: '#c8d4f0', border: 'none', cursor: 'pointer', fontSize: '10px', fontWeight: '800', color: '#2c5a9e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 }}>?</button>
+                        {openTooltip === 'edit_birthday' && (
+                          <div style={{ position: 'absolute', top: '22px', left: 0, zIndex: 50, background: '#1a1a2e', color: 'white', borderRadius: '10px', padding: '10px 13px', fontSize: '12px', lineHeight: '1.5', width: '220px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
+                            We'll send your pup a birthday surprise and track age-appropriate fitness milestones!
+                            <div style={{ position: 'absolute', top: '-5px', left: '14px', width: '10px', height: '10px', background: '#1a1a2e', transform: 'rotate(45deg)' }} />
+                          </div>
+                        )}
+                      </div>
+                      <input required type="date" value={editingDog.birthday?.split('T')[0] || ''} onChange={e => setEditingDog({ ...editingDog, birthday: e.target.value })} style={inputStyle} />
                     </div>
                   </div>
 
                   {/* Vet Info */}
-                  <div style={{ marginBottom: '14px' }}>
-                    <label style={labelStyle}>Vet Clinic Name</label>
+                  <div style={{ marginBottom: '14px', position: 'relative' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+                      <label style={{ ...labelStyle, margin: 0 }}>Vet Clinic Name</label>
+                      <button type="button" onClick={e => { e.stopPropagation(); setOpenTooltip(openTooltip === 'edit_vet' ? null : 'edit_vet') }}
+                        style={{ width: '16px', height: '16px', borderRadius: '50%', background: '#c8d4f0', border: 'none', cursor: 'pointer', fontSize: '10px', fontWeight: '800', color: '#2c5a9e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 }}>?</button>
+                      {openTooltip === 'edit_vet' && (
+                        <div style={{ position: 'absolute', top: '22px', left: 0, zIndex: 50, background: '#1a1a2e', color: 'white', borderRadius: '10px', padding: '10px 13px', fontSize: '12px', lineHeight: '1.5', width: '230px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
+                          Useful if we ever need to contact your vet in an emergency during a session.
+                          <div style={{ position: 'absolute', top: '-5px', left: '14px', width: '10px', height: '10px', background: '#1a1a2e', transform: 'rotate(45deg)' }} />
+                        </div>
+                      )}
+                    </div>
                     <input value={editingDog.vet_clinic || ''} onChange={e => setEditingDog({ ...editingDog, vet_clinic: e.target.value })} placeholder="Carmel Animal Hospital" style={inputStyle} />
                   </div>
 
                   {editingDog.leaderboard_settings && (
-                    <div style={{ marginBottom: '20px' }}>
-                      <label style={labelStyle}>Leaderboard Visibility</label>
+                    <div style={{ marginBottom: '20px', position: 'relative' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+                        <label style={{ ...labelStyle, margin: 0 }}>Leaderboard Visibility</label>
+                        <button type="button" onClick={e => { e.stopPropagation(); setOpenTooltip(openTooltip === 'edit_visibility' ? null : 'edit_visibility') }}
+                          style={{ width: '16px', height: '16px', borderRadius: '50%', background: '#c8d4f0', border: 'none', cursor: 'pointer', fontSize: '10px', fontWeight: '800', color: '#2c5a9e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 }}>?</button>
+                        {openTooltip === 'edit_visibility' && (
+                          <div style={{ position: 'absolute', top: '22px', left: 0, zIndex: 50, background: '#1a1a2e', color: 'white', borderRadius: '10px', padding: '10px 13px', fontSize: '12px', lineHeight: '1.5', width: '240px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
+                            Controls whether your dog's name appears publicly on The Canine Gym leaderboard.
+                            <div style={{ position: 'absolute', top: '-5px', left: '14px', width: '10px', height: '10px', background: '#1a1a2e', transform: 'rotate(45deg)' }} />
+                          </div>
+                        )}
+                      </div>
                       <select value={editingDog.leaderboard_settings.visibility} onChange={e => setEditingDog({ ...editingDog, leaderboard_settings: { ...editingDog.leaderboard_settings, visibility: e.target.value } })} style={inputStyle}>
                         <option value="public">Public (show name)</option>
                         <option value="anonymous">Anonymous (hide name)</option>
