@@ -5,8 +5,12 @@ import { PawPrint, ArrowLeft, Camera, Plus, CheckCircle, Trash2, Pencil, X, Uplo
 
 const BREEDS = ['Affenpinscher','Afghan Hound','Airedale Terrier','Akita','Alaskan Malamute','American Bulldog','American Eskimo Dog','American Foxhound','American Pit Bull Terrier','American Staffordshire Terrier','Australian Cattle Dog','Australian Shepherd','Australian Terrier','Basenji','Basset Hound','Beagle','Bearded Collie','Bedlington Terrier','Belgian Malinois','Belgian Sheepdog','Belgian Tervuren','Bernese Mountain Dog','Bichon Frise','Black and Tan Coonhound','Bloodhound','Border Collie','Border Terrier','Borzoi','Boston Terrier','Bouvier des Flandres','Boxer','Boykin Spaniel','Briard','Brittany','Brussels Griffon','Bull Terrier','Bulldog','Bullmastiff','Cairn Terrier','Cane Corso','Cavalier King Charles Spaniel','Chesapeake Bay Retriever','Chihuahua','Chinese Crested','Chinese Shar-Pei','Chow Chow','Cocker Spaniel','Collie','Dachshund','Dalmatian','Doberman Pinscher','Dogue de Bordeaux','English Setter','English Springer Spaniel','Flat-Coated Retriever','French Bulldog','German Pinscher','German Shepherd','German Shorthaired Pointer','German Wirehaired Pointer','Giant Schnauzer','Golden Retriever','Gordon Setter','Great Dane','Great Pyrenees','Greater Swiss Mountain Dog','Greyhound','Havanese','Ibizan Hound','Irish Setter','Irish Terrier','Irish Water Spaniel','Irish Wolfhound','Italian Greyhound','Jack Russell Terrier','Japanese Chin','Keeshond','Kerry Blue Terrier','Komondor','Kuvasz','Labrador Retriever','Lhasa Apso','Maltese','Mastiff','Miniature Pinscher','Miniature Schnauzer','Newfoundland','Norfolk Terrier','Norwegian Elkhound','Norwich Terrier','Old English Sheepdog','Papillon','Pekingese','Pembroke Welsh Corgi','Pointer','Pomeranian','Poodle (Miniature)','Poodle (Standard)','Poodle (Toy)','Portuguese Water Dog','Pug','Rat Terrier','Redbone Coonhound','Rhodesian Ridgeback','Rottweiler','Saint Bernard','Samoyed','Schipperke','Scottish Deerhound','Scottish Terrier','Shetland Sheepdog','Shiba Inu','Shih Tzu','Siberian Husky','Silky Terrier','Soft Coated Wheaten Terrier','Staffordshire Bull Terrier','Standard Schnauzer','Sussex Spaniel','Tibetan Mastiff','Tibetan Terrier','Vizsla','Weimaraner','Welsh Springer Spaniel','Welsh Terrier','West Highland White Terrier','Whippet','Wire Fox Terrier','Wirehaired Pointing Griffon','Xoloitzcuintli','Yorkshire Terrier','Mixed Breed','Other']
 
+const BRACHYCEPHALIC_BREEDS = ['Affenpinscher','Boston Terrier','Boxer','Brussels Griffon','Bulldog','Cavalier King Charles Spaniel','Chinese Shar-Pei','Chow Chow','French Bulldog','Japanese Chin','Lhasa Apso','Pekingese','Pug','Shih Tzu']
+
 const inputStyle = { width: '100%', padding: '10px 14px', border: '1.5px solid #e5e8f0', borderRadius: '10px', fontSize: '14px', boxSizing: 'border-box' as const, color: '#1a1a2e', outline: 'none', fontFamily: 'inherit' }
 const labelStyle = { display: 'block', marginBottom: '6px', fontWeight: '700', color: '#555', fontSize: '13px' }
+
+const emptyNewDog = { name: '', breed: '', weight: '', birthday: '', visibility: 'anonymous', vet_clinic: '', has_health_conditions: false, health_clearance_confirmed: false, aggression_no_history: false, aggression_disclosure: '', brachy_clearance_confirmed: false }
 
 export default function MyDogs() {
   const [dogs, setDogs] = useState<any[]>([])
@@ -23,15 +27,8 @@ export default function MyDogs() {
   const [newPhotoPreview, setNewPhotoPreview] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [newDog, setNewDog] = useState({ name: '', breed: '', weight: '', birthday: '', visibility: 'anonymous', vet_clinic: '' })
+  const [newDog, setNewDog] = useState({ ...emptyNewDog })
   const [openTooltip, setOpenTooltip] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (!openTooltip) return
-    const close = () => setOpenTooltip(null)
-    document.addEventListener('click', close)
-    return () => document.removeEventListener('click', close)
-  }, [openTooltip])
   const [uploadingVaccine, setUploadingVaccine] = useState<string | null>(null)
   const [vaccineFiles, setVaccineFiles] = useState<Record<string, File>>({})
   const [vaccinePreviews, setVaccinePreviews] = useState<Record<string, string>>({})
@@ -40,6 +37,13 @@ export default function MyDogs() {
   const [showPostAddModal, setShowPostAddModal] = useState(false)
   const [lastAddedDogName, setLastAddedDogName] = useState('')
   const [hasWaiver, setHasWaiver] = useState(false)
+
+  useEffect(() => {
+    if (!openTooltip) return
+    const close = () => setOpenTooltip(null)
+    document.addEventListener('click', close)
+    return () => document.removeEventListener('click', close)
+  }, [openTooltip])
 
   useEffect(() => {
     const init = async () => {
@@ -96,10 +100,23 @@ export default function MyDogs() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault(); setSaving(true); setError(null)
+    if (editingDog.has_health_conditions && !editingDog.health_clearance_confirmed) {
+      setError('Please confirm your vet has given clearance for slatmill sessions.'); setSaving(false); return
+    }
+    if (!editingDog.aggression_no_history && !editingDog.aggression_disclosure?.trim()) {
+      setError('Please complete the bite and aggression history disclosure.'); setSaving(false); return
+    }
+    if (BRACHYCEPHALIC_BREEDS.includes(editingDog.breed) && !editingDog.brachy_clearance_confirmed) {
+      setError('Please confirm vet clearance for your brachycephalic breed before saving.'); setSaving(false); return
+    }
     const { error: updateError } = await supabase.from('dogs').update({
       name: editingDog.name, breed: editingDog.breed, weight: editingDog.weight,
       birthday: editingDog.birthday || null, photo_url: editingDog.photo_url,
       vet_name: editingDog.vet_name || null, vet_clinic: editingDog.vet_clinic || null, vet_phone: editingDog.vet_phone || null,
+      has_health_conditions: editingDog.has_health_conditions || false,
+      health_clearance_confirmed: editingDog.health_clearance_confirmed || false,
+      aggression_disclosure: editingDog.aggression_no_history ? 'No known history' : (editingDog.aggression_disclosure || null),
+      brachy_clearance_confirmed: editingDog.brachy_clearance_confirmed || false,
     }).eq('id', editingDog.id)
     if (updateError) { setError(updateError.message); setSaving(false); return }
     if (editingDog.leaderboard_settings) {
@@ -115,10 +132,23 @@ export default function MyDogs() {
 
   const handleAddDog = async (e: React.FormEvent) => {
     e.preventDefault(); setSaving(true); setError(null)
+    if (newDog.has_health_conditions && !newDog.health_clearance_confirmed) {
+      setError('Please confirm your vet has given clearance for slatmill sessions.'); setSaving(false); return
+    }
+    if (!newDog.aggression_no_history && !newDog.aggression_disclosure.trim()) {
+      setError('Please complete the bite and aggression history disclosure.'); setSaving(false); return
+    }
+    if (BRACHYCEPHALIC_BREEDS.includes(newDog.breed) && !newDog.brachy_clearance_confirmed) {
+      setError('Please confirm vet clearance for your brachycephalic breed before continuing.'); setSaving(false); return
+    }
     const { data: dogData, error: dogError } = await supabase.from('dogs').insert([{
       owner_id: ownerId, name: newDog.name, breed: newDog.breed,
       weight: newDog.weight || null, birthday: newDog.birthday || null,
       vet_clinic: newDog.vet_clinic || null,
+      has_health_conditions: newDog.has_health_conditions,
+      health_clearance_confirmed: newDog.health_clearance_confirmed,
+      aggression_disclosure: newDog.aggression_no_history ? 'No known history' : (newDog.aggression_disclosure || null),
+      brachy_clearance_confirmed: newDog.brachy_clearance_confirmed,
     }]).select().single()
     if (dogError || !dogData) { setError(dogError?.message || 'Failed to add dog'); setSaving(false); return }
     if (newPhotoFile) {
@@ -130,7 +160,7 @@ export default function MyDogs() {
     await supabase.from('leaderboard_settings').insert([{ dog_id: dogData.id, city: ownerCity, visibility: newDog.visibility, display_name: newDog.name }])
     const addedName = newDog.name
     setSaving(false); setAddingDog(false)
-    setNewDog({ name: '', breed: '', weight: '', birthday: '', visibility: 'anonymous', vet_clinic: '' })
+    setNewDog({ ...emptyNewDog })
     setNewPhotoFile(null); setNewPhotoPreview(null)
     fetchDogs(ownerId)
     setLastAddedDogName(addedName)
@@ -193,6 +223,19 @@ export default function MyDogs() {
     return warnings
   }
 
+  const TooltipBtn = ({ id, children }: { id: string; children: React.ReactNode }) => (
+    <div style={{ position: 'relative', display: 'inline-block' }}>
+      <button type="button" onClick={e => { e.stopPropagation(); setOpenTooltip(openTooltip === id ? null : id) }}
+        style={{ width: '16px', height: '16px', borderRadius: '50%', background: '#c8d4f0', border: 'none', cursor: 'pointer', fontSize: '10px', fontWeight: '800', color: '#2c5a9e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 }}>?</button>
+      {openTooltip === id && (
+        <div style={{ position: 'absolute', top: '22px', left: 0, zIndex: 50, background: '#1a1a2e', color: 'white', borderRadius: '10px', padding: '10px 13px', fontSize: '12px', lineHeight: '1.5', width: '220px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
+          {children}
+          <div style={{ position: 'absolute', top: '-5px', left: '14px', width: '10px', height: '10px', background: '#1a1a2e', transform: 'rotate(45deg)' }} />
+        </div>
+      )}
+    </div>
+  )
+
   if (loading) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'white' }}>
       <div style={{ textAlign: 'center' }}>
@@ -200,13 +243,7 @@ export default function MyDogs() {
         <div style={{ width: '180px', height: '3px', background: '#f0f2f7', borderRadius: '2px', overflow: 'hidden', margin: '0 auto' }}>
           <div style={{ height: '100%', background: '#f88124', borderRadius: '2px', animation: 'sweep 1.2s ease-in-out infinite' }} />
         </div>
-        <style>{`
-          @keyframes sweep {
-            0% { width: 0%; marginLeft: 0%; }
-            50% { width: 60%; }
-            100% { width: 0%; marginLeft: 100%; }
-          }
-        `}</style>
+        <style>{`@keyframes sweep { 0% { width: 0%; marginLeft: 0%; } 50% { width: 60%; } 100% { width: 0%; marginLeft: 100%; } }`}</style>
       </div>
     </div>
   )
@@ -216,13 +253,13 @@ export default function MyDogs() {
       <style>{`
         @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
         .dog-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.1) !important; }
-        input:focus, select:focus { border-color: #2c5a9e !important; box-shadow: 0 0 0 3px rgba(0,48,135,0.08); }
+        input:focus, select:focus, textarea:focus { border-color: #2c5a9e !important; box-shadow: 0 0 0 3px rgba(0,48,135,0.08); }
         * { box-sizing: border-box; }
         @media (max-width: 480px) {
-  .dog-header { flex-direction: column; gap: 12px; }
-  .dog-actions { width: 100%; }
-  .dog-actions button { flex: 1; justify-content: center; }
-}
+          .dog-header { flex-direction: column; gap: 12px; }
+          .dog-actions { width: 100%; }
+          .dog-actions button { flex: 1; justify-content: center; }
+        }
       `}</style>
 
       {/* Nav */}
@@ -261,19 +298,20 @@ export default function MyDogs() {
           <div style={{ background: '#ffeaea', color: '#dc3545', padding: '13px 18px', borderRadius: '12px', marginBottom: '18px', fontSize: '14px', fontWeight: '600' }}>{error}</div>
         )}
 
-        {/* Add Dog Form */}
+        {/* ── ADD DOG FORM ── */}
         {addingDog && (
           <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '28px', marginBottom: '20px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #e5e8f0' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
               <div>
-                <h3 style={{ color: '#1a1a2e', margin: '0 0 3px', fontWeight: '800', fontSize: '17px' }}>Add New Dog</h3>
+                <h3 style={{ color: '#1a1a2e', margin: '0 0 3px', fontWeight: '800', fontSize: '17px' }}>Dog Information Form</h3>
                 <p style={{ color: '#aaa', margin: 0, fontSize: '13px' }}>Fill in your dog's details below</p>
               </div>
-              <button onClick={() => { setAddingDog(false); setNewDog({ name: '', breed: '', weight: '', birthday: '', visibility: 'anonymous', vet_clinic: '' }); setNewPhotoPreview(null) }}
+              <button onClick={() => { setAddingDog(false); setNewDog({ ...emptyNewDog }); setNewPhotoPreview(null) }}
                 style={{ background: '#f0f2f7', border: 'none', cursor: 'pointer', color: '#666', width: '34px', height: '34px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <X size={16} />
               </button>
             </div>
+
             <form onSubmit={handleAddDog}>
               {/* Photo Upload */}
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '24px' }}>
@@ -286,35 +324,19 @@ export default function MyDogs() {
                 </label>
               </div>
 
+              {/* Name + Breed */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '14px' }}>
-                {/* Dog's Name */}
                 <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px', position: 'relative' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
                     <label style={{ ...labelStyle, margin: 0 }}>Dog's Name <span style={{ color: '#e53e3e' }}>*</span></label>
-                    <button type="button" onClick={e => { e.stopPropagation(); setOpenTooltip(openTooltip === 'name' ? null : 'name') }}
-                      style={{ width: '16px', height: '16px', borderRadius: '50%', background: '#c8d4f0', border: 'none', cursor: 'pointer', fontSize: '10px', fontWeight: '800', color: '#2c5a9e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 }}>?</button>
-                    {openTooltip === 'name' && (
-                      <div style={{ position: 'absolute', top: '22px', left: 0, zIndex: 50, background: '#1a1a2e', color: 'white', borderRadius: '10px', padding: '10px 13px', fontSize: '12px', lineHeight: '1.5', width: '220px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
-                        This is how your dog will appear on the leaderboard and in session reports.
-                        <div style={{ position: 'absolute', top: '-5px', left: '14px', width: '10px', height: '10px', background: '#1a1a2e', transform: 'rotate(45deg)' }} />
-                      </div>
-                    )}
+                    <TooltipBtn id="name">This is how your dog will appear on the leaderboard and in session reports.</TooltipBtn>
                   </div>
                   <input required value={newDog.name} onChange={e => setNewDog({ ...newDog, name: e.target.value })} style={inputStyle} placeholder="e.g. Gravy" />
                 </div>
-
-                {/* Breed */}
                 <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px', position: 'relative' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
                     <label style={{ ...labelStyle, margin: 0 }}>Breed <span style={{ color: '#e53e3e' }}>*</span></label>
-                    <button type="button" onClick={e => { e.stopPropagation(); setOpenTooltip(openTooltip === 'breed' ? null : 'breed') }}
-                      style={{ width: '16px', height: '16px', borderRadius: '50%', background: '#c8d4f0', border: 'none', cursor: 'pointer', fontSize: '10px', fontWeight: '800', color: '#2c5a9e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 }}>?</button>
-                    {openTooltip === 'breed' && (
-                      <div style={{ position: 'absolute', top: '22px', left: 0, zIndex: 50, background: '#1a1a2e', color: 'white', borderRadius: '10px', padding: '10px 13px', fontSize: '12px', lineHeight: '1.5', width: '220px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
-                        Helps us understand your dog's fitness baseline and any breed-specific considerations during sessions.
-                        <div style={{ position: 'absolute', top: '-5px', left: '14px', width: '10px', height: '10px', background: '#1a1a2e', transform: 'rotate(45deg)' }} />
-                      </div>
-                    )}
+                    <TooltipBtn id="breed">Helps us understand your dog's fitness baseline and any breed-specific considerations during sessions.</TooltipBtn>
                   </div>
                   <select required value={newDog.breed} onChange={e => setNewDog({ ...newDog, breed: e.target.value })} style={inputStyle}>
                     <option value="">Select breed</option>
@@ -322,51 +344,28 @@ export default function MyDogs() {
                   </select>
                 </div>
 
-                {/* Weight */}
+                {/* Weight + Birthday */}
                 <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px', position: 'relative' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
                     <label style={{ ...labelStyle, margin: 0 }}>Weight (lbs) <span style={{ color: '#e53e3e' }}>*</span></label>
-                    <button type="button" onClick={e => { e.stopPropagation(); setOpenTooltip(openTooltip === 'weight' ? null : 'weight') }}
-                      style={{ width: '16px', height: '16px', borderRadius: '50%', background: '#c8d4f0', border: 'none', cursor: 'pointer', fontSize: '10px', fontWeight: '800', color: '#2c5a9e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 }}>?</button>
-                    {openTooltip === 'weight' && (
-                      <div style={{ position: 'absolute', top: '22px', left: 0, zIndex: 50, background: '#1a1a2e', color: 'white', borderRadius: '10px', padding: '10px 13px', fontSize: '12px', lineHeight: '1.5', width: '220px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
-                        Used to calculate calories burned during each session. We will also provide updates as we will weigh your dog before each session.
-                        <div style={{ position: 'absolute', top: '-5px', left: '14px', width: '10px', height: '10px', background: '#1a1a2e', transform: 'rotate(45deg)' }} />
-                      </div>
-                    )}
+                    <TooltipBtn id="weight">Used to calculate calories burned during each session. We will also provide updates as we will weigh your dog before each session.</TooltipBtn>
                   </div>
                   <input required type="number" value={newDog.weight} onChange={e => setNewDog({ ...newDog, weight: e.target.value })} style={inputStyle} placeholder="e.g. 45" min="1" max="300" step="0.1" />
                 </div>
-
-                {/* Birthday */}
                 <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px', position: 'relative' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
                     <label style={{ ...labelStyle, margin: 0 }}>Birthday <span style={{ color: '#e53e3e' }}>*</span></label>
-                    <button type="button" onClick={e => { e.stopPropagation(); setOpenTooltip(openTooltip === 'birthday' ? null : 'birthday') }}
-                      style={{ width: '16px', height: '16px', borderRadius: '50%', background: '#c8d4f0', border: 'none', cursor: 'pointer', fontSize: '10px', fontWeight: '800', color: '#2c5a9e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 }}>?</button>
-                    {openTooltip === 'birthday' && (
-                      <div style={{ position: 'absolute', top: '22px', left: 0, zIndex: 50, background: '#1a1a2e', color: 'white', borderRadius: '10px', padding: '10px 13px', fontSize: '12px', lineHeight: '1.5', width: '220px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
-                        We'll send your pup a birthday surprise and track age-appropriate fitness milestones!
-                        <div style={{ position: 'absolute', top: '-5px', left: '14px', width: '10px', height: '10px', background: '#1a1a2e', transform: 'rotate(45deg)' }} />
-                      </div>
-                    )}
+                    <TooltipBtn id="birthday">We'll send your pup a birthday surprise and track age-appropriate fitness milestones!</TooltipBtn>
                   </div>
                   <input required type="date" value={newDog.birthday} onChange={e => setNewDog({ ...newDog, birthday: e.target.value })} style={inputStyle} />
                 </div>
               </div>
 
               {/* Leaderboard Visibility */}
-              <div style={{ marginBottom: '14px', position: 'relative' }}>
+              <div style={{ marginBottom: '14px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
                   <label style={{ ...labelStyle, margin: 0 }}>Leaderboard Visibility</label>
-                  <button type="button" onClick={e => { e.stopPropagation(); setOpenTooltip(openTooltip === 'visibility' ? null : 'visibility') }}
-                    style={{ width: '16px', height: '16px', borderRadius: '50%', background: '#c8d4f0', border: 'none', cursor: 'pointer', fontSize: '10px', fontWeight: '800', color: '#2c5a9e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 }}>?</button>
-                  {openTooltip === 'visibility' && (
-                    <div style={{ position: 'absolute', top: '22px', left: 0, zIndex: 50, background: '#1a1a2e', color: 'white', borderRadius: '10px', padding: '10px 13px', fontSize: '12px', lineHeight: '1.5', width: '240px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
-                      Controls whether your dog's name appears publicly on The Canine Gym leaderboard.
-                      <div style={{ position: 'absolute', top: '-5px', left: '14px', width: '10px', height: '10px', background: '#1a1a2e', transform: 'rotate(45deg)' }} />
-                    </div>
-                  )}
+                  <TooltipBtn id="visibility">Controls whether your dog's name appears publicly on The Canine Gym leaderboard.</TooltipBtn>
                 </div>
                 <select value={newDog.visibility} onChange={e => setNewDog({ ...newDog, visibility: e.target.value })} style={inputStyle}>
                   <option value="public">Public (show name)</option>
@@ -376,21 +375,90 @@ export default function MyDogs() {
               </div>
 
               {/* Vet Clinic */}
-              <div style={{ marginBottom: '18px', position: 'relative' }}>
+              <div style={{ marginBottom: '18px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
                   <label style={{ ...labelStyle, margin: 0 }}>Vet Clinic Name</label>
-                  <button type="button" onClick={e => { e.stopPropagation(); setOpenTooltip(openTooltip === 'vet' ? null : 'vet') }}
-                    style={{ width: '16px', height: '16px', borderRadius: '50%', background: '#c8d4f0', border: 'none', cursor: 'pointer', fontSize: '10px', fontWeight: '800', color: '#2c5a9e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 }}>?</button>
-                  {openTooltip === 'vet' && (
-                    <div style={{ position: 'absolute', top: '22px', left: 0, zIndex: 50, background: '#1a1a2e', color: 'white', borderRadius: '10px', padding: '10px 13px', fontSize: '12px', lineHeight: '1.5', width: '230px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
-                      Useful if we ever need to contact your vet in an emergency during a session.
-                      <div style={{ position: 'absolute', top: '-5px', left: '14px', width: '10px', height: '10px', background: '#1a1a2e', transform: 'rotate(45deg)' }} />
-                    </div>
-                  )}
+                  <TooltipBtn id="vet">Useful if we ever need to contact your vet in an emergency during a session.</TooltipBtn>
                 </div>
                 <input value={newDog.vet_clinic} onChange={e => setNewDog({ ...newDog, vet_clinic: e.target.value })} style={inputStyle} placeholder="e.g. Carmel Animal Hospital" />
               </div>
 
+              {/* Brachycephalic Warning */}
+              {BRACHYCEPHALIC_BREEDS.includes(newDog.breed) && (
+                <div style={{ background: '#fff8e6', border: '1.5px solid #ffe08a', borderRadius: '12px', padding: '16px', marginBottom: '14px' }}>
+                  <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', marginBottom: '12px' }}>
+                    <AlertTriangle size={17} color="#856404" style={{ flexShrink: 0, marginTop: '1px' }} />
+                    <div>
+                      <p style={{ margin: '0 0 4px', fontWeight: '800', color: '#856404', fontSize: '13px' }}>Brachycephalic Breed Detected</p>
+                      <p style={{ margin: 0, color: '#856404', fontSize: '13px', lineHeight: 1.5 }}>
+                        {newDog.breed}s are a flat-faced (brachycephalic) breed, which can affect breathing during intense exercise. Slatmill sessions require extra monitoring and veterinary clearance for this breed.
+                      </p>
+                    </div>
+                  </div>
+                  <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={newDog.brachy_clearance_confirmed} onChange={e => setNewDog({ ...newDog, brachy_clearance_confirmed: e.target.checked })}
+                      style={{ marginTop: '2px', width: '16px', height: '16px', accentColor: '#f88124', flexShrink: 0, cursor: 'pointer' }} />
+                    <span style={{ fontSize: '13px', color: '#856404', fontWeight: '700', lineHeight: 1.5 }}>
+                      I confirm my vet has cleared my dog for slatmill exercise. <span style={{ color: '#e53e3e' }}>*</span>
+                    </span>
+                  </label>
+                </div>
+              )}
+
+              {/* Health Conditions */}
+              <div style={{ background: '#f8f9fc', border: '1.5px solid #e5e8f0', borderRadius: '12px', padding: '16px', marginBottom: '14px' }}>
+                <p style={{ margin: '0 0 6px', fontWeight: '800', color: '#1a1a2e', fontSize: '13px' }}>
+                  Health Conditions <span style={{ color: '#e53e3e' }}>*</span>
+                </p>
+                <p style={{ margin: '0 0 12px', color: '#666', fontSize: '13px', lineHeight: 1.5 }}>
+                  Does your dog have any known cardiac, orthopedic, neurological, or respiratory conditions?
+                </p>
+                <div style={{ display: 'flex', gap: '10px', marginBottom: newDog.has_health_conditions ? '14px' : '0' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', background: newDog.has_health_conditions ? '#ffeaea' : 'white', border: `1.5px solid ${newDog.has_health_conditions ? '#ffc5c5' : '#e5e8f0'}`, borderRadius: '10px', padding: '10px 16px', flex: 1, justifyContent: 'center', transition: 'all 0.15s' }}>
+                    <input type="radio" name="health_conditions_new" checked={newDog.has_health_conditions === true} onChange={() => setNewDog({ ...newDog, has_health_conditions: true, health_clearance_confirmed: false })}
+                      style={{ accentColor: '#dc3545', cursor: 'pointer' }} />
+                    <span style={{ fontWeight: '700', fontSize: '14px', color: newDog.has_health_conditions ? '#dc3545' : '#555' }}>Yes</span>
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', background: newDog.has_health_conditions === false ? '#f0f9f4' : 'white', border: `1.5px solid ${newDog.has_health_conditions === false ? '#b8dfc4' : '#e5e8f0'}`, borderRadius: '10px', padding: '10px 16px', flex: 1, justifyContent: 'center', transition: 'all 0.15s' }}>
+                    <input type="radio" name="health_conditions_new" checked={newDog.has_health_conditions === false} onChange={() => setNewDog({ ...newDog, has_health_conditions: false, health_clearance_confirmed: false })}
+                      style={{ accentColor: '#28a745', cursor: 'pointer' }} />
+                    <span style={{ fontWeight: '700', fontSize: '14px', color: newDog.has_health_conditions === false ? '#155724' : '#555' }}>No</span>
+                  </label>
+                </div>
+                {newDog.has_health_conditions && (
+                  <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer', background: '#ffeaea', border: '1.5px solid #ffc5c5', borderRadius: '10px', padding: '12px 14px' }}>
+                    <input type="checkbox" checked={newDog.health_clearance_confirmed} onChange={e => setNewDog({ ...newDog, health_clearance_confirmed: e.target.checked })}
+                      style={{ marginTop: '2px', width: '16px', height: '16px', accentColor: '#dc3545', flexShrink: 0, cursor: 'pointer' }} />
+                    <span style={{ fontSize: '13px', color: '#721c24', fontWeight: '700', lineHeight: 1.5 }}>
+                      I confirm my veterinarian has given clearance for my dog to participate in slatmill exercise sessions. <span style={{ color: '#e53e3e' }}>*</span>
+                    </span>
+                  </label>
+                )}
+              </div>
+
+              {/* Bite & Aggression Disclosure */}
+              <div style={{ background: '#f8f9fc', border: '1.5px solid #e5e8f0', borderRadius: '12px', padding: '16px', marginBottom: '18px' }}>
+                <p style={{ margin: '0 0 4px', fontWeight: '800', color: '#1a1a2e', fontSize: '13px' }}>
+                  Bite & Aggression History <span style={{ color: '#e53e3e' }}>*</span>
+                </p>
+                <p style={{ margin: '0 0 12px', color: '#666', fontSize: '13px', lineHeight: 1.5 }}>
+                  Please disclose any and all prior bite incidents or known aggression, regardless of circumstance or severity.
+                </p>
+                <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer', marginBottom: newDog.aggression_no_history ? '0' : '10px' }}>
+                  <input type="checkbox" checked={newDog.aggression_no_history} onChange={e => setNewDog({ ...newDog, aggression_no_history: e.target.checked, aggression_disclosure: '' })}
+                    style={{ marginTop: '2px', width: '16px', height: '16px', accentColor: '#2c5a9e', flexShrink: 0, cursor: 'pointer' }} />
+                  <span style={{ fontSize: '13px', color: '#1a1a2e', fontWeight: '700', lineHeight: 1.5 }}>
+                    My dog has no known bite incidents or aggression history.
+                  </span>
+                </label>
+                {!newDog.aggression_no_history && (
+                  <textarea value={newDog.aggression_disclosure} onChange={e => setNewDog({ ...newDog, aggression_disclosure: e.target.value })} rows={3}
+                    placeholder="Please describe any prior bite incidents or aggression (circumstances, severity, frequency, etc.)"
+                    style={{ ...inputStyle, resize: 'vertical' }} />
+                )}
+              </div>
+
+              {/* Vaccine Notice */}
               <div style={{ background: '#fff8e6', border: '1.5px solid #ffe08a', borderRadius: '12px', padding: '14px 16px', marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
                 <Shield size={17} color="#856404" style={{ flexShrink: 0, marginTop: '1px' }} />
                 <p style={{ margin: 0, color: '#856404', fontSize: '13px', lineHeight: 1.6 }}>
@@ -474,9 +542,11 @@ export default function MyDogs() {
                 </div>
               )}
 
-              {/* Edit Form */}
+              {/* ── EDIT FORM ── */}
               {isEditing && (
                 <form onSubmit={handleSave}>
+                  <p style={{ margin: '0 0 20px', fontWeight: '800', color: '#2c5a9e', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Dog Information Form</p>
+
                   {/* Photo */}
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '22px' }}>
                     <div style={{ width: '88px', height: '88px', borderRadius: '18px', background: '#f0f2f7', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '10px', overflow: 'hidden', border: '2px solid #e5e8f0' }}>
@@ -488,35 +558,19 @@ export default function MyDogs() {
                     </label>
                   </div>
 
+                  {/* Name + Breed */}
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '14px' }}>
-                    {/* Dog's Name */}
                     <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px', position: 'relative' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
                         <label style={{ ...labelStyle, margin: 0 }}>Dog's Name <span style={{ color: '#e53e3e' }}>*</span></label>
-                        <button type="button" onClick={e => { e.stopPropagation(); setOpenTooltip(openTooltip === 'edit_name' ? null : 'edit_name') }}
-                          style={{ width: '16px', height: '16px', borderRadius: '50%', background: '#c8d4f0', border: 'none', cursor: 'pointer', fontSize: '10px', fontWeight: '800', color: '#2c5a9e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 }}>?</button>
-                        {openTooltip === 'edit_name' && (
-                          <div style={{ position: 'absolute', top: '22px', left: 0, zIndex: 50, background: '#1a1a2e', color: 'white', borderRadius: '10px', padding: '10px 13px', fontSize: '12px', lineHeight: '1.5', width: '220px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
-                            This is how your dog will appear on the leaderboard and in session reports.
-                            <div style={{ position: 'absolute', top: '-5px', left: '14px', width: '10px', height: '10px', background: '#1a1a2e', transform: 'rotate(45deg)' }} />
-                          </div>
-                        )}
+                        <TooltipBtn id="edit_name">This is how your dog will appear on the leaderboard and in session reports.</TooltipBtn>
                       </div>
                       <input required value={editingDog.name} onChange={e => setEditingDog({ ...editingDog, name: e.target.value })} style={inputStyle} />
                     </div>
-
-                    {/* Breed */}
                     <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px', position: 'relative' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
                         <label style={{ ...labelStyle, margin: 0 }}>Breed <span style={{ color: '#e53e3e' }}>*</span></label>
-                        <button type="button" onClick={e => { e.stopPropagation(); setOpenTooltip(openTooltip === 'edit_breed' ? null : 'edit_breed') }}
-                          style={{ width: '16px', height: '16px', borderRadius: '50%', background: '#c8d4f0', border: 'none', cursor: 'pointer', fontSize: '10px', fontWeight: '800', color: '#2c5a9e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 }}>?</button>
-                        {openTooltip === 'edit_breed' && (
-                          <div style={{ position: 'absolute', top: '22px', left: 0, zIndex: 50, background: '#1a1a2e', color: 'white', borderRadius: '10px', padding: '10px 13px', fontSize: '12px', lineHeight: '1.5', width: '220px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
-                            Helps us understand your dog's fitness baseline and any breed-specific considerations during sessions.
-                            <div style={{ position: 'absolute', top: '-5px', left: '14px', width: '10px', height: '10px', background: '#1a1a2e', transform: 'rotate(45deg)' }} />
-                          </div>
-                        )}
+                        <TooltipBtn id="edit_breed">Helps us understand your dog's fitness baseline and any breed-specific considerations during sessions.</TooltipBtn>
                       </div>
                       <select required value={editingDog.breed} onChange={e => setEditingDog({ ...editingDog, breed: e.target.value })} style={inputStyle}>
                         <option value="">Select breed</option>
@@ -524,67 +578,38 @@ export default function MyDogs() {
                       </select>
                     </div>
 
-                    {/* Weight */}
+                    {/* Weight + Birthday */}
                     <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px', position: 'relative' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
                         <label style={{ ...labelStyle, margin: 0 }}>Weight (lbs) <span style={{ color: '#e53e3e' }}>*</span></label>
-                        <button type="button" onClick={e => { e.stopPropagation(); setOpenTooltip(openTooltip === 'edit_weight' ? null : 'edit_weight') }}
-                          style={{ width: '16px', height: '16px', borderRadius: '50%', background: '#c8d4f0', border: 'none', cursor: 'pointer', fontSize: '10px', fontWeight: '800', color: '#2c5a9e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 }}>?</button>
-                        {openTooltip === 'edit_weight' && (
-                          <div style={{ position: 'absolute', top: '22px', left: 0, zIndex: 50, background: '#1a1a2e', color: 'white', borderRadius: '10px', padding: '10px 13px', fontSize: '12px', lineHeight: '1.5', width: '220px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
-                            Used to calculate calories burned during each session. We will also provide updates as we will weigh your dog before each session.
-                            <div style={{ position: 'absolute', top: '-5px', left: '14px', width: '10px', height: '10px', background: '#1a1a2e', transform: 'rotate(45deg)' }} />
-                          </div>
-                        )}
+                        <TooltipBtn id="edit_weight">Used to calculate calories burned during each session. We will also provide updates as we will weigh your dog before each session.</TooltipBtn>
                       </div>
                       <input required type="number" value={editingDog.weight || ''} onChange={e => setEditingDog({ ...editingDog, weight: e.target.value })} style={inputStyle} min="1" max="300" step="0.1" />
                     </div>
-
-                    {/* Birthday */}
                     <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px', position: 'relative' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
                         <label style={{ ...labelStyle, margin: 0 }}>Birthday <span style={{ color: '#e53e3e' }}>*</span></label>
-                        <button type="button" onClick={e => { e.stopPropagation(); setOpenTooltip(openTooltip === 'edit_birthday' ? null : 'edit_birthday') }}
-                          style={{ width: '16px', height: '16px', borderRadius: '50%', background: '#c8d4f0', border: 'none', cursor: 'pointer', fontSize: '10px', fontWeight: '800', color: '#2c5a9e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 }}>?</button>
-                        {openTooltip === 'edit_birthday' && (
-                          <div style={{ position: 'absolute', top: '22px', left: 0, zIndex: 50, background: '#1a1a2e', color: 'white', borderRadius: '10px', padding: '10px 13px', fontSize: '12px', lineHeight: '1.5', width: '220px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
-                            We'll send your pup a birthday surprise and track age-appropriate fitness milestones!
-                            <div style={{ position: 'absolute', top: '-5px', left: '14px', width: '10px', height: '10px', background: '#1a1a2e', transform: 'rotate(45deg)' }} />
-                          </div>
-                        )}
+                        <TooltipBtn id="edit_birthday">We'll send your pup a birthday surprise and track age-appropriate fitness milestones!</TooltipBtn>
                       </div>
                       <input required type="date" value={editingDog.birthday?.split('T')[0] || ''} onChange={e => setEditingDog({ ...editingDog, birthday: e.target.value })} style={inputStyle} />
                     </div>
                   </div>
 
-                  {/* Vet Info */}
-                  <div style={{ marginBottom: '14px', position: 'relative' }}>
+                  {/* Vet Clinic */}
+                  <div style={{ marginBottom: '14px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
                       <label style={{ ...labelStyle, margin: 0 }}>Vet Clinic Name</label>
-                      <button type="button" onClick={e => { e.stopPropagation(); setOpenTooltip(openTooltip === 'edit_vet' ? null : 'edit_vet') }}
-                        style={{ width: '16px', height: '16px', borderRadius: '50%', background: '#c8d4f0', border: 'none', cursor: 'pointer', fontSize: '10px', fontWeight: '800', color: '#2c5a9e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 }}>?</button>
-                      {openTooltip === 'edit_vet' && (
-                        <div style={{ position: 'absolute', top: '22px', left: 0, zIndex: 50, background: '#1a1a2e', color: 'white', borderRadius: '10px', padding: '10px 13px', fontSize: '12px', lineHeight: '1.5', width: '230px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
-                          Useful if we ever need to contact your vet in an emergency during a session.
-                          <div style={{ position: 'absolute', top: '-5px', left: '14px', width: '10px', height: '10px', background: '#1a1a2e', transform: 'rotate(45deg)' }} />
-                        </div>
-                      )}
+                      <TooltipBtn id="edit_vet">Useful if we ever need to contact your vet in an emergency during a session.</TooltipBtn>
                     </div>
                     <input value={editingDog.vet_clinic || ''} onChange={e => setEditingDog({ ...editingDog, vet_clinic: e.target.value })} placeholder="Carmel Animal Hospital" style={inputStyle} />
                   </div>
 
+                  {/* Leaderboard Visibility */}
                   {editingDog.leaderboard_settings && (
-                    <div style={{ marginBottom: '20px', position: 'relative' }}>
+                    <div style={{ marginBottom: '18px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
                         <label style={{ ...labelStyle, margin: 0 }}>Leaderboard Visibility</label>
-                        <button type="button" onClick={e => { e.stopPropagation(); setOpenTooltip(openTooltip === 'edit_visibility' ? null : 'edit_visibility') }}
-                          style={{ width: '16px', height: '16px', borderRadius: '50%', background: '#c8d4f0', border: 'none', cursor: 'pointer', fontSize: '10px', fontWeight: '800', color: '#2c5a9e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 }}>?</button>
-                        {openTooltip === 'edit_visibility' && (
-                          <div style={{ position: 'absolute', top: '22px', left: 0, zIndex: 50, background: '#1a1a2e', color: 'white', borderRadius: '10px', padding: '10px 13px', fontSize: '12px', lineHeight: '1.5', width: '240px', boxShadow: '0 4px 16px rgba(0,0,0,0.2)' }}>
-                            Controls whether your dog's name appears publicly on The Canine Gym leaderboard.
-                            <div style={{ position: 'absolute', top: '-5px', left: '14px', width: '10px', height: '10px', background: '#1a1a2e', transform: 'rotate(45deg)' }} />
-                          </div>
-                        )}
+                        <TooltipBtn id="edit_visibility">Controls whether your dog's name appears publicly on The Canine Gym leaderboard.</TooltipBtn>
                       </div>
                       <select value={editingDog.leaderboard_settings.visibility} onChange={e => setEditingDog({ ...editingDog, leaderboard_settings: { ...editingDog.leaderboard_settings, visibility: e.target.value } })} style={inputStyle}>
                         <option value="public">Public (show name)</option>
@@ -593,6 +618,88 @@ export default function MyDogs() {
                       </select>
                     </div>
                   )}
+
+                  {/* Brachycephalic Warning */}
+                  {BRACHYCEPHALIC_BREEDS.includes(editingDog.breed) && (
+                    <div style={{ background: '#fff8e6', border: '1.5px solid #ffe08a', borderRadius: '12px', padding: '16px', marginBottom: '14px' }}>
+                      <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', marginBottom: '12px' }}>
+                        <AlertTriangle size={17} color="#856404" style={{ flexShrink: 0, marginTop: '1px' }} />
+                        <div>
+                          <p style={{ margin: '0 0 4px', fontWeight: '800', color: '#856404', fontSize: '13px' }}>Brachycephalic Breed</p>
+                          <p style={{ margin: 0, color: '#856404', fontSize: '13px', lineHeight: 1.5 }}>
+                            {editingDog.breed}s are a flat-faced (brachycephalic) breed, which can affect breathing during intense exercise. Veterinary clearance is required.
+                          </p>
+                        </div>
+                      </div>
+                      <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer' }}>
+                        <input type="checkbox" checked={!!editingDog.brachy_clearance_confirmed} onChange={e => setEditingDog({ ...editingDog, brachy_clearance_confirmed: e.target.checked })}
+                          style={{ marginTop: '2px', width: '16px', height: '16px', accentColor: '#f88124', flexShrink: 0, cursor: 'pointer' }} />
+                        <span style={{ fontSize: '13px', color: '#856404', fontWeight: '700', lineHeight: 1.5 }}>
+                          I confirm my vet has cleared my dog for slatmill exercise. <span style={{ color: '#e53e3e' }}>*</span>
+                        </span>
+                      </label>
+                    </div>
+                  )}
+
+                  {/* Health Conditions */}
+                  <div style={{ background: '#f8f9fc', border: '1.5px solid #e5e8f0', borderRadius: '12px', padding: '16px', marginBottom: '14px' }}>
+                    <p style={{ margin: '0 0 6px', fontWeight: '800', color: '#1a1a2e', fontSize: '13px' }}>
+                      Health Conditions <span style={{ color: '#e53e3e' }}>*</span>
+                    </p>
+                    <p style={{ margin: '0 0 12px', color: '#666', fontSize: '13px', lineHeight: 1.5 }}>
+                      Does your dog have any known cardiac, orthopedic, neurological, or respiratory conditions?
+                    </p>
+                    <div style={{ display: 'flex', gap: '10px', marginBottom: editingDog.has_health_conditions ? '14px' : '0' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', background: editingDog.has_health_conditions ? '#ffeaea' : 'white', border: `1.5px solid ${editingDog.has_health_conditions ? '#ffc5c5' : '#e5e8f0'}`, borderRadius: '10px', padding: '10px 16px', flex: 1, justifyContent: 'center', transition: 'all 0.15s' }}>
+                        <input type="radio" name="health_conditions_edit" checked={!!editingDog.has_health_conditions} onChange={() => setEditingDog({ ...editingDog, has_health_conditions: true, health_clearance_confirmed: false })}
+                          style={{ accentColor: '#dc3545', cursor: 'pointer' }} />
+                        <span style={{ fontWeight: '700', fontSize: '14px', color: editingDog.has_health_conditions ? '#dc3545' : '#555' }}>Yes</span>
+                      </label>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', background: !editingDog.has_health_conditions ? '#f0f9f4' : 'white', border: `1.5px solid ${!editingDog.has_health_conditions ? '#b8dfc4' : '#e5e8f0'}`, borderRadius: '10px', padding: '10px 16px', flex: 1, justifyContent: 'center', transition: 'all 0.15s' }}>
+                        <input type="radio" name="health_conditions_edit" checked={!editingDog.has_health_conditions} onChange={() => setEditingDog({ ...editingDog, has_health_conditions: false, health_clearance_confirmed: false })}
+                          style={{ accentColor: '#28a745', cursor: 'pointer' }} />
+                        <span style={{ fontWeight: '700', fontSize: '14px', color: !editingDog.has_health_conditions ? '#155724' : '#555' }}>No</span>
+                      </label>
+                    </div>
+                    {editingDog.has_health_conditions && (
+                      <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer', background: '#ffeaea', border: '1.5px solid #ffc5c5', borderRadius: '10px', padding: '12px 14px' }}>
+                        <input type="checkbox" checked={!!editingDog.health_clearance_confirmed} onChange={e => setEditingDog({ ...editingDog, health_clearance_confirmed: e.target.checked })}
+                          style={{ marginTop: '2px', width: '16px', height: '16px', accentColor: '#dc3545', flexShrink: 0, cursor: 'pointer' }} />
+                        <span style={{ fontSize: '13px', color: '#721c24', fontWeight: '700', lineHeight: 1.5 }}>
+                          I confirm my veterinarian has given clearance for my dog to participate in slatmill exercise sessions. <span style={{ color: '#e53e3e' }}>*</span>
+                        </span>
+                      </label>
+                    )}
+                  </div>
+
+                  {/* Bite & Aggression Disclosure */}
+                  <div style={{ background: '#f8f9fc', border: '1.5px solid #e5e8f0', borderRadius: '12px', padding: '16px', marginBottom: '20px' }}>
+                    <p style={{ margin: '0 0 4px', fontWeight: '800', color: '#1a1a2e', fontSize: '13px' }}>
+                      Bite & Aggression History <span style={{ color: '#e53e3e' }}>*</span>
+                    </p>
+                    <p style={{ margin: '0 0 12px', color: '#666', fontSize: '13px', lineHeight: 1.5 }}>
+                      Please disclose any and all prior bite incidents or known aggression, regardless of circumstance or severity.
+                    </p>
+                    {(() => {
+                      const isNoHistory = editingDog.aggression_disclosure === 'No known history'
+                      return (
+                        <>
+                          <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', cursor: 'pointer', marginBottom: isNoHistory ? '0' : '10px' }}>
+                            <input type="checkbox" checked={isNoHistory} onChange={e => setEditingDog({ ...editingDog, aggression_disclosure: e.target.checked ? 'No known history' : '' })}
+                              style={{ marginTop: '2px', width: '16px', height: '16px', accentColor: '#2c5a9e', flexShrink: 0, cursor: 'pointer' }} />
+                            <span style={{ fontSize: '13px', color: '#1a1a2e', fontWeight: '700', lineHeight: 1.5 }}>
+                              My dog has no known bite incidents or aggression history.
+                            </span>
+                          </label>
+                          {!isNoHistory && (
+                            <textarea value={editingDog.aggression_disclosure || ''} onChange={e => setEditingDog({ ...editingDog, aggression_disclosure: e.target.value })} rows={3}
+                              placeholder="Please describe any prior bite incidents or aggression (circumstances, severity, frequency, etc.)"
+                              style={{ ...inputStyle, resize: 'vertical' }} />
+                          )}
+                        </>
+                      )
+                    })()}
+                  </div>
 
                   {error && <p style={{ color: '#dc3545', marginBottom: '12px', fontSize: '13px', fontWeight: '600' }}>{error}</p>}
                   <div style={{ display: 'flex', gap: '10px' }}>
@@ -612,11 +719,11 @@ export default function MyDogs() {
               {!isEditing && (
                 <div style={{ marginTop: '18px', borderTop: '1.5px solid #f0f2f7', paddingTop: '18px' }}>
                   <div style={{ fontWeight: '800', color: '#1a1a2e', fontSize: '13px', margin: '0 0 12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-  <div style={{ width: '26px', height: '26px', background: '#eef2fb', borderRadius: '7px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-    <Shield size={14} color="#2c5a9e" />
-  </div>
-  Vaccine Records
-</div>
+                    <div style={{ width: '26px', height: '26px', background: '#eef2fb', borderRadius: '7px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Shield size={14} color="#2c5a9e" />
+                    </div>
+                    Vaccine Records
+                  </div>
 
                   {vaccine?.status === 'approved' && (
                     <div style={{ marginBottom: '14px', background: '#f0f9f4', border: '1.5px solid #b8dfc4', borderRadius: '12px', padding: '14px 16px' }}>
@@ -739,36 +846,26 @@ export default function MyDogs() {
 
       {/* Post-Add Dog Modal */}
       {showPostAddModal && (
-        <div
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(4px)' }}
-          onClick={() => setShowPostAddModal(false)}
-        >
-          <div
-            style={{ background: 'white', borderRadius: '24px', padding: '36px 32px', maxWidth: '400px', width: '100%', boxShadow: '0 24px 64px rgba(0,0,0,0.2)', textAlign: 'center', animation: 'fadeUp 0.25s ease' }}
-            onClick={e => e.stopPropagation()}
-          >
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(4px)' }}
+          onClick={() => setShowPostAddModal(false)}>
+          <div style={{ background: 'white', borderRadius: '24px', padding: '36px 32px', maxWidth: '400px', width: '100%', boxShadow: '0 24px 64px rgba(0,0,0,0.2)', textAlign: 'center', animation: 'fadeUp 0.25s ease' }}
+            onClick={e => e.stopPropagation()}>
             <div style={{ width: '72px', height: '72px', background: 'linear-gradient(135deg, #d4edda, #c3e6cb)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
               <CheckCircle size={36} color="#28a745" />
             </div>
-            <h2 style={{ color: '#1a1a2e', margin: '0 0 8px', fontSize: '22px', fontWeight: '800' }}>
-              {lastAddedDogName} is all set!
-            </h2>
+            <h2 style={{ color: '#1a1a2e', margin: '0 0 8px', fontSize: '22px', fontWeight: '800' }}>{lastAddedDogName} is all set!</h2>
             <p style={{ color: '#888', fontSize: '14px', lineHeight: '1.6', margin: '0 0 28px' }}>
               {hasWaiver
                 ? 'Your dog has been added. Want to add another, or head back to your dashboard?'
                 : 'Your dog has been added. Want to add another, or continue to the next onboarding step?'}
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <button
-                onClick={() => { setShowPostAddModal(false); setAddingDog(true) }}
-                style={{ width: '100%', padding: '13px', background: '#f0f2f7', color: '#1a1a2e', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontFamily: 'inherit' }}
-              >
+              <button onClick={() => { setShowPostAddModal(false); setAddingDog(true) }}
+                style={{ width: '100%', padding: '13px', background: '#f0f2f7', color: '#1a1a2e', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontFamily: 'inherit' }}>
                 <Plus size={16} /> Add Another Dog
               </button>
-              <button
-                onClick={() => { window.location.href = hasWaiver ? '/dashboard' : '/waiver' }}
-                style={{ width: '100%', padding: '13px', background: 'linear-gradient(135deg, #f88124, #f9a04e)', color: 'white', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontFamily: 'inherit', boxShadow: '0 4px 14px rgba(248,129,36,0.35)' }}
-              >
+              <button onClick={() => { window.location.href = hasWaiver ? '/dashboard' : '/waiver' }}
+                style={{ width: '100%', padding: '13px', background: 'linear-gradient(135deg, #f88124, #f9a04e)', color: 'white', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontFamily: 'inherit', boxShadow: '0 4px 14px rgba(248,129,36,0.35)' }}>
                 {hasWaiver ? 'Back to Dashboard →' : 'Continue to Waiver →'}
               </button>
             </div>
