@@ -87,10 +87,10 @@ export async function POST(request: Request) {
 
   if (type === 'reminder') {
     const checklistItems = [
-      ['🚫', 'No food 2 hours before we arrive', `Please hold off on feeding ${data.dogName} at least 2 hours before the session. Exercising on a full stomach can cause discomfort.`],
-      ['💧', "We'll bring fresh water", `No need to worry about hydration, we have fresh water on board for ${data.dogName} during and after the session.`],
-      ['🐾', 'Have your dog leashed and ready', `When we pull up, have ${data.dogName} leashed and ready to go so we can get started right away.`],
-      ['🐕', 'Let your dog potty before we arrive', 'A quick bathroom break before we get there means more time on the treadmill!'],
+      ['🚫', 'No food or large amounts of water 2 hours before', `Please hold off on feeding ${data.dogName} and avoid large amounts of water at least 2 hours before the session. Exercising on a full stomach or with heavy water intake can cause serious discomfort and increases the risk of bloat.`],
+      ['🐕‍🦺', 'Have your dog in their harness and ready', `When we pull up, please have ${data.dogName} fitted in their Y-front or back-clip body harness and ready to go. We are not able to use neck collars for sessions, so please make sure the harness is on before we arrive.`],
+      ['🐾', 'Let your dog potty before we arrive', 'A quick bathroom break before we get there means more time on the treadmill!'],
+      ['💧', "We'll have fresh water on board", `No need to worry about hydration after the session, we have fresh water on board for ${data.dogName}.`],
       ['👀', 'You are welcome to watch', "Feel free to stick around and watch the session, you're not required to, but you're always welcome!"],
       ['🏠', "We'll bring your dog back up", `When the session is done, we'll walk ${data.dogName} right back up to your door. No need to come to us!`],
     ]
@@ -103,11 +103,22 @@ export async function POST(request: Request) {
         </div>
       </div>
     `).join('')
+    const vaccineAlert = data.vaccineStatus && data.vaccineStatus !== 'approved'
+      ? alert(
+          data.vaccineStatus === 'rejected'
+            ? `Action required: ${data.dogName}'s vaccine records were rejected. Please re-upload updated records before your session so we can confirm everything is in order.`
+            : `Heads up: ${data.dogName}'s vaccine records are still under review. Records must be approved before your session can take place. If you haven't uploaded them yet, please do so now from your dog's profile.`,
+          data.vaccineStatus === 'rejected' ? '#ffeaea' : '#fff8e6',
+          data.vaccineStatus === 'rejected' ? '#dc3545' : '#856404',
+          data.vaccineStatus === 'rejected' ? '#721c24' : '#533f00'
+        )
+      : ''
     subject = `Reminder: ${data.dogName}'s session is tomorrow at ${data.time}`
     html = emailWrapper('Session Reminder', `
       ${h1(`See you tomorrow, ${data.ownerName}! 👋`)}
       ${p(`Just a heads up, ${data.dogName} is on the schedule for tomorrow. We'll be pulling up to your place ready to go.`)}
       ${infoBox([row('Dog', data.dogName), row('Date', data.date), row('Time', data.time)])}
+      ${vaccineAlert}
       <div style="margin:24px 0;">
         <h3 style="color:#001840;font-size:16px;font-weight:800;margin:0 0 14px;font-family:'Montserrat',Arial,sans-serif;">📋 How to Prepare for Tomorrow's Session</h3>
         <div style="background:#f8f9ff;border-radius:12px;padding:20px 24px;">${checklistHtml}</div>
@@ -225,7 +236,7 @@ export async function POST(request: Request) {
     subject = `${data.dogName}'s vaccine records are approved, you're cleared to run!`
     html = emailWrapper('Vaccines Approved', `
       ${h1(`Great news, ${data.ownerName}! ✅`)}
-      ${p(`We've reviewed and approved <strong>${data.dogName}</strong>'s vaccine records. Everything checks out, you're officially cleared to take part in sessions.`)}
+      ${p(`We've reviewed and approved <strong>${data.dogName}</strong>'s vaccine records. Everything checks out, you're officially cleared to book sessions.`)}
       ${infoBox([`<p style="color:#155724;font-size:14px;font-weight:700;margin:0;font-family:'Montserrat',Arial,sans-serif;">🐾 ${data.dogName} is cleared to run!</p>`], '#d4edda', '#c3e6cb')}
       ${btn('Book a Session Now', 'https://app.thecaninegym.com/book')}
     `)
@@ -274,9 +285,9 @@ export async function POST(request: Request) {
     subject = `Action required: ${data.dogName}'s vaccines have expired`
     html = emailWrapper('Vaccines Expired', `
       ${h1(`${data.dogName}'s vaccines have expired, ${data.ownerName}.`, '#dc3545')}
-      ${p(`We've temporarily paused ${data.dogName}'s ability to take part in sessions until updated records are uploaded and approved. This is to keep all dogs in our community safe.`)}
+      ${p(`We've temporarily paused ${data.dogName}'s ability to book sessions until updated records are uploaded and approved. This is to keep all dogs in our community safe.`)}
       ${infoBox([listItems], '#f8d7da', '#f5c6cb')}
-      ${p(`Please visit your vet, get updated records, and upload a clear photo from your dog's profile. Once approved, sessions can resume immediately.`)}
+      ${p(`Please visit your vet, get updated records, and upload a clear photo from your dog's profile. Once approved, booking will resume immediately.`)}
       ${btn('Upload Updated Records', 'https://app.thecaninegym.com/dogs')}
     `)
   }
@@ -288,7 +299,7 @@ export async function POST(request: Request) {
       ${h1('Vaccines Expired: Booking Blocked', '#dc3545')}
       ${infoBox([row('Dog', data.dogName), row('Owner', data.ownerName), row('Email', data.ownerEmail)])}
       ${infoBox([listItems], '#f8d7da', '#f5c6cb')}
-      ${p('Vaccine status has been automatically reset to pending. The client has been notified and must re-upload and get approved before they can have their sessions again.')}
+      ${p('Vaccine status has been automatically reset to pending. The client has been notified and must re-upload and get approved before they can book again.')}
       ${btn('View Vaccine Records', 'https://app.thecaninegym.com/admin/dogs/vaccines', BLUE)}
     `)
   }

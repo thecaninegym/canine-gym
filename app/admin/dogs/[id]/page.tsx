@@ -149,6 +149,90 @@ export default function DogProfile() {
           </div>
         </div>
 
+        {/* ── Health & Safety Disclosures ── */}
+        {(dog.has_health_conditions !== null || dog.aggression_disclosure || dog.vet_clinic || dog.brachy_clearance_confirmed !== null) && (() => {
+          const isBrachy = ['Affenpinscher','Boston Terrier','Boxer','Brussels Griffon','Bulldog','Cavalier King Charles Spaniel','Chinese Shar-Pei','Chow Chow','French Bulldog','Japanese Chin','Lhasa Apso','Pekingese','Pug','Shih Tzu'].includes(dog.breed)
+          const hasConditions = !!dog.has_health_conditions
+          const conditionsCleared = !!dog.health_clearance_confirmed
+          const aggressionText = dog.aggression_disclosure || null
+          const hasAggression = aggressionText && aggressionText !== 'No known history'
+          return (
+            <div style={{ background: 'white', borderRadius: '20px', padding: '24px', marginBottom: '20px', boxShadow: '0 2px 16px rgba(0,0,0,0.07)', border: '1.5px solid #eef0f5' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '18px' }}>
+                <Shield size={16} color="#2c5a9e" />
+                <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '800', color: '#1a1a2e' }}>Health & Safety Disclosures</h3>
+                <span style={{ marginLeft: 'auto', fontSize: '11px', color: '#888', fontWeight: '600' }}>From Dog Information Form</span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+
+                {/* Health conditions */}
+                <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start', padding: '14px 16px', borderRadius: '12px', background: hasConditions && !conditionsCleared ? '#ffeaea' : hasConditions && conditionsCleared ? '#fff8e6' : '#f0f9f4', border: `1.5px solid ${hasConditions && !conditionsCleared ? '#ffc5c5' : hasConditions && conditionsCleared ? '#ffe08a' : '#b8dfc4'}` }}>
+                  <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    {hasConditions && !conditionsCleared ? <ShieldAlert size={16} color="#dc3545" /> : hasConditions ? <ShieldAlert size={16} color="#856404" /> : <ShieldCheck size={16} color="#28a745" />}
+                  </div>
+                  <div>
+                    <p style={{ margin: '0 0 2px', fontWeight: '800', fontSize: '13px', color: hasConditions && !conditionsCleared ? '#dc3545' : hasConditions ? '#856404' : '#155724' }}>
+                      Cardiac / Orthopedic / Neurological / Respiratory Conditions
+                    </p>
+                    <p style={{ margin: 0, fontSize: '13px', color: '#555' }}>
+                      {!hasConditions
+                        ? 'No known conditions reported'
+                        : conditionsCleared
+                        ? 'Yes — veterinary clearance confirmed by client'
+                        : 'Yes — NO vet clearance confirmed (review before session)'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Brachycephalic */}
+                {isBrachy && (
+                  <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start', padding: '14px 16px', borderRadius: '12px', background: dog.brachy_clearance_confirmed ? '#fff8e6' : '#ffeaea', border: `1.5px solid ${dog.brachy_clearance_confirmed ? '#ffe08a' : '#ffc5c5'}` }}>
+                    <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <ShieldAlert size={16} color={dog.brachy_clearance_confirmed ? '#856404' : '#dc3545'} />
+                    </div>
+                    <div>
+                      <p style={{ margin: '0 0 2px', fontWeight: '800', fontSize: '13px', color: dog.brachy_clearance_confirmed ? '#856404' : '#dc3545' }}>
+                        Brachycephalic Breed ({dog.breed})
+                      </p>
+                      <p style={{ margin: 0, fontSize: '13px', color: '#555' }}>
+                        {dog.brachy_clearance_confirmed
+                          ? 'Vet clearance for slatmill exercise confirmed by client'
+                          : 'Vet clearance NOT confirmed — verify before session'}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Aggression / bite history */}
+                <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start', padding: '14px 16px', borderRadius: '12px', background: hasAggression ? '#ffeaea' : aggressionText ? '#f0f9f4' : '#f8f9fc', border: `1.5px solid ${hasAggression ? '#ffc5c5' : aggressionText ? '#b8dfc4' : '#e5e8f0'}` }}>
+                  <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    {hasAggression ? <ShieldAlert size={16} color="#dc3545" /> : <ShieldCheck size={16} color={aggressionText ? '#28a745' : '#aaa'} />}
+                  </div>
+                  <div>
+                    <p style={{ margin: '0 0 2px', fontWeight: '800', fontSize: '13px', color: hasAggression ? '#dc3545' : aggressionText ? '#155724' : '#888' }}>
+                      Bite & Aggression History
+                    </p>
+                    <p style={{ margin: 0, fontSize: '13px', color: '#555', lineHeight: 1.5 }}>
+                      {aggressionText || 'Not yet disclosed'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Vet clinic */}
+                {dog.vet_clinic && (
+                  <div style={{ display: 'flex', gap: '14px', alignItems: 'center', padding: '12px 16px', borderRadius: '12px', background: '#f8f9fc', border: '1.5px solid #e5e8f0' }}>
+                    <Stethoscope size={16} color="#2c5a9e" style={{ flexShrink: 0 }} />
+                    <div>
+                      <p style={{ margin: '0 0 1px', fontWeight: '700', fontSize: '12px', color: '#888', textTransform: 'uppercase' as const, letterSpacing: '0.4px' }}>Vet Clinic</p>
+                      <p style={{ margin: 0, fontSize: '14px', fontWeight: '700', color: '#1a1a2e' }}>{dog.vet_clinic}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )
+        })()}
+
         {/* ── Lifetime Stats ── */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '12px', marginBottom: '20px' }}>
           {[
