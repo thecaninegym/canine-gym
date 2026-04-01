@@ -64,7 +64,6 @@ export default function BookSession() {
   }
 
   const toggleDog = (dogId: string) => {
-    if (vaccineStatus[dogId] !== 'approved') return
     setSelectedDogIds(prev => prev.includes(dogId) ? prev.filter(id => id !== dogId) : [...prev, dogId])
   }
 
@@ -122,8 +121,8 @@ export default function BookSession() {
     return { color: '#dc3545', bg: '#ffeaea', icon: <Shield size={11} />, label: 'Vaccines Required' }
   }
 
-  const allDogsBlocked = dogs.length > 0 && dogs.every(d => vaccineStatus[d.id] !== 'approved')
-  const allSelectedApproved = selectedDogIds.every(id => vaccineStatus[id] === 'approved')
+  const allDogsBlocked = false // removed — vaccines no longer block booking
+  const hasVaccineWarnings = selectedDogIds.some(id => vaccineStatus[id] !== 'approved')
 
   if (loading) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'white' }}>
@@ -168,17 +167,19 @@ export default function BookSession() {
           <p style={{ color: '#888', margin: 0, fontSize: '13px' }}>Available times in <strong style={{ color: '#2c5a9e' }}>{ownerCity}</strong></p>
         </div>
 
-        {/* All dogs blocked */}
-        {allDogsBlocked && (
-          <div style={{ background: 'white', border: '1.5px solid #ffc5c5', borderRadius: '16px', padding: '32px', textAlign: 'center', marginBottom: '20px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
-            <div style={{ width: '56px', height: '56px', background: '#ffeaea', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-              <ShieldAlert size={28} color="#dc3545" />
+        {/* Vaccine notice — shown when no dogs have uploaded records yet */}
+        {dogs.length > 0 && dogs.every(d => !vaccineStatus[d.id]) && (
+          <div style={{ background: '#fff8e6', border: '1.5px solid #ffe08a', borderRadius: '16px', padding: '20px 24px', marginBottom: '20px', display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+            <div style={{ width: '40px', height: '40px', background: '#fff0c0', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <Shield size={20} color="#856404" />
             </div>
-            <h3 style={{ color: '#1a1a2e', margin: '0 0 8px', fontWeight: '800', fontSize: '17px' }}>Vaccine Records Required</h3>
-            <p style={{ color: '#888', margin: '0 0 20px', lineHeight: 1.6, fontSize: '14px' }}>All of your dogs need approved vaccine records before booking. Upload their records from your dog profiles — we'll review within 24 hours.</p>
-            <a href="/dogs" style={{ background: 'linear-gradient(135deg, #dc3545, #e55)', color: 'white', padding: '10px 24px', borderRadius: '12px', textDecoration: 'none', fontWeight: '700', fontSize: '14px', display: 'inline-flex', alignItems: 'center', gap: '7px' }}>
-              <Shield size={15} /> Upload Vaccine Records
-            </a>
+            <div>
+              <p style={{ margin: '0 0 4px', fontWeight: '800', color: '#856404', fontSize: '14px' }}>Vaccine Records Needed</p>
+              <p style={{ margin: '0 0 10px', color: '#856404', fontSize: '13px', lineHeight: 1.6 }}>You can book now, but your dog's vaccine records must be uploaded and approved before your first session can take place. Upload them from your dog's profile.</p>
+              <a href="/dogs" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#856404', color: 'white', padding: '7px 16px', borderRadius: '8px', textDecoration: 'none', fontWeight: '700', fontSize: '13px' }}>
+                <Shield size={13} /> Upload Records
+              </a>
+            </div>
           </div>
         )}
 
@@ -196,7 +197,7 @@ export default function BookSession() {
               Back to Dashboard
             </a>
           </div>
-        ) : !allDogsBlocked && (
+        ) : (
           <>
             {/* Dog selector */}
             {dogs.length > 0 && (
@@ -212,10 +213,14 @@ export default function BookSession() {
                     const badge = getDogVaccineBadge(dog.id)
                     const isApproved = vaccineStatus[dog.id] === 'approved'
                     const isSelected = selectedDogIds.includes(dog.id)
+                    const isPending = vaccineStatus[dog.id] === 'pending'
                     return (
                       <div key={dog.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '5px' }}>
-                        <button onClick={() => toggleDog(dog.id)} disabled={!isApproved}
-                          style={{ padding: '9px 18px', borderRadius: '10px', border: '1.5px solid', fontWeight: '700', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '7px', cursor: isApproved ? 'pointer' : 'not-allowed', opacity: isApproved ? 1 : 0.55, transition: 'all 0.15s', borderColor: isSelected ? '#2c5a9e' : isApproved ? '#e5e8f0' : '#ffc5c5', background: isSelected ? 'linear-gradient(135deg, #2c5a9e, #2c5a9e)' : isApproved ? 'white' : '#fff5f5', color: isSelected ? 'white' : '#1a1a2e' }}>
+                        <button onClick={() => toggleDog(dog.id)}
+                          style={{ padding: '9px 18px', borderRadius: '10px', border: '1.5px solid', fontWeight: '700', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '7px', cursor: 'pointer', transition: 'all 0.15s',
+                            borderColor: isSelected ? '#2c5a9e' : isApproved ? '#e5e8f0' : '#ffe08a',
+                            background: isSelected ? 'linear-gradient(135deg, #2c5a9e, #2c5a9e)' : isApproved ? 'white' : '#fffbf0',
+                            color: isSelected ? 'white' : '#1a1a2e' }}>
                           {dog.photo_url
                             ? <img src={dog.photo_url} alt={dog.name} style={{ width: '24px', height: '24px', borderRadius: '6px', objectFit: 'cover' }} />
                             : <PawPrint size={15} />}
@@ -223,9 +228,10 @@ export default function BookSession() {
                           {isApproved && <ShieldCheck size={13} color={isSelected ? 'rgba(255,255,255,0.7)' : '#28a745'} />}
                         </button>
                         {badge && (
-                          <a href="/dogs" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: badge.bg, color: badge.color, padding: '3px 9px', borderRadius: '20px', fontSize: '11px', fontWeight: '700', textDecoration: 'none' }}>
-                            {badge.icon} {badge.label} → Fix
-                          </a>
+                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: badge.bg, color: badge.color, padding: '3px 9px', borderRadius: '20px', fontSize: '11px', fontWeight: '700' }}>
+                            {badge.icon} {badge.label}
+                            {!isPending && <a href="/dogs" style={{ color: badge.color, marginLeft: '2px' }}>→ Upload</a>}
+                          </div>
                         )}
                       </div>
                     )
@@ -235,7 +241,7 @@ export default function BookSession() {
             )}
 
             {/* Date picker */}
-            {selectedDogIds.length > 0 && allSelectedApproved && (
+            {selectedDogIds.length > 0 && (
               <div style={{ background: 'white', borderRadius: '16px', padding: '24px', marginBottom: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1.5px solid #eef0f5' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
                   <div style={{ width: '34px', height: '34px', background: '#eef2fb', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -308,8 +314,31 @@ export default function BookSession() {
               </div>
             )}
 
+            {/* Vaccine warning — shown when selected dogs have non-approved vaccines */}
+            {selectedDogIds.length > 0 && hasVaccineWarnings && selectedDate && selectedSlot !== null && (
+              <div style={{ background: '#ffeaea', border: '1.5px solid #ffc5c5', borderRadius: '14px', padding: '18px 20px', marginBottom: '14px', display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
+                <div style={{ width: '40px', height: '40px', background: 'white', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <ShieldAlert size={20} color="#dc3545" />
+                </div>
+                <div>
+                  <p style={{ margin: '0 0 4px', fontWeight: '800', color: '#dc3545', fontSize: '14px' }}>Vaccine Records Pending</p>
+                  <p style={{ margin: '0 0 10px', color: '#721c24', fontSize: '13px', lineHeight: 1.6 }}>
+                    You can complete this booking, but your vaccine records must be approved before this session can take place. We will review them within 24 hours of upload. If records are not approved before your session date, we will reach out to reschedule.
+                  </p>
+                  {selectedDogIds.some(id => vaccineStatus[id] === 'rejected') && (
+                    <p style={{ margin: '0 0 10px', color: '#721c24', fontSize: '13px', fontWeight: '700', lineHeight: 1.6 }}>
+                      One or more of your dogs has rejected vaccine records. Please re-upload updated records before your session.
+                    </p>
+                  )}
+                  <a href="/dogs" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#dc3545', color: 'white', padding: '7px 16px', borderRadius: '8px', textDecoration: 'none', fontWeight: '700', fontSize: '13px' }}>
+                    <Shield size={13} /> Upload / Re-upload Records
+                  </a>
+                </div>
+              </div>
+            )}
+
             {/* Confirm button */}
-            {selectedDate && selectedSlot !== null && selectedDogIds.length > 0 && allSelectedApproved && (
+            {selectedDate && selectedSlot !== null && selectedDogIds.length > 0 && (
               <button onClick={handleBook} disabled={booking}
                 style={{ width: '100%', padding: '15px', background: 'linear-gradient(135deg, #f88124, #f9a04e)', color: 'white', border: 'none', borderRadius: '14px', fontSize: '16px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', boxShadow: '0 4px 16px rgba(255,107,53,0.4)' }}>
                 <CheckCircle size={20} />

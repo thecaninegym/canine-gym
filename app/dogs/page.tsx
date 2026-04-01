@@ -462,7 +462,7 @@ export default function MyDogs() {
               <div style={{ background: '#fff8e6', border: '1.5px solid #ffe08a', borderRadius: '12px', padding: '14px 16px', marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
                 <Shield size={17} color="#856404" style={{ flexShrink: 0, marginTop: '1px' }} />
                 <p style={{ margin: 0, color: '#856404', fontSize: '13px', lineHeight: 1.6 }}>
-                  <strong>Vaccines required before booking.</strong> After adding your dog, upload a photo of their vaccine records. We'll review and approve within 24 hours.
+                  <strong>Vaccine records required before your first session.</strong> After adding your dog, upload a photo of their vaccine records. We'll review and approve within 24 hours — you can book right away.
                 </p>
               </div>
 
@@ -764,7 +764,7 @@ export default function MyDogs() {
                       </div>
                     ) : (
                       <div>
-                        <p style={{ color: '#888', fontSize: '13px', margin: '0 0 12px' }}>Upload a photo of your dog's vaccine record. Required before booking.</p>
+                        <p style={{ color: '#888', fontSize: '13px', margin: '0 0 12px' }}>Upload your dog's vaccine records. Records must be approved before your first session — you can still book while we review.</p>
                         {vaccinePreviews[dog.id] ? (
                           <div style={{ marginBottom: '12px' }}>
                             {vaccineFiles[dog.id]?.type === 'application/pdf' ? (
