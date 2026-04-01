@@ -225,7 +225,7 @@ export async function POST(request: Request) {
     subject = `${data.dogName}'s vaccine records are approved, you're cleared to run!`
     html = emailWrapper('Vaccines Approved', `
       ${h1(`Great news, ${data.ownerName}! ✅`)}
-      ${p(`We've reviewed and approved <strong>${data.dogName}</strong>'s vaccine records. Everything checks out, you're officially cleared to book sessions.`)}
+      ${p(`We've reviewed and approved <strong>${data.dogName}</strong>'s vaccine records. Everything checks out, you're officially cleared to take part in sessions.`)}
       ${infoBox([`<p style="color:#155724;font-size:14px;font-weight:700;margin:0;font-family:'Montserrat',Arial,sans-serif;">🐾 ${data.dogName} is cleared to run!</p>`], '#d4edda', '#c3e6cb')}
       ${btn('Book a Session Now', 'https://app.thecaninegym.com/book')}
     `)
@@ -274,9 +274,9 @@ export async function POST(request: Request) {
     subject = `Action required: ${data.dogName}'s vaccines have expired`
     html = emailWrapper('Vaccines Expired', `
       ${h1(`${data.dogName}'s vaccines have expired, ${data.ownerName}.`, '#dc3545')}
-      ${p(`We've temporarily paused ${data.dogName}'s ability to book sessions until updated records are uploaded and approved. This is to keep all dogs in our community safe.`)}
+      ${p(`We've temporarily paused ${data.dogName}'s ability to take part in sessions until updated records are uploaded and approved. This is to keep all dogs in our community safe.`)}
       ${infoBox([listItems], '#f8d7da', '#f5c6cb')}
-      ${p(`Please visit your vet, get updated records, and upload a clear photo from your dog's profile. Once approved, booking will resume immediately.`)}
+      ${p(`Please visit your vet, get updated records, and upload a clear photo from your dog's profile. Once approved, sessions can resume immediately.`)}
       ${btn('Upload Updated Records', 'https://app.thecaninegym.com/dogs')}
     `)
   }
@@ -288,7 +288,7 @@ export async function POST(request: Request) {
       ${h1('Vaccines Expired: Booking Blocked', '#dc3545')}
       ${infoBox([row('Dog', data.dogName), row('Owner', data.ownerName), row('Email', data.ownerEmail)])}
       ${infoBox([listItems], '#f8d7da', '#f5c6cb')}
-      ${p('Vaccine status has been automatically reset to pending. The client has been notified and must re-upload and get approved before they can book again.')}
+      ${p('Vaccine status has been automatically reset to pending. The client has been notified and must re-upload and get approved before they can have their sessions again.')}
       ${btn('View Vaccine Records', 'https://app.thecaninegym.com/admin/dogs/vaccines', BLUE)}
     `)
   }
