@@ -208,7 +208,6 @@ export default function Leaderboard() {
         @keyframes sweep { 0% { width: 0%; marginLeft: 0%; } 50% { width: 60%; } 100% { width: 0%; marginLeft: 100%; } }
         .entry-row:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,0,0,0.1) !important; }
         .cat-btn:hover { opacity: 0.85; }
-        .city-btn:hover { opacity: 0.8; }
         .time-btn:hover { opacity: 0.85; }
         * { box-sizing: border-box; }
       `}</style>
@@ -261,46 +260,51 @@ export default function Leaderboard() {
         {/* Filters Card */}
         <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px 24px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', marginBottom: '16px' }}>
 
-          {/* Everyone / Friends toggle */}
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
-            {[{ key: 'all', label: '🌍 Everyone' }, { key: 'friends', label: '👥 Friends' }].map(mode => (
-              <button key={mode.key} onClick={() => setViewMode(mode.key as any)}
-                style={{ padding: '8px 18px', borderRadius: '10px', border: 'none', cursor: 'pointer', fontWeight: '700', fontSize: '13px',
-                  background: viewMode === mode.key ? 'linear-gradient(135deg, #f88124, #f9a04e)' : '#f0f2f5',
-                  color: viewMode === mode.key ? 'white' : '#666',
-                  boxShadow: viewMode === mode.key ? '0 3px 10px rgba(255,107,53,0.3)' : 'none',
-                }}>
-                {mode.label}
-              </button>
-            ))}
+          {/* SHOW row */}
+          <div style={{ marginBottom: '16px' }}>
+            <p style={{ margin: '0 0 8px', fontSize: '11px', fontWeight: '800', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.7px' }}>Show</p>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              {[{ key: 'all', label: '🌍 Everyone' }, { key: 'friends', label: '👥 Friends' }].map(mode => (
+                <button key={mode.key} onClick={() => setViewMode(mode.key as any)}
+                  style={{ padding: '8px 18px', borderRadius: '10px', border: 'none', cursor: 'pointer', fontWeight: '700', fontSize: '13px', transition: 'all 0.15s',
+                    background: viewMode === mode.key ? 'linear-gradient(135deg, #f88124, #f9a04e)' : '#f0f2f5',
+                    color: viewMode === mode.key ? 'white' : '#666',
+                    boxShadow: viewMode === mode.key ? '0 3px 10px rgba(255,107,53,0.3)' : 'none',
+                  }}>
+                  {mode.label}
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* Metric tabs */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '14px' }}>
-            {CATEGORIES.map(c => (
-              <button key={c.key} onClick={() => setCategory(c.key)} className="cat-btn"
-                style={{ padding: '10px 6px', border: 'none', borderRadius: '12px', cursor: 'pointer', fontWeight: '700', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', transition: 'all 0.15s',
-                  background: category === c.key ? 'linear-gradient(135deg, #2c5a9e, #2c5a9e)' : '#f0f2f7',
-                  color: category === c.key ? 'white' : '#666',
-                  boxShadow: category === c.key ? '0 4px 12px rgba(0,48,135,0.25)' : 'none',
-                }}>
-                {c.icon} {c.label}
-              </button>
-            ))}
+          {/* RANK BY row */}
+          <div style={{ marginBottom: '16px' }}>
+            <p style={{ margin: '0 0 8px', fontSize: '11px', fontWeight: '800', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.7px' }}>Rank By</p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
+              {CATEGORIES.map(c => (
+                <button key={c.key} onClick={() => setCategory(c.key)} className="cat-btn"
+                  style={{ padding: '10px 6px', border: 'none', borderRadius: '12px', cursor: 'pointer', fontWeight: '700', fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', transition: 'all 0.15s',
+                    background: category === c.key ? 'linear-gradient(135deg, #2c5a9e, #2c5a9e)' : '#f0f2f7',
+                    color: category === c.key ? 'white' : '#666',
+                    boxShadow: category === c.key ? '0 4px 12px rgba(0,48,135,0.25)' : 'none',
+                  }}>
+                  {c.icon} {c.label}
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* City filter */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-            <MapPin size={13} color="#aaa" />
-            {CITIES.map(c => (
-              <button key={c} onClick={() => setCity(c)} className="city-btn"
-                style={{ padding: '4px 11px', borderRadius: '20px', cursor: 'pointer', fontSize: '12px', fontWeight: '600', transition: 'all 0.15s', border: 'none',
-                  background: city === c ? '#f88124' : '#f0f2f7',
-                  color: city === c ? 'white' : '#777',
-                }}>
-                {c}
-              </button>
-            ))}
+          {/* CITY row — dropdown */}
+          <div>
+            <p style={{ margin: '0 0 8px', fontSize: '11px', fontWeight: '800', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.7px' }}>City</p>
+            <div style={{ position: 'relative', display: 'inline-block', width: '100%' }}>
+              <MapPin size={14} color="#aaa" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
+              <select value={city} onChange={e => setCity(e.target.value)}
+                style={{ width: '100%', padding: '10px 36px 10px 32px', borderRadius: '12px', border: '1.5px solid #e5e8f0', fontSize: '13px', fontWeight: '700', color: city === 'All Cities' ? '#888' : '#1a1a2e', background: 'white', cursor: 'pointer', outline: 'none', appearance: 'none', fontFamily: 'inherit' }}>
+                {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+              <svg style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="2.5" strokeLinecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
           </div>
         </div>
 
