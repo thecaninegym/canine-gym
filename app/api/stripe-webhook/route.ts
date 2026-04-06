@@ -31,16 +31,15 @@ export async function POST(request: Request) {
       const plan = metadata.plan
       const dogId = metadata.dog_id
       const sessionsPerMonth = parseInt(metadata.sessions_per_month || '0')
-
       const planLabels: Record<string, string> = { starter: 'Standard Plan', active: 'Pro Plan', athlete: 'Elite Plan' }
 
       let receiptUrl = null
-if (session.invoice) {
-  try {
-    const invoice = await stripe.invoices.retrieve(session.invoice as string)
-    receiptUrl = invoice.hosted_invoice_url || null
-  } catch {}
-}
+      if (session.invoice) {
+        try {
+          const invoice = await stripe.invoices.retrieve(session.invoice as string)
+          receiptUrl = invoice.hosted_invoice_url || null
+        } catch {}
+      }
 
       await supabase.from('memberships').upsert({
         owner_id: ownerId,
@@ -65,7 +64,6 @@ if (session.invoice) {
         status: 'succeeded'
       })
 
-      // Send membership receipt
       const { data: ownerData } = await supabase.from('owners').select('name, email').eq('id', ownerId).single()
       const { data: dogData } = await supabase.from('dogs').select('name').eq('id', dogId).single()
       if (ownerData?.email) {
@@ -86,7 +84,115 @@ if (session.invoice) {
           })
         })
       }
+    }
 
+    if (type === 'intro') {
+      let receiptUrl = null
+      if (session.payment_intent) {
+        try {
+          const pi = await stripe.paymentIntents.retrieve(session.payment_intent as string, { expand: ['latest_charge'] })
+          receiptUrl = (pi.latest_charge as any)?.receipt_url || null
+        } catch {}
+      }
+
+      const dogIds = (metadata.dog_ids || '').split(',').filter(Boolean)
+      const dogId = dogIds[0]
+
+      // Mark intro as purchased on the dog
+      if (dogId) {
+        await supabase.from('dogs').update({ intro_purchased: true }).eq('id', dogId)
+      }
+
+      // Log payment
+      await supabase.from('payments').insert({
+        owner_id: ownerId,
+        stripe_payment_intent_id: session.payment_intent as string,
+        amount: session.amount_total,
+        type: 'intro',
+        description: 'Intro Package (2 Sessions)',
+        receipt_url: receiptUrl,
+        status: 'succeeded'
+      })
+
+      // Confirm both pending bookings
+      const pendingIds = [metadata.pending_booking_id, metadata.pending_booking_id_2].filter(Boolean)
+      const confirmedDates: { date: string, slotHour: number }[] = []
+
+      for (const pendingId of pendingIds) {
+        const { data: pending } = await supabase
+          .from('pending_bookings')
+          .select('*')
+          .eq('id', pendingId)
+          .single()
+
+        if (pending) {
+          confirmedDates.push({ date: pending.booking_date, slotHour: pending.slot_hour })
+          for (const dId of (pending.dog_ids || [])) {
+            await supabase.from('bookings').insert({
+              dog_id: dId,
+              booking_date: pending.booking_date,
+              slot_hour: pending.slot_hour,
+              status: 'confirmed',
+              payment_intent_id: session.payment_intent as string,
+              amount_paid: session.amount_total
+            })
+          }
+          await supabase.from('pending_bookings').delete().eq('id', pendingId)
+        }
+      }
+
+      // Send confirmation email
+      const { data: ownerData } = await supabase.from('owners').select('name, email, phone, sms_consent').eq('id', ownerId).single()
+      const { data: dogData } = await supabase.from('dogs').select('name').eq('id', dogId).single()
+
+      if (ownerData?.email && confirmedDates.length === 2) {
+        const formatDate = (dateStr: string, slotHour: number) => {
+          const ampm = slotHour >= 12 ? 'PM' : 'AM'
+          const hour = slotHour > 12 ? slotHour - 12 : slotHour === 0 ? 12 : slotHour
+          const date = new Date(dateStr + 'T12:00:00')
+          return {
+            date: date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }),
+            time: `${hour}:00 ${ampm} – ${hour}:30 ${ampm}`
+          }
+        }
+        const session1 = formatDate(confirmedDates[0].date, confirmedDates[0].slotHour)
+        const session2 = formatDate(confirmedDates[1].date, confirmedDates[1].slotHour)
+
+        await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/send-email`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'receipt_intro',
+            to: ownerData.email,
+            data: {
+              ownerName: ownerData.name,
+              dogName: dogData?.name || 'your dog',
+              session1Date: session1.date,
+              session1Time: session1.time,
+              session2Date: session2.date,
+              session2Time: session2.time,
+              amount: `$${((session.amount_total || 0) / 100).toFixed(2)}`
+            }
+          })
+        })
+
+        // Admin notification
+        await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/send-email`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'admin_notification',
+            to: 'dev@thecaninegym.com',
+            data: {
+              action: 'New Intro Package Purchase',
+              dogName: dogData?.name,
+              ownerName: ownerData.name,
+              date: `${session1.date} at ${session1.time} & ${session2.date} at ${session2.time}`,
+              time: ''
+            }
+          })
+        })
+      }
     }
 
     if (type === 'alacarte') {
@@ -108,7 +214,6 @@ if (session.invoice) {
         status: 'succeeded'
       })
 
-      // Confirm the pending booking
       const pendingBookingId = metadata.pending_booking_id
       if (pendingBookingId) {
         const { data: pending } = await supabase
@@ -118,7 +223,6 @@ if (session.invoice) {
           .single()
 
         if (pending) {
-          // Create bookings for each dog
           const dogIds = pending.dog_ids || []
           for (const dogId of dogIds) {
             await supabase.from('bookings').insert({
@@ -130,10 +234,8 @@ if (session.invoice) {
               amount_paid: session.amount_total
             })
           }
-// Delete pending booking
           await supabase.from('pending_bookings').delete().eq('id', pendingBookingId)
 
-          // Send a la carte receipt
           const { data: ownerData } = await supabase.from('owners').select('name, email').eq('id', ownerId).single()
           if (ownerData?.email) {
             const h = pending.slot_hour
@@ -163,7 +265,6 @@ if (session.invoice) {
         }
       }
     }
-
   }
 
   if (event.type === 'invoice.payment_succeeded') {
@@ -184,19 +285,18 @@ if (session.invoice) {
         status: 'active'
       }).eq('stripe_subscription_id', subscriptionId)
 
-      // Log renewal payment (skip if amount is 0 — first invoice already logged via checkout.session.completed)
       if ((invoice.amount_paid || 0) > 0 && invoice.billing_reason === 'subscription_cycle') {
         const planLabels: Record<string, string> = { starter: 'Standard Plan', active: 'Pro Plan', athlete: 'Elite Plan' }
         const inv = invoice as any
-await supabase.from('payments').insert({
-  owner_id: membership.owner_id,
-  stripe_payment_intent_id: inv.payment_intent ?? null,
-  amount: invoice.amount_paid,
-  type: 'membership_renewal',
-  description: `${planLabels[membership.plan] || membership.plan} — Renewal`,
-  receipt_url: invoice.hosted_invoice_url || null,
-  status: 'succeeded'
-})
+        await supabase.from('payments').insert({
+          owner_id: membership.owner_id,
+          stripe_payment_intent_id: inv.payment_intent ?? null,
+          amount: invoice.amount_paid,
+          type: 'membership_renewal',
+          description: `${planLabels[membership.plan] || membership.plan} — Renewal`,
+          receipt_url: invoice.hosted_invoice_url || null,
+          status: 'succeeded'
+        })
       }
     }
   }
@@ -206,7 +306,6 @@ await supabase.from('payments').insert({
     await supabase.from('memberships').update({ status: 'cancelled' })
       .eq('stripe_subscription_id', subscription.id)
 
-    // Fetch membership + owner for emails
     const { data: cancelledMembership } = await supabase
       .from('memberships')
       .select('*, owners(name, email)')
@@ -218,7 +317,6 @@ await supabase.from('payments').insert({
       const planDisplayNames: Record<string, string> = { starter: 'Standard', active: 'Pro', athlete: 'Elite' }
       const planName = planDisplayNames[cancelledMembership.plan] || cancelledMembership.plan
 
-      // Email client
       if (cancelledMembership.owners?.email) {
         await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/send-email`, {
           method: 'POST',
@@ -236,7 +334,6 @@ await supabase.from('payments').insert({
         })
       }
 
-      // Email admin
       await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/send-email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -258,7 +355,7 @@ await supabase.from('payments').insert({
   if (event.type === 'invoice.payment_failed') {
     const invoice = event.data.object as Stripe.Invoice
     await supabase.from('memberships').update({ status: 'past_due' })
-    .eq('stripe_subscription_id', (invoice as any).subscription as string)
+      .eq('stripe_subscription_id', (invoice as any).subscription as string)
   }
 
   return NextResponse.json({ received: true })
