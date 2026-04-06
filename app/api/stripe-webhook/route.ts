@@ -104,7 +104,7 @@ export async function POST(request: Request) {
       }
 
       // Log payment
-      await supabase.from('payments').insert({
+      const { error: paymentError } = await supabase.from('payments').insert({
         owner_id: ownerId,
         stripe_payment_intent_id: session.payment_intent as string,
         amount: session.amount_total,
@@ -113,6 +113,7 @@ export async function POST(request: Request) {
         receipt_url: receiptUrl,
         status: 'succeeded'
       })
+      if (paymentError) console.error('Intro payment insert error:', paymentError)
 
       // Confirm both pending bookings
       const pendingIds = [metadata.pending_booking_id, metadata.pending_booking_id_2].filter(Boolean)
