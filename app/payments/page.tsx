@@ -28,6 +28,7 @@ export default function PaymentHistory() {
     membership:         { label: 'Membership',         color: '#2c5a9e', bg: '#eef2fb' },
     membership_renewal: { label: 'Membership Renewal', color: '#2c5a9e', bg: '#eef2fb' },
     alacarte:           { label: 'A La Carte',         color: '#f88124', bg: '#fff0ea' },
+    intro:              { label: 'Intro Package',      color: '#7c3aed', bg: '#f3eeff' },
   }
 
   const totalSpent = payments.reduce((sum, p) => sum + (p.amount || 0), 0)

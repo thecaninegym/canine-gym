@@ -111,6 +111,9 @@ export default function DogProfile() {
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: vBadge.bg, color: vBadge.color, padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: '700' }}>
                   {vBadge.icon} {vBadge.label}
                 </span>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: dog.intro_purchased ? '#f0faf4' : '#fff8e6', color: dog.intro_purchased ? '#155724' : '#856404', padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: '700' }}>
+                  {dog.intro_purchased ? '✓ Intro Complete' : '⏳ Intro Pending'}
+                </span>
               </div>
               <p style={{ margin: '0 0 4px', color: '#666', fontSize: '14px', fontWeight: '600' }}>
                 {dog.breed}{dog.weight ? ` · ${dog.weight} lbs` : ''}{dog.age ? ` · ${dog.age} yrs` : ''}
