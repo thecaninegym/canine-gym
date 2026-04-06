@@ -113,7 +113,6 @@ export async function POST(request: Request) {
         receipt_url: receiptUrl,
         status: 'succeeded'
       })
-      if (paymentError) console.error('Intro payment insert error:', paymentError)
 
       // Confirm both pending bookings
       const pendingIds = [metadata.pending_booking_id, metadata.pending_booking_id_2].filter(Boolean)
