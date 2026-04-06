@@ -173,54 +173,26 @@ export async function POST(request: Request) {
     `)
   }
 
-  if (type === 'receipt_intro') {
-    const { ownerName, dogName, session1Date, session1Time, session2Date, session2Time, amount } = data
-    subject = `Your Intro Package is Confirmed — ${dogName}`
-    html = `
-      <div style="background:#f0f2f7;padding:32px 0;font-family:'Montserrat',Arial,sans-serif;">
-        <div style="max-width:560px;margin:0 auto;background:white;border-radius:16px;overflow:hidden;">
-          <div style="background:linear-gradient(135deg,#1a3d73,#2c5a9e);padding:28px 32px;text-align:center;">
-            <img src="https://www.thecaninegym.com/logo-white.png" alt="The Canine Gym" style="height:48px;width:auto;" />
-          </div>
-          <div style="padding:32px;">
-            <h2 style="color:#1a1a2e;font-size:20px;font-weight:800;margin:0 0 8px;">You're all set, ${ownerName}!</h2>
-            <p style="color:#666;font-size:14px;line-height:1.7;margin:0 0 24px;">We've confirmed both intro sessions for <strong>${dogName}</strong>. We recommend spacing them at least one week apart so ${dogName} has time to settle in between runs.</p>
-            <div style="background:#f8f9fa;border-radius:12px;padding:20px;margin-bottom:24px;">
-              <p style="color:#888;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin:0 0 14px;">Your Two Sessions</p>
-              <table style="width:100%;border-collapse:collapse;">
-                <tr>
-                  <td style="padding:10px 0;border-bottom:1px solid #eee;">
-                    <div style="font-size:12px;color:#f88124;font-weight:700;margin-bottom:2px;">SESSION 1</div>
-                    <div style="font-size:14px;font-weight:700;color:#1a1a2e;">${session1Date}</div>
-                    <div style="font-size:13px;color:#666;">${session1Time}</div>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="padding:10px 0;">
-                    <div style="font-size:12px;color:#f88124;font-weight:700;margin-bottom:2px;">SESSION 2</div>
-                    <div style="font-size:14px;font-weight:700;color:#1a1a2e;">${session2Date}</div>
-                    <div style="font-size:13px;color:#666;">${session2Time}</div>
-                  </td>
-                </tr>
-              </table>
-            </div>
-            <div style="background:#fff8f0;border:1px solid #ffe0c0;border-radius:10px;padding:16px;margin-bottom:24px;">
-              <p style="color:#c45e00;font-size:13px;font-weight:700;margin:0 0 4px;">What to expect</p>
-              <p style="color:#c45e00;font-size:13px;margin:0;line-height:1.6;">Some dogs take a session or two to get comfortable on the slatmill — that's completely normal. By session two, most dogs are hitting their stride.</p>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-top:1px solid #eee;">
-              <span style="color:#888;font-size:13px;">Total Paid</span>
-              <span style="color:#1a1a2e;font-size:16px;font-weight:800;">${amount}</span>
-            </div>
-          </div>
-          <div style="background:#001840;padding:20px 32px;text-align:center;">
-            <p style="color:rgba(255,255,255,0.4);font-size:12px;margin:0;">© ${new Date().getFullYear()} The Canine Gym · Hamilton County, IN</p>
-          </div>
-        </div>
-      </div>
-    `
+ if (type === 'receipt_intro') {
+    subject = `Intro Package confirmed — ${data.dogName}'s sessions are booked!`
+    html = emailWrapper('Intro Package', `
+      ${h1(`You're all set, ${data.ownerName}!`)}
+      ${p(`We've confirmed both intro sessions for <strong>${data.dogName}</strong>. We recommend spacing them at least one week apart so ${data.dogName} has time to settle in between runs, or book both in the same week since we're in your area twice.`)}
+      ${infoBox([
+        row('Dog', data.dogName),
+        row('Session 1', `${data.session1Date}`),
+        row('', data.session1Time),
+        row('Session 2', `${data.session2Date}`),
+        row('', data.session2Time),
+        row('Package', 'Intro (2 Sessions)'),
+        `<div style="padding:12px 0 4px;"><span style="color:${BLUE};font-size:18px;font-weight:800;font-family:'Montserrat',Arial,sans-serif;">Total Paid: ${data.amount}</span></div>`,
+      ])}
+      ${alert(`Some dogs take a session or two to get comfortable on the slatmill — that's completely normal. By session two, most dogs are hitting their stride.`, '#fff4e6', ORANGE, '#b85c00')}
+      ${alert(`Cancellation Policy: Cancel at least 48 hours in advance for a full refund. Late cancellations receive a 50% refund.`, '#f0f2f7', '#c8d0e0', '#555')}
+      ${btn('View My Dashboard', 'https://app.thecaninegym.com/dashboard')}
+    `)
   }
-  
+
   if (type === 'receipt_membership') {
     subject = `Membership confirmed, welcome to the pack, ${data.ownerName}!`
     html = emailWrapper('Membership Receipt', `
