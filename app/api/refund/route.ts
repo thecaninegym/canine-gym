@@ -59,7 +59,7 @@ export async function POST(request: Request) {
       try {
         const pi = await stripe.paymentIntents.retrieve(
           booking.payment_intent_id,
-          { expand: ['latest_charge'] }
+          { expand: ['latest_charge.refunds'] }
         )
         const charge = (pi.latest_charge as any)
         if (charge?.refunds?.data) {
