@@ -61,14 +61,10 @@ export async function POST(request: Request) {
           payment_intent: booking.payment_intent_id,
           limit: 10,
         })
-        console.log('Refunds list:', JSON.stringify(refundsList.data.map((r: any) => ({ id: r.id, amount: r.amount, status: r.status }))))
         alreadyRefunded = refundsList.data
           .filter((r: any) => r.status === 'succeeded')
           .reduce((sum: number, r: any) => sum + r.amount, 0)
-        console.log('Already refunded:', alreadyRefunded)
-      } catch (err) {
-        console.log('Refund list error:', err)
-      }
+      } catch {}
     }
 
     const available = Math.max(INTRO_TOTAL - alreadyRefunded, 0)
