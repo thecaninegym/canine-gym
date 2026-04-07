@@ -210,6 +210,21 @@ export async function POST(request: Request) {
     `)
   }
 
+  if (type === 'waiver_signed') {
+    subject = `Your Canine Gym waiver has been signed`
+    html = emailWrapper('Waiver Confirmation', `
+      ${h1(`Waiver signed, ${data.ownerName}!`)}
+      ${p(`This email confirms that your liability waiver for The Canine Gym has been electronically signed and recorded. Keep this for your records.`)}
+      ${infoBox([
+        row('Name on File', data.waiverName),
+        row('Date Signed', data.signedAt),
+        row('Record', 'Electronically signed via The Canine Gym app'),
+      ])}
+      ${alert(`If you did not sign this waiver or believe this was done in error, please contact us immediately at info@thecaninegym.com.`, '#fff4e6', ORANGE, '#b85c00')}
+      ${btn('View My Account', 'https://app.thecaninegym.com/dashboard')}
+    `)
+  }
+  
   if (type === 'membership_cancelled_client') {
     subject = `Your Canine Gym membership has been cancelled`
     html = emailWrapper('Membership Cancelled', `

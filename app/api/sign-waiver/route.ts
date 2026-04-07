@@ -15,14 +15,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    // Capture IP — check forwarded headers first (Vercel sets x-forwarded-for)
     const forwarded = request.headers.get('x-forwarded-for')
     const ip = forwarded ? forwarded.split(',')[0].trim() : (request.headers.get('x-real-ip') ?? 'unknown')
-
-    // Capture user agent
     const userAgent = request.headers.get('user-agent') ?? 'unknown'
-
-    // Server-side timestamp — not from the client
     const signedAt = new Date().toISOString()
 
     const { error } = await supabase.from('owners').update({
@@ -37,6 +32,39 @@ export async function POST(request: Request) {
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    // Send confirmation email
+    const { data: ownerData } = await supabase
+      .from('owners')
+      .select('name, email')
+      .eq('id', ownerId)
+      .single()
+
+    if (ownerData?.email) {
+      const formattedDate = new Date(signedAt).toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZoneName: 'short',
+      })
+
+      await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/send-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'waiver_signed',
+          to: ownerData.email,
+          data: {
+            ownerName: ownerData.name,
+            waiverName: waiverName.trim(),
+            signedAt: formattedDate,
+          },
+        }),
+      })
     }
 
     return NextResponse.json({ success: true, signedAt })
