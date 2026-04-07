@@ -57,16 +57,13 @@ export async function POST(request: Request) {
     let alreadyRefunded = 0
     if (booking.payment_intent_id) {
       try {
-        const pi = await stripe.paymentIntents.retrieve(
-          booking.payment_intent_id,
-          { expand: ['latest_charge.refunds'] }
-        )
-        const charge = (pi.latest_charge as any)
-        if (charge?.refunds?.data) {
-          alreadyRefunded = charge.refunds.data
-            .filter((r: any) => r.status === 'succeeded')
-            .reduce((sum: number, r: any) => sum + r.amount, 0)
-        }
+        const refundsList = await stripe.refunds.list({
+          payment_intent: booking.payment_intent_id,
+          limit: 10,
+        })
+        alreadyRefunded = refundsList.data
+          .filter((r: any) => r.status === 'succeeded')
+          .reduce((sum: number, r: any) => sum + r.amount, 0)
       } catch {}
     }
 
