@@ -16,6 +16,7 @@ function CancelForm() {
   const [error, setError] = useState<string | null>(null)
   const [hasFee, setHasFee] = useState(false)
   const [isMember, setIsMember] = useState(false)
+  const [isIntro, setIsIntro] = useState(false)
 
   useEffect(() => {
     const fetchBooking = async () => {
@@ -28,6 +29,7 @@ function CancelForm() {
 
       if (data) {
         setBooking(data)
+        setIsIntro(!!data.is_intro)
         const bookingDateTime = new Date(data.booking_date + 'T' + String(data.slot_hour).padStart(2, '0') + ':00:00')
         const hoursUntil = (bookingDateTime.getTime() - Date.now()) / (1000 * 60 * 60)
         setHasFee(hoursUntil < 48)
@@ -238,9 +240,11 @@ function CancelForm() {
                 <AlertTriangle size={20} color="#856404" style={{ flexShrink: 0, marginTop: '2px' }} />
                 <div>
                   <p style={{ margin: '0 0 4px 0', color: '#856404', fontWeight: '700' }}>Late Cancellation Warning</p>
-                  {isMember
-                    ? <p style={{ margin: 0, color: '#856404', fontSize: '14px' }}>This session is less than 48 hours away. As a membership client, this session will be forfeited — no fee charged.</p>
-                    : <p style={{ margin: 0, color: '#856404', fontSize: '14px' }}>This session is less than 48 hours away. You will receive a 50% refund. Select "My dog is sick" below to receive a full refund.</p>
+                  {isIntro
+                    ? <p style={{ margin: 0, color: '#856404', fontSize: '14px' }}>This session is less than 48 hours away. You will receive a 50% refund of $21.25 for this session. Select "My dog is sick" below to receive a full refund of $42.50.</p>
+                    : isMember
+                      ? <p style={{ margin: 0, color: '#856404', fontSize: '14px' }}>This session is less than 48 hours away. As a membership client, this session will be forfeited — no fee charged.</p>
+                      : <p style={{ margin: 0, color: '#856404', fontSize: '14px' }}>This session is less than 48 hours away. You will receive a 50% refund. Select "My dog is sick" below to receive a full refund.</p>
                   }
                 </div>
               </div>
@@ -265,7 +269,12 @@ function CancelForm() {
                   <div style={{ backgroundColor: '#d4edda', padding: '12px 16px', borderRadius: '10px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <CheckCircle size={16} color="#155724" />
                     <p style={{ margin: 0, color: '#155724', fontSize: '14px' }}>
-                      {isMember ? 'Your session will be credited back to your membership. We hope your pup feels better!' : 'You will receive a full refund. We hope your pup feels better soon!'}
+                      {isIntro
+                        ? 'You will receive a refund of $42.50 for this session. We hope your pup feels better soon!'
+                        : isMember
+                          ? 'Your session will be credited back to your membership. We hope your pup feels better!'
+                          : 'You will receive a full refund. We hope your pup feels better soon!'
+                      }
                     </p>
                   </div>
                 )}

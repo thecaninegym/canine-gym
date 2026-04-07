@@ -134,7 +134,8 @@ export async function POST(request: Request) {
               slot_hour: pending.slot_hour,
               status: 'confirmed',
               payment_intent_id: session.payment_intent as string,
-              amount_paid: session.amount_total
+              amount_paid: session.amount_total,
+              is_intro: true
             })
           }
           await supabase.from('pending_bookings').delete().eq('id', pendingId)
