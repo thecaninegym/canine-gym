@@ -157,7 +157,11 @@ export default function MyDogs() {
       const { data: urlData } = supabase.storage.from('dog-photos').getPublicUrl(fileName)
       await supabase.from('dogs').update({ photo_url: urlData.publicUrl }).eq('id', dogData.id)
     }
-    await supabase.from('leaderboard_settings').insert([{ dog_id: dogData.id, city: ownerCity, visibility: newDog.visibility, display_name: newDog.name }])
+    if (ownerCity) {
+  await supabase.from('leaderboard_settings').insert([{ dog_id: dogData.id, city: ownerCity, visibility: newDog.visibility, display_name: newDog.name }])
+} else {
+  await supabase.from('leaderboard_settings').insert([{ dog_id: dogData.id, visibility: newDog.visibility, display_name: newDog.name }])
+}
     const addedName = newDog.name
     setSaving(false); setAddingDog(false)
     setNewDog({ ...emptyNewDog })
