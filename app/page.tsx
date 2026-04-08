@@ -128,6 +128,9 @@ function LoginContent() {
     const fullName = `${firstName} ${lastName}`.trim()
     await supabase.from('owners').insert([{ name: fullName, email, phone, sms_consent: smsConsent }])
     await fetch('/api/send-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'welcome', to: email, data: { ownerName: firstName, dogName: 'your dog' } }) })
+    if (smsConsent && phone) {
+      await fetch('/api/send-sms', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'sms_welcome', to: phone, data: { ownerName: firstName } }) })
+    }
     await fetch('/api/send-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'new_client_admin', to: 'dev@thecaninegym.com', data: { ownerName: `${firstName} ${lastName}`, email, date: new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }), time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }) } }) })
     await supabase.auth.signInWithPassword({ email, password })
     window.location.href = '/dashboard'

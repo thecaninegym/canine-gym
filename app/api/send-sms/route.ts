@@ -27,7 +27,7 @@ export async function POST(request: Request) {
   let content = ''
 
   if (type === 'booking_confirmation') {
-    content = `Hi ${data.ownerName}! 🐾 ${data.dogName}'s session is confirmed.\n\n📅 ${data.date}\n⏰ ${data.time}\n\nWe'll come to you — just have ${data.dogName} leashed and ready! Questions? Reply here.\n\n- The Canine Gym`
+    content = `Hi ${data.ownerName}! 🐾 ${data.dogName}'s session is confirmed.\n\n📅 ${data.date}\n⏰ ${data.time}\n\nWe'll come to you, just have ${data.dogName} leashed and ready! Questions? Reply here.\n\n- The Canine Gym`
   }
 
   if (type === 'reminder') {
@@ -36,6 +36,18 @@ export async function POST(request: Request) {
 
   if (type === 'booking_cancelled') {
     content = `Hi ${data.ownerName}, your booking for ${data.dogName} on ${data.date} at ${data.time} has been cancelled.${data.refundNote ? `\n\n${data.refundNote}` : ''}\n\nRebook anytime at app.thecaninegym.com\n\n- The Canine Gym`
+  }
+
+  if (type === 'booking_cancelled') {
+    content = `Hi ${data.ownerName}, your booking for ${data.dogName} on ${data.date} at ${data.time} has been cancelled.${data.refundNote ? `\n\n${data.refundNote}` : ''}\n\nRebook anytime at app.thecaninegym.com\n\n- The Canine Gym`
+  }
+
+  if (type === 'intro_confirmation') {
+    content = `Hi ${data.ownerName}! 🐾 Your Intro Package for ${data.dogName} is confirmed.\n\nSession 1: ${data.session1Date} at ${data.session1Time}\nSession 2: ${data.session2Date} at ${data.session2Time}\n\nWe'll come to you both times, just have ${data.dogName} leashed and ready! Questions? Reply here.\n\n- The Canine Gym`
+  }
+
+  if (type === 'sms_welcome') {
+    content = `Welcome to The Canine Gym, ${data.ownerName}! 🐾 You're subscribed to receive booking confirmations and session reminders for ${data.dogName || 'your pup'}. Msg & data rates may apply. Reply STOP to opt out anytime.\n\n- The Canine Gym`
   }
 
   if (!content) {
