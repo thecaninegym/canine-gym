@@ -146,7 +146,7 @@ export default function LogSession() {
 
     const newAchievements = await checkAchievements(dogId)
     const selectedDogData = dogs.find(d => d.id === dogId)
-    const { data: ownerData } = await supabase.from('owners').select('name, email').eq('id', selectedDogData?.owner_id).single()
+    const { data: ownerData } = await supabase.from('owners').select('name, email, phone, sms_consent').eq('id', selectedDogData?.owner_id).single()
     if (ownerData?.email) {
       await fetch('/api/send-session-report', {
         method: 'POST',
@@ -164,6 +164,23 @@ export default function LogSession() {
           dogWeightLbs: dogWeightLbs ? parseFloat(dogWeightLbs) : null,
           notes,
           achievementsUnlocked: newAchievements.map((a: any) => a.label)
+        })
+      })
+    }
+    if (ownerData?.phone && ownerData?.sms_consent) {
+      await fetch('/api/send-sms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'session_report',
+          to: ownerData.phone,
+          data: {
+            dogName: selectedDogData?.name,
+            miles: selectedSlatmill?.distance_miles || null,
+            avgSpeedMph: selectedSlatmill?.avg_speed_mph || null,
+            peakSpeedMph: selectedSlatmill?.peak_speed_mph || null,
+            calories: calories || null,
+          }
         })
       })
     }

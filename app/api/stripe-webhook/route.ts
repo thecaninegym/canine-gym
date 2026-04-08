@@ -83,6 +83,25 @@ export async function POST(request: Request) {
             }
           })
         })
+        // SMS for membership confirmed
+      const { data: ownerSmsData } = await supabase.from('owners').select('phone, sms_consent').eq('id', ownerId).single()
+      if (ownerSmsData?.phone && ownerSmsData?.sms_consent) {
+        const { data: dogSmsData } = await supabase.from('dogs').select('name').eq('id', dogId).single()
+        const planNames: Record<string, string> = { starter: 'Standard', active: 'Pro', athlete: 'Elite' }
+        await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/send-sms`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'membership_confirmed',
+            to: ownerSmsData.phone,
+            data: {
+              ownerName: ownerData?.name,
+              planName: planNames[plan] || plan,
+              dogName: dogSmsData?.name || 'your dog',
+            }
+          })
+        })
+      }
       }
     }
 
@@ -176,7 +195,25 @@ export async function POST(request: Request) {
             }
           })
         })
-
+// SMS confirmation for intro package
+        if (ownerData.phone && ownerData.sms_consent) {
+          await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/send-sms`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              type: 'intro_confirmation',
+              to: ownerData.phone,
+              data: {
+                ownerName: ownerData.name,
+                dogName: dogData?.name || 'your dog',
+                session1Date: session1.date,
+                session1Time: session1.time,
+                session2Date: session2.date,
+                session2Time: session2.time,
+              }
+            })
+          })
+        }
         // Admin notification
         await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/send-email`, {
           method: 'POST',
@@ -308,10 +345,10 @@ export async function POST(request: Request) {
       .eq('stripe_subscription_id', subscription.id)
 
     const { data: cancelledMembership } = await supabase
-      .from('memberships')
-      .select('*, owners(name, email)')
-      .eq('stripe_subscription_id', subscription.id)
-      .single()
+        .from('memberships')
+        .select('*, owners(name, email, phone, sms_consent)')
+        .eq('stripe_subscription_id', subscription.id)
+        .single()
 
     if (cancelledMembership) {
       const periodEnd = new Date(cancelledMembership.current_period_end).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
@@ -333,6 +370,25 @@ export async function POST(request: Request) {
             }
           })
         })
+        // SMS for membership cancelled
+      const cancelledOwner = cancelledMembership.owners as any
+      if (cancelledOwner?.phone && cancelledOwner?.sms_consent) {
+        const { data: cancelledDog } = await supabase.from('dogs').select('name').eq('id', cancelledMembership.dog_id).single()
+        await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/send-sms`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'membership_cancelled',
+            to: cancelledOwner.phone,
+            data: {
+              ownerName: cancelledOwner.name,
+              planName,
+              dogName: cancelledDog?.name || 'your dog',
+              periodEnd,
+            }
+          })
+        })
+      }
       }
 
       await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/send-email`, {
