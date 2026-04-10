@@ -478,11 +478,6 @@ export default function ClientDashboard() {
                       <Activity size={17} color="#2c5a9e" />
                     </div>
                     <h3 style={{ margin: 0, color: '#1a1a2e', fontSize: '16px', fontWeight: '700' }}>Latest Session</h3>
-                    {sessions.length > 0 && (
-                      <a href={`/sessions/${sessions[0].id}`} style={{ marginLeft: 'auto', color: '#2c5a9e', fontWeight: '700', fontSize: '13px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        View Full Report <ChevronRight size={14} />
-                      </a>
-                    )}
                   </div>
                   {sessions.length === 0 ? (
                     <div style={{ padding: '40px 24px', textAlign: 'center' }}>
