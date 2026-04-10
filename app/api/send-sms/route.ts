@@ -63,7 +63,7 @@ export async function POST(request: Request) {
     content = `Hi ${data.ownerName}, your ${data.planName} membership for ${data.dogName} has been cancelled. Access continues until ${data.periodEnd}.\n\nQuestions? Reply here or email info@thecaninegym.com\n\n- The Canine Gym`
   }
   if (type === 'on_my_way') {
-    content = `Hi ${data.ownerName}! Mia is on her way to you for ${data.dogName}'s session. Estimated arrival: ${data.eta} minutes. See you soon!\n\n- The Canine Gym`
+    content = `Hi ${data.ownerName}! Mia is on her way to you for ${data.dogName}'s session. \n\nEstimated arrival: ${data.eta} minutes.\n\n See you soon!\n\n- The Canine Gym`
   }
 
   if (!content) {
