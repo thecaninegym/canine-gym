@@ -93,12 +93,10 @@ export default function ClientDashboard() {
   const totalMiles = sessions.reduce((sum, s) => sum + (s.distance_miles || 0), 0).toFixed(2)
   const totalCalories = sessions.reduce((sum, s) => sum + (s.calories || 0), 0)
 
-  // Last session date
   const lastSessionDate = sessions.length > 0
     ? new Date(sessions[0].session_date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
     : null
 
-  // Current streak: count consecutive weeks with at least 1 session (most recent first)
   const sessionWeeks = new Set(sessions.map(s => {
     const d = new Date(s.session_date + 'T12:00:00')
     const startOfWeek = new Date(d)
@@ -163,7 +161,6 @@ export default function ClientDashboard() {
         .action-btn:hover { transform: translateY(-1px); filter: brightness(1.05); }
         * { box-sizing: border-box; }
 
-        /* ── Mobile nav ── */
         .nav-links-desktop { display: flex; gap: 4px; align-items: center; }
         .nav-hamburger { display: none; }
         .mobile-menu { display: none; }
@@ -173,40 +170,25 @@ export default function ClientDashboard() {
           .nav-hamburger { display: flex; align-items: center; justify-content: center; background: #2c5a9e; border: none; color: white; cursor: pointer; border-radius: 8px; width: 40px; height: 40px; }
           .mobile-menu { display: flex; flex-direction: column; gap: 4px; position: fixed; top: 80px; left: 0; right: 0; background: white; padding: 16px 16px 16px; z-index: 99; border-top: 3px solid #f88124; box-shadow: 0 8px 24px rgba(0,24,64,0.12); }
           .mobile-menu a, .mobile-menu button { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 10px; color: #001840 !important; font-size: 14px !important; font-weight: 600; text-decoration: none; background: rgba(0,24,64,0.04); border: none; cursor: pointer; width: 100%; }
-
-          /* Hero card stacks on mobile */
           .hero-inner { flex-direction: column !important; align-items: flex-start !important; gap: 16px !important; }
           .hero-photo { width: 80px !important; height: 80px !important; }
           .hero-photo-placeholder { width: 80px !important; height: 80px !important; }
           .hero-actions { flex-direction: row !important; width: 100%; flex-wrap: wrap !important; }
           .hero-actions a:first-child { flex: 1 1 100% !important; justify-content: center; }
           .hero-actions a:not(:first-child), .hero-actions button { flex: 1 1 auto !important; justify-content: center; }
-
-          /* Stat cards: 1 col on small, 3 col still on medium */
           .stat-grid { grid-template-columns: 1fr !important; }
-
-          /* Booking row stacks */
+          .latest-session-grid { grid-template-columns: repeat(3, 1fr) !important; }
           .booking-row { flex-direction: column !important; align-items: flex-start !important; gap: 10px !important; }
           .booking-row .cancel-btn { align-self: flex-end; }
-
-          /* Membership card stacks */
           .membership-inner { flex-direction: column !important; gap: 4px !important; align-items: center !important; text-align: center !important; }
           .membership-inner > div:first-child { display: none !important; }
           .membership-manage { align-self: center !important; margin-top: 8px !important; }
           .membership-text { align-items: center !important; display: flex !important; flex-direction: column !important; align-items: center !important; }
           .membership-dog-pill { align-self: center !important; }
           .membership-title-row { justify-content: center !important; }
-
-          /* Page padding tighter on mobile */
           .page-inner { padding: 96px 14px 16px !important; }
-
-          /* Hero name smaller */
           .hero-name { font-size: 24px !important; }
-
-          /* Session rows */
           .session-row { padding: 14px 16px !important; }
-
-          /* Card headers */
           .card-header { padding: 14px 16px !important; }
           .card-body { padding: 16px !important; }
         }
@@ -221,8 +203,6 @@ export default function ClientDashboard() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <img src="/logo.png" alt="The Canine Gym" style={{ height: 'clamp(36px, 7vw, 56px)', width: 'auto' }} />
         </div>
-
-        {/* Desktop nav */}
         <div className="nav-links-desktop">
           {[
             { href: '/friends', icon: <Users size={15} />, label: 'Friends' },
@@ -240,8 +220,6 @@ export default function ClientDashboard() {
             <LogOut size={14} /> Logout
           </button>
         </div>
-
-        {/* Mobile hamburger */}
         <button className="nav-hamburger" onClick={() => setMobileMenuOpen(o => !o)}>
           {mobileMenuOpen
             ? <X size={20} color="white" />
@@ -321,28 +299,28 @@ export default function ClientDashboard() {
           <>
             {/* DOG SELECTOR TABS */}
             {dogs.length > 1 && (
-  <div style={{ marginBottom: '24px' }}>
-  <p style={{ margin: '0 0 10px', fontSize: '12px', fontWeight: '700', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Select Dog</p>
-  <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', padding: '6px 4px 10px' }}>
-                {dogs.map(dog => (
-                  <button key={dog.id} onClick={() => handleDogSelect(dog)} className="dog-tab"
-                    style={{ padding: '10px 18px', borderRadius: '40px', border: 'none', cursor: 'pointer', fontWeight: '700', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px', transition: 'all 0.2s', flexShrink: 0,
-                      backgroundColor: selectedDog?.id === dog.id ? '#2c5a9e' : 'white',
-                      color: selectedDog?.id === dog.id ? 'white' : '#2c5a9e',
-                    }}>
-                    {dog.photo_url ? (
-                      <img src={dog.photo_url} alt={dog.name} style={{ width: '26px', height: '26px', borderRadius: '50%', objectFit: 'cover' }} />
-                    ) : (
-                      <div style={{ width: '26px', height: '26px', borderRadius: '50%', background: selectedDog?.id === dog.id ? 'rgba(255,255,255,0.2)' : '#eef2fb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <PawPrint size={13} color={selectedDog?.id === dog.id ? 'white' : '#2c5a9e'} />
-                      </div>
-                    )}
-                    {dog.name}
-                  </button>
-                ))}
+              <div style={{ marginBottom: '24px' }}>
+                <p style={{ margin: '0 0 10px', fontSize: '12px', fontWeight: '700', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Select Dog</p>
+                <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', padding: '6px 4px 10px' }}>
+                  {dogs.map(dog => (
+                    <button key={dog.id} onClick={() => handleDogSelect(dog)} className="dog-tab"
+                      style={{ padding: '10px 18px', borderRadius: '40px', border: 'none', cursor: 'pointer', fontWeight: '700', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '8px', transition: 'all 0.2s', flexShrink: 0,
+                        backgroundColor: selectedDog?.id === dog.id ? '#2c5a9e' : 'white',
+                        color: selectedDog?.id === dog.id ? 'white' : '#2c5a9e',
+                      }}>
+                      {dog.photo_url ? (
+                        <img src={dog.photo_url} alt={dog.name} style={{ width: '26px', height: '26px', borderRadius: '50%', objectFit: 'cover' }} />
+                      ) : (
+                        <div style={{ width: '26px', height: '26px', borderRadius: '50%', background: selectedDog?.id === dog.id ? 'rgba(255,255,255,0.2)' : '#eef2fb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <PawPrint size={13} color={selectedDog?.id === dog.id ? 'white' : '#2c5a9e'} />
+                        </div>
+                      )}
+                      {dog.name}
+                    </button>
+                  ))}
+                </div>
               </div>
-  </div>
-)}
+            )}
 
             {selectedDog && (
               <div style={{ animation: 'fadeUp 0.35s ease' }}>
@@ -435,7 +413,7 @@ export default function ClientDashboard() {
                   </div>
                 )}
 
-                {/* MEMBERSHIP CARD — per-dog */}
+                {/* MEMBERSHIP CARD */}
                 {(() => {
                   const membership = membershipsMap[selectedDog.id]
                   if (!membership) {
@@ -454,7 +432,6 @@ export default function ClientDashboard() {
                       </div>
                     )
                   }
-
                   const isCancelled = membership.status === 'cancelled'
                   return (
                     <div style={{ background: isCancelled ? 'linear-gradient(135deg, #4a5568, #6c757d)' : 'linear-gradient(135deg, #2c5a9e, #2c5a9e)', borderRadius: '16px', padding: '20px 24px', marginBottom: '20px', boxShadow: '0 4px 20px rgba(0,48,135,0.2)', position: 'relative', overflow: 'hidden' }}>
@@ -493,6 +470,61 @@ export default function ClientDashboard() {
                     </div>
                   )
                 })()}
+
+                {/* LATEST SESSION HERO */}
+                <div style={{ backgroundColor: 'white', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', overflow: 'hidden', marginBottom: '20px', border: sessions.length > 0 ? '1.5px solid #eef0f5' : '1.5px dashed #e5e8f0' }}>
+                  <div className="card-header" style={{ padding: '18px 24px', borderBottom: '1px solid #f0f2f7', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{ width: '34px', height: '34px', background: '#eef2fb', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Activity size={17} color="#2c5a9e" />
+                    </div>
+                    <h3 style={{ margin: 0, color: '#1a1a2e', fontSize: '16px', fontWeight: '700' }}>Latest Session</h3>
+                    {sessions.length > 0 && (
+                      <a href={`/sessions/${sessions[0].id}`} style={{ marginLeft: 'auto', color: '#2c5a9e', fontWeight: '700', fontSize: '13px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        View Full Report <ChevronRight size={14} />
+                      </a>
+                    )}
+                  </div>
+                  {sessions.length === 0 ? (
+                    <div style={{ padding: '40px 24px', textAlign: 'center' }}>
+                      <PawPrint size={40} color="#dde0ea" style={{ marginBottom: '12px' }} />
+                      <p style={{ color: '#bbb', margin: '0 0 4px', fontSize: '15px', fontWeight: '700' }}>No sessions yet</p>
+                      <p style={{ color: '#ccc', margin: 0, fontSize: '13px' }}>After your first session, your stats will appear here.</p>
+                    </div>
+                  ) : (() => {
+                    const s = sessions[0]
+                    const sessionDate = new Date(s.session_date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
+                    const stats = [
+                      { label: 'Duration', value: `${s.duration_minutes} min`, icon: <Clock size={16} />, color: '#2c5a9e', bg: '#eef2fb' },
+                      { label: 'Distance', value: s.distance_miles ? `${parseFloat(s.distance_miles).toFixed(2)} mi` : '—', icon: <Navigation size={16} />, color: '#2c5a9e', bg: '#eef2fb' },
+                      { label: 'Avg Speed', value: s.avg_speed_mph ? `${parseFloat(s.avg_speed_mph).toFixed(1)} mph` : '—', icon: <Zap size={16} />, color: '#f88124', bg: '#fff0ea' },
+                      { label: 'Peak Speed', value: s.peak_speed_mph ? `${parseFloat(s.peak_speed_mph).toFixed(1)} mph` : '—', icon: <TrendingUp size={16} />, color: '#f88124', bg: '#fff0ea' },
+                      { label: 'Calories', value: s.calories ? `${Math.round(s.calories)}` : '—', icon: <Flame size={16} />, color: '#dc3545', bg: '#fff0f0' },
+                    ]
+                    return (
+                      <div style={{ padding: '20px 24px' }}>
+                        <p style={{ margin: '0 0 16px', fontSize: '13px', color: '#888', fontWeight: '600' }}>{sessionDate}</p>
+                        <div className="latest-session-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px', marginBottom: '20px' }}>
+                          {stats.map(stat => (
+                            <div key={stat.label} style={{ background: stat.bg, borderRadius: '12px', padding: '14px 10px', textAlign: 'center' }}>
+                              <div style={{ color: stat.color, marginBottom: '6px', display: 'flex', justifyContent: 'center' }}>{stat.icon}</div>
+                              <div style={{ fontSize: '18px', fontWeight: '800', color: '#1a1a2e', lineHeight: 1, marginBottom: '4px' }}>{stat.value}</div>
+                              <div style={{ fontSize: '10px', color: '#999', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.4px' }}>{stat.label}</div>
+                            </div>
+                          ))}
+                        </div>
+                        {s.notes && (
+                          <div style={{ background: '#f8f9fc', borderLeft: '3px solid #f88124', borderRadius: '0 8px 8px 0', padding: '10px 14px', marginBottom: '16px' }}>
+                            <p style={{ margin: 0, fontSize: '13px', color: '#666', fontStyle: 'italic' }}>{s.notes}</p>
+                          </div>
+                        )}
+                        <a href={`/sessions/${s.id}`}
+                          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: 'linear-gradient(135deg, #2c5a9e, #001840)', color: 'white', padding: '13px 20px', borderRadius: '12px', textDecoration: 'none', fontWeight: '700', fontSize: '14px', boxShadow: '0 4px 14px rgba(0,48,135,0.25)' }}>
+                          <Activity size={16} /> View Full Session Report
+                        </a>
+                      </div>
+                    )
+                  })()}
+                </div>
 
                 {/* STAT CARDS */}
                 <div className="stat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px', marginBottom: '20px' }}>
@@ -543,7 +575,7 @@ export default function ClientDashboard() {
                               <p style={{ margin: 0, fontSize: '13px', color: '#888', display: 'flex', alignItems: 'center', gap: '4px' }}>
                                 <Clock size={12} /> {hour}:00 {ampm} – {hour}:30 {ampm}
                               </p>
-                              {!canCancelFree && <p style={{ margin: '4px 0 0', fontSize: '11px', color: '#f88124', fontWeight: '600' }}>⚠️ Less than 48hrs — cancellation fee may apply</p>}
+                              {!canCancelFree && <p style={{ margin: '4px 0 0', fontSize: '11px', color: '#f88124', fontWeight: '600' }}>Less than 48hrs — cancellation fee may apply</p>}
                             </div>
                           </div>
                           <a href={`/cancel?booking=${booking.id}`} className="cancel-btn"
@@ -555,6 +587,54 @@ export default function ClientDashboard() {
                     })}
                   </div>
                 )}
+
+                {/* RECENT SESSIONS */}
+                <div style={{ backgroundColor: 'white', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', overflow: 'hidden', marginBottom: '20px' }}>
+                  <div className="card-header" style={{ padding: '18px 24px', borderBottom: '1px solid #f0f2f7', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{ width: '34px', height: '34px', background: '#eef2fb', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Activity size={17} color="#2c5a9e" />
+                    </div>
+                    <h3 style={{ margin: 0, color: '#1a1a2e', fontSize: '16px', fontWeight: '700' }}>Session History</h3>
+                  </div>
+                  {sessions.length === 0 ? (
+                    <div style={{ padding: '40px 24px', textAlign: 'center' }}>
+                      <PawPrint size={40} color="#dde0ea" style={{ marginBottom: '12px' }} />
+                      <p style={{ color: '#bbb', margin: 0, fontSize: '15px' }}>No sessions yet — book your first today!</p>
+                    </div>
+                  ) : (
+                    sessions.map((session, i) => (
+                      <div key={session.id} onClick={() => window.location.href = `/sessions/${session.id}`}
+                        className="session-row"
+                        style={{ padding: '16px 20px', borderBottom: i < sessions.length - 1 ? '1px solid #f0f2f7' : 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', transition: 'background 0.15s' }}>
+                        <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
+                          <div style={{ width: '42px', height: '42px', background: '#f0f2f7', borderRadius: '12px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <span style={{ fontSize: '14px', fontWeight: '800', color: '#2c5a9e', lineHeight: 1 }}>{new Date(session.session_date + 'T12:00:00').getDate()}</span>
+                            <span style={{ fontSize: '9px', color: '#888', textTransform: 'uppercase' }}>{new Date(session.session_date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short' })}</span>
+                          </div>
+                          <div>
+                            <p style={{ margin: '0 0 3px', fontWeight: '700', color: '#1a1a2e', fontSize: '14px' }}>
+                              {new Date(session.session_date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
+                            </p>
+                            <p style={{ margin: 0, fontSize: '13px', color: '#888' }}>
+                              {session.duration_minutes} min
+                              {session.distance_miles ? ` · ${session.distance_miles} mi` : ''}
+                              {session.calories ? ` · ${session.calories} cal` : ''}
+                            </p>
+                            {session.notes && <p style={{ margin: '3px 0 0', fontSize: '12px', color: '#aaa', fontStyle: 'italic' }}>{session.notes}</p>}
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
+                          {session.activity_score && (
+                            <div style={{ background: 'linear-gradient(135deg, #f88124, #f9a04e)', color: 'white', padding: '4px 12px', borderRadius: '20px', fontSize: '13px', fontWeight: '700', boxShadow: '0 2px 8px rgba(255,107,53,0.3)' }}>
+                              {session.activity_score}
+                            </div>
+                          )}
+                          <ChevronRight size={16} color="#ccc" />
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
 
                 {/* ACHIEVEMENTS */}
                 <div style={{ backgroundColor: 'white', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', overflow: 'hidden', marginBottom: '20px' }}>
@@ -621,54 +701,6 @@ export default function ClientDashboard() {
                     </div>
                   </div>
                 )}
-
-                {/* RECENT SESSIONS */}
-                <div style={{ backgroundColor: 'white', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', overflow: 'hidden', marginBottom: '20px' }}>
-                  <div className="card-header" style={{ padding: '18px 24px', borderBottom: '1px solid #f0f2f7', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <div style={{ width: '34px', height: '34px', background: '#eef2fb', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <Activity size={17} color="#2c5a9e" />
-                    </div>
-                    <h3 style={{ margin: 0, color: '#1a1a2e', fontSize: '16px', fontWeight: '700' }}>Recent Sessions</h3>
-                  </div>
-                  {sessions.length === 0 ? (
-                    <div style={{ padding: '40px 24px', textAlign: 'center' }}>
-                      <PawPrint size={40} color="#dde0ea" style={{ marginBottom: '12px' }} />
-                      <p style={{ color: '#bbb', margin: 0, fontSize: '15px' }}>No sessions yet — book your first today!</p>
-                    </div>
-                  ) : (
-                    sessions.map((session, i) => (
-                      <div key={session.id} onClick={() => window.location.href = `/sessions/${session.id}`}
-                        className="session-row"
-                        style={{ padding: '16px 20px', borderBottom: i < sessions.length - 1 ? '1px solid #f0f2f7' : 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', transition: 'background 0.15s' }}>
-                        <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
-                          <div style={{ width: '42px', height: '42px', background: '#f0f2f7', borderRadius: '12px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                            <span style={{ fontSize: '14px', fontWeight: '800', color: '#2c5a9e', lineHeight: 1 }}>{new Date(session.session_date + 'T12:00:00').getDate()}</span>
-                            <span style={{ fontSize: '9px', color: '#888', textTransform: 'uppercase' }}>{new Date(session.session_date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short' })}</span>
-                          </div>
-                          <div>
-                            <p style={{ margin: '0 0 3px', fontWeight: '700', color: '#1a1a2e', fontSize: '14px' }}>
-                              {new Date(session.session_date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
-                            </p>
-                            <p style={{ margin: 0, fontSize: '13px', color: '#888' }}>
-                              {session.duration_minutes} min
-                              {session.distance_miles ? ` · ${session.distance_miles} mi` : ''}
-                              {session.calories ? ` · ${session.calories} cal` : ''}
-                            </p>
-                            {session.notes && <p style={{ margin: '3px 0 0', fontSize: '12px', color: '#aaa', fontStyle: 'italic' }}>{session.notes}</p>}
-                          </div>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
-                          {session.activity_score && (
-                            <div style={{ background: 'linear-gradient(135deg, #f88124, #f9a04e)', color: 'white', padding: '4px 12px', borderRadius: '20px', fontSize: '13px', fontWeight: '700', boxShadow: '0 2px 8px rgba(255,107,53,0.3)' }}>
-                              {session.activity_score}
-                            </div>
-                          )}
-                          <ChevronRight size={16} color="#ccc" />
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
 
                 {/* FRIENDS ACTIVITY */}
                 {friendsActivity.length > 0 && (
