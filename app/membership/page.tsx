@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
-import { PawPrint, ArrowLeft, CreditCard, Calendar, CheckCircle, XCircle, AlertCircle } from 'lucide-react'
+import { PawPrint, ArrowLeft, Calendar, CheckCircle, XCircle, AlertCircle } from 'lucide-react'
 import { trackEvent } from '../../components/Analytics'
 
 const PLANS = [
@@ -289,35 +289,6 @@ export default function Membership() {
             </div>
           </>
         )}
-
-        {/* A La Carte */}
-        <div style={{ backgroundColor: 'white', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', padding: '24px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
-            <div style={{ width: '34px', height: '34px', background: '#eef2fb', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <CreditCard size={17} color="#2c5a9e" />
-            </div>
-            <h3 style={{ color: '#1a1a2e', margin: 0, fontSize: '16px', fontWeight: '700' }}>A La Carte Sessions</h3>
-          </div>
-          <p style={{ color: '#888', margin: '0 0 20px 56px', fontSize: '13px' }}>No commitment. Pay per session.</p>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
-            {[
-              { label: '1 Dog', price: '$55', type: 'alacarte' },
-              { label: '2 Dogs', price: '$90', type: 'alacarte2' },
-            ].map(({ label, price, type }) => (
-              <div key={type} style={{ background: '#f0f2f7', padding: '22px', borderRadius: '14px', textAlign: 'center' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '8px' }}>
-                  <PawPrint size={15} color="#2c5a9e" />
-                  <span style={{ fontWeight: '700', color: '#1a1a2e', fontSize: '14px' }}>{label}</span>
-                </div>
-                <p style={{ margin: '0 0 18px', fontSize: '34px', fontWeight: '800', color: '#2c5a9e', letterSpacing: '-1px' }}>{price}</p>
-                <button onClick={() => handleCheckout(type)} disabled={checkoutLoading === type} className="checkout-btn"
-                  style={{ width: '100%', padding: '12px', background: 'linear-gradient(135deg, #2c5a9e, #2c5a9e)', color: 'white', border: 'none', borderRadius: '12px', fontWeight: '700', fontSize: '14px', cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 4px 14px rgba(0,48,135,0.25)' }}>
-                  {checkoutLoading === type ? 'Loading…' : 'Book & Pay →'}
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
 
       </div>
     </div>
