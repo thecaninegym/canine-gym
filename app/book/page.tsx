@@ -47,9 +47,11 @@ export default function BookSession() {
       const { data: windows } = await supabase.from('schedule_windows').select('*').eq('city', ownerData.dogs?.[0]?.leaderboard_settings?.city || '').eq('is_active', true)
       if (!windows) { setLoading(false); return }
       const dates = []
-      const today = new Date(); today.setHours(0, 0, 0, 0)
+      const earliest = new Date('2025-05-15T00:00:00')
+const today = new Date(); today.setHours(0, 0, 0, 0)
+const startDate = today > earliest ? today : earliest
       for (let i = 1; i <= 30; i++) {
-        const date = new Date(today); date.setDate(today.getDate() + i)
+        const date = new Date(startDate); date.setDate(startDate.getDate() + i)
         const dayOfWeek = date.getDay()
         const window = windows.find((w: any) => w.day_of_week === dayOfWeek)
         if (window) dates.push({ date, dateStr: date.toISOString().split('T')[0], dayName: DAYS[dayOfWeek], window })
