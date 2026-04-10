@@ -30,6 +30,12 @@ export default function AdminSchedule() {
   const [mapMode, setMapMode] = useState<'day' | 'week'>('day')
   const [travelTime, setTravelTime] = useState<{ totalMinutes: number, legs: any[] } | null>(null)
 
+  // On My Way
+  const [onMyWayBooking, setOnMyWayBooking] = useState<any | null>(null)
+  const [onMyWayEta, setOnMyWayEta] = useState<number | null>(null)
+  const [onMyWayLoading, setOnMyWayLoading] = useState(false)
+  const [onMyWaySent, setOnMyWaySent] = useState<Record<string, boolean>>({})
+
   // Cancel modal
   const [cancelBooking, setCancelBooking] = useState<any | null>(null)
   const [cancelReason, setCancelReason] = useState('')
@@ -190,6 +196,57 @@ export default function AdminSchedule() {
     setNewHour('')
     setRescheduleLoading(false)
     fetchBookings(); fetchWeekBookings()
+  }
+const handleOnMyWay = (booking: any) => {
+    setOnMyWayBooking(booking)
+    setOnMyWayEta(null)
+    setOnMyWayLoading(true)
+    if (!navigator.geolocation) {
+      alert('Location is not supported on this device.')
+      setOnMyWayLoading(false)
+      return
+    }
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords
+        const address = `${booking.dogs?.owners?.address}, ${booking.dogs?.owners?.city}, IN`
+        const res = await fetch('/api/travel-time', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ addresses: [address], originLatLng: { lat: latitude, lng: longitude } })
+        })
+        const data = await res.json()
+        setOnMyWayEta(data.totalMinutes || null)
+        setOnMyWayLoading(false)
+      },
+      () => {
+        alert('Could not get your location. Please allow location access and try again.')
+        setOnMyWayLoading(false)
+        setOnMyWayBooking(null)
+      },
+      { timeout: 10000 }
+    )
+  }
+
+  const handleSendOnMyWay = async () => {
+    if (!onMyWayBooking || onMyWayEta === null) return
+    const ownerPhone = onMyWayBooking.dogs?.owners?.phone
+    const ownerName = onMyWayBooking.dogs?.owners?.name
+    const dogName = onMyWayBooking.dogs?.name
+    if (ownerPhone) {
+      await fetch('/api/send-sms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'on_my_way',
+          to: ownerPhone,
+          data: { ownerName, dogName, eta: onMyWayEta }
+        })
+      })
+    }
+    setOnMyWaySent(prev => ({ ...prev, [onMyWayBooking.id]: true }))
+    setOnMyWayBooking(null)
+    setOnMyWayEta(null)
   }
 
   const handleNoShow = async (bookingId: string) => {
@@ -353,14 +410,16 @@ export default function AdminSchedule() {
                     <div className="booking-card-actions" style={{ display: 'flex', gap: '8px', flexDirection: 'column', marginLeft: '16px' }}>
                       {booking.status === 'confirmed' && (
                         <>
+                          <button
+                            onClick={() => handleOnMyWay(booking)}
+                            disabled={onMyWaySent[booking.id] || !booking.dogs?.owners?.phone || !booking.dogs?.owners?.address}
+                            style={{ padding: '9px 16px', background: onMyWaySent[booking.id] ? '#28a745' : '#2c5a9e', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center', opacity: (!booking.dogs?.owners?.phone || !booking.dogs?.owners?.address) ? 0.5 : 1 }}>
+                            {onMyWaySent[booking.id] ? <><CheckCircle size={14} /> Sent!</> : <><Car size={14} /> On My Way</>}
+                          </button>
                           <a href={`/admin/sessions/new?dog=${booking.dogs?.id}&booking=${booking.id}&hour=${booking.slot_hour}&date=${booking.booking_date}`}
                             style={{ padding: '9px 16px', background: 'linear-gradient(135deg, #f88124, #f9a04e)', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '13px', textDecoration: 'none', textAlign: 'center', display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center', boxShadow: '0 3px 10px rgba(255,107,53,0.25)' }}>
                             <ClipboardList size={14} /> Log Session
                           </a>
-                          <button onClick={() => handleComplete(booking.id)}
-                            style={{ padding: '9px 16px', background: '#28a745', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
-                            <CheckCircle size={14} /> Complete
-                          </button>
                           <button onClick={() => handleNoShow(booking.id)}
                             style={{ padding: '9px 16px', background: '#ffc107', color: '#333', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
                             <AlertTriangle size={14} /> No Show
@@ -568,6 +627,52 @@ export default function AdminSchedule() {
         )}
       </div>
 
+{/* ON MY WAY MODAL */}
+      {onMyWayBooking && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+          <div style={{ background: 'white', borderRadius: '20px', padding: '32px', maxWidth: '420px', width: '100%', boxShadow: '0 20px 60px rgba(0,0,0,0.3)', textAlign: 'center' }}>
+            <div style={{ width: '64px', height: '64px', background: '#eef2fb', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+              <Car size={30} color="#2c5a9e" />
+            </div>
+            <h3 style={{ margin: '0 0 8px', color: '#1a1a2e', fontWeight: '800', fontSize: '20px' }}>On My Way</h3>
+            <p style={{ margin: '0 0 20px', color: '#888', fontSize: '14px' }}>
+              Sending ETA to {onMyWayBooking.dogs?.owners?.name} for {onMyWayBooking.dogs?.name}'s session
+            </p>
+            {onMyWayLoading ? (
+              <div style={{ padding: '20px 0' }}>
+                <div style={{ width: '120px', height: '3px', background: '#f0f2f7', borderRadius: '2px', overflow: 'hidden', margin: '0 auto 12px' }}>
+                  <div style={{ height: '100%', background: '#2c5a9e', borderRadius: '2px', animation: 'sweep 1.2s ease-in-out infinite' }} />
+                </div>
+                <p style={{ color: '#888', fontSize: '13px', margin: 0 }}>Getting your location...</p>
+              </div>
+            ) : onMyWayEta !== null ? (
+              <>
+                <div style={{ background: '#eef2fb', borderRadius: '14px', padding: '20px', marginBottom: '24px' }}>
+                  <div style={{ fontSize: '48px', fontWeight: '900', color: '#2c5a9e', lineHeight: 1 }}>{onMyWayEta}</div>
+                  <div style={{ fontSize: '14px', color: '#2c5a9e', fontWeight: '700', marginTop: '4px' }}>minutes away</div>
+                  <div style={{ fontSize: '12px', color: '#888', marginTop: '8px' }}>{onMyWayBooking.dogs?.owners?.address}, {onMyWayBooking.dogs?.owners?.city}</div>
+                </div>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button onClick={() => { setOnMyWayBooking(null); setOnMyWayEta(null) }}
+                    style={{ flex: 1, padding: '14px', background: '#f0f2f7', color: '#555', border: 'none', borderRadius: '12px', fontWeight: '700', fontSize: '15px', cursor: 'pointer' }}>
+                    Cancel
+                  </button>
+                  <button onClick={handleSendOnMyWay}
+                    style={{ flex: 1, padding: '14px', background: 'linear-gradient(135deg, #2c5a9e, #001840)', color: 'white', border: 'none', borderRadius: '12px', fontWeight: '700', fontSize: '15px', cursor: 'pointer' }}>
+                    Send Text
+                  </button>
+                </div>
+              </>
+            ) : (
+              <button onClick={() => { setOnMyWayBooking(null) }}
+                style={{ padding: '12px 28px', background: '#f0f2f7', color: '#555', border: 'none', borderRadius: '10px', fontWeight: '700', fontSize: '14px', cursor: 'pointer' }}>
+                Close
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+      
       {/* CANCEL MODAL */}
       {cancelBooking && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
