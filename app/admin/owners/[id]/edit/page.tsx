@@ -113,7 +113,7 @@ export default function EditOwner() {
               <select value={city} onChange={(e) => setCity(e.target.value)}
                 style={{ ...inputStyle, cursor: 'pointer' }}>
                 <option value="">Select a city...</option>
-                {['Carmel', 'Zionsville', 'Fishers', 'Geist', 'Westfield', 'Noblesville'].map(c => (
+                {['Carmel', 'Zionsville', 'Fishers', 'Geist', 'Westfield', 'Noblesville', 'Pendleton'].map(c => (
                   <option key={c} value={c}>{c}</option>
                 ))}
               </select>
