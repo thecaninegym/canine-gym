@@ -163,7 +163,7 @@ export default function Profile() {
                 <label style={labelStyle}>City</label>
                 <select value={city} onChange={e => setCity(e.target.value)} style={inputStyle}>
                   <option value="">Select a city…</option>
-                  {['Carmel', 'Zionsville', 'Fishers', 'Geist', 'Westfield', 'Noblesville', 'Pendleton'].map(c => (
+                  {['Carmel', 'Zionsville', 'Fishers', 'Geist', 'Westfield', 'Noblesville', 'Pendleton', 'Indianapolis'].map(c => (
                     <option key={c} value={c}>{c}</option>
                   ))}
                 </select>
