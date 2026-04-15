@@ -10,7 +10,7 @@ const CATEGORIES = [
   { key: 'peak_speed',  label: 'Peak Speed', icon: <Zap size={15} />,        field: 'peak_speed',    unit: 'mph'      },
 ]
 
-const CITIES = ['All Cities', 'Carmel', 'Zionsville', 'Fishers', 'Geist', 'Westfield', 'Noblesville', 'Pendleton', 'Indianapolis']
+const CITIES = ['All Cities', 'Carmel', 'Zionsville', 'Fishers', 'Geist', 'Westfield', 'Noblesville', 'Pendleton', 'Indianapolis', 'Sheridan']
 
 export default function Leaderboard() {
   const [leaderboard, setLeaderboard] = useState<any[]>([])
