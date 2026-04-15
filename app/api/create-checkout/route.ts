@@ -14,6 +14,16 @@ export async function POST(request: Request) {
   // Check if this owner already has another active membership (for 2nd dog pricing)
   let isSecondDog = false
   if (type === 'membership' && dogIds?.[0]) {
+    // Gate: dog must have purchased intro before buying a membership
+    const { data: dogCheck } = await supabase
+      .from('dogs')
+      .select('intro_purchased')
+      .eq('id', dogIds[0])
+      .single()
+    if (!dogCheck?.intro_purchased) {
+      return NextResponse.json({ error: 'This dog must complete the Intro Package before purchasing a membership.' }, { status: 400 })
+    }
+
     const { data: existingMemberships } = await supabase
       .from('memberships')
       .select('id, dog_id')

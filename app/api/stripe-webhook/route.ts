@@ -102,6 +102,23 @@ export async function POST(request: Request) {
           })
         })
       }
+        // Admin notification for membership
+        const memberPlanNames: Record<string, string> = { starter: 'Standard', active: 'Pro', athlete: 'Elite' }
+        await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/send-email`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'admin_notification',
+            to: 'dev@thecaninegym.com',
+            data: {
+              action: 'New Membership Purchase',
+              dogName: dogData?.name,
+              ownerName: ownerData?.name,
+              date: `${memberPlanNames[plan] || plan} Plan - ${sessionsPerMonth} sessions/month`,
+              time: `$${((session.amount_total || 0) / 100).toFixed(2)}`
+            }
+          })
+        })
       }
     }
 
@@ -300,6 +317,31 @@ export async function POST(request: Request) {
               })
             })
           }
+          // Admin notification for alacarte
+          const aH = pending.slot_hour
+          const aAmpm = aH >= 12 ? 'PM' : 'AM'
+          const aHour = aH > 12 ? aH - 12 : aH === 0 ? 12 : aH
+          const aBookingDate = new Date(pending.booking_date + 'T12:00:00')
+          const aDogNames = await Promise.all((pending.dog_ids || []).map(async (id: string) => {
+            const { data } = await supabase.from('dogs').select('name').eq('id', id).single()
+            return data?.name || ''
+          }))
+          const { data: aOwnerData } = await supabase.from('owners').select('name').eq('id', ownerId).single()
+          await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/send-email`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              type: 'admin_notification',
+              to: 'dev@thecaninegym.com',
+              data: {
+                action: 'New A La Carte Purchase',
+                dogName: aDogNames.filter(Boolean).join(' & '),
+                ownerName: aOwnerData?.name,
+                date: `${aBookingDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })} at ${aHour}:00 ${aAmpm}`,
+                time: `$${((session.amount_total || 0) / 100).toFixed(2)}`
+              }
+            })
+          })
         }
       }
     }

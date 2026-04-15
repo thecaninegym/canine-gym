@@ -34,7 +34,7 @@ export default function Membership() {
       const { data: ownerData } = await supabase.from('owners').select('id').eq('email', user.email).single()
       if (ownerData) {
         setOwnerId(ownerData.id)
-        const { data: dogsData } = await supabase.from('dogs').select('id, name, photo_url').eq('owner_id', ownerData.id).order('name')
+        const { data: dogsData } = await supabase.from('dogs').select('id, name, photo_url, intro_purchased').eq('owner_id', ownerData.id).order('name')
         setDogs(dogsData || [])
         if (dogsData && dogsData.length > 0) setSelectedDogId(dogsData[0].id)
         const { data: membershipRows } = await supabase
@@ -54,6 +54,11 @@ export default function Membership() {
 
   const handleCheckout = async (type: string, plan?: string) => {
     if (type === 'membership' && !selectedDogId) { alert('Please select a dog first.'); return }
+    const selectedDog = dogs.find(d => d.id === selectedDogId)
+    if (type === 'membership' && selectedDog && !selectedDog.intro_purchased) {
+      alert(`${selectedDog.name} needs to complete the Intro Package before purchasing a membership. Head to the Book page to get started!`)
+      return
+    }
     const key = type === 'alacarte' || type === 'alacarte2' ? type : `${plan}-${selectedDogId}`
     setCheckoutLoading(key)
     const res = await fetch('/api/create-checkout', {
@@ -62,6 +67,7 @@ export default function Membership() {
       body: JSON.stringify({ ownerId, ownerEmail, type, plan, dogCount: 1, dogIds: type === 'membership' ? [selectedDogId] : [] })
     })
     const data = await res.json()
+    if (data.error) { alert(data.error); setCheckoutLoading(''); return }
     if (data.url) window.location.href = data.url
     setCheckoutLoading('')
   }
@@ -226,6 +232,15 @@ export default function Membership() {
               </h2>
               <p style={{ margin: 0, color: '#888', fontSize: '14px' }}>Save per session vs a la carte. Cancel anytime.</p>
             </div>
+            {!selectedDog.intro_purchased && (
+              <div style={{ background: '#fff5ea', border: '1px solid #f88124', borderRadius: '12px', padding: '16px 20px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <AlertCircle size={20} color="#f88124" style={{ flexShrink: 0 }} />
+                <div>
+                  <p style={{ margin: 0, color: '#1a1a2e', fontSize: '14px', fontWeight: '700' }}>{selectedDog.name} needs to complete the Intro Package first</p>
+                  <p style={{ margin: '4px 0 0', color: '#888', fontSize: '13px' }}>Every dog starts with 2 intro sessions before purchasing a membership. <a href="/book" style={{ color: '#f88124', fontWeight: '700', textDecoration: 'underline' }}>Book the Intro Package</a></p>
+                </div>
+              </div>
+            )}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', marginBottom: '24px' }}>
               {PLANS.map(plan => {
                 const isLoading = checkoutLoading === `${plan.key}-${selectedDogId}`
