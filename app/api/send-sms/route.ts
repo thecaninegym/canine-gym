@@ -66,6 +66,10 @@ export async function POST(request: Request) {
     content = `Hi ${data.ownerName}! Mia is on her way to you for ${data.dogName}'s session. \n\nEstimated arrival: ${data.eta} minutes.\n\n See you soon!\n\n- The Canine Gym`
   }
 
+  if (type === 'live_stream_started') {
+    content = `Hi ${data.ownerName}! 🐾 ${data.dogName}'s session has started!\n\nWatch live: ${data.watchUrl}\n\nThe link is active for the duration of the session.\n\n- The Canine Gym`
+  }
+
   if (!content) {
     return NextResponse.json({ error: 'Unknown SMS type' }, { status: 400 })
   }

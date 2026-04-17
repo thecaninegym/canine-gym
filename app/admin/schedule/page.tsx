@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '../../../lib/supabase'
-import { PawPrint, ArrowLeft, Calendar, Map, List, ChevronLeft, ChevronRight, Clock, Phone, Mail, MapPin, Car, ClipboardList, CheckCircle, AlertTriangle, XCircle, Navigation, MessageSquare, RefreshCw, X } from 'lucide-react'
+import { PawPrint, ArrowLeft, Calendar, Map, List, ChevronLeft, ChevronRight, Clock, Phone, Mail, MapPin, Car, ClipboardList, CheckCircle, AlertTriangle, XCircle, Navigation, MessageSquare, RefreshCw, X, Video } from 'lucide-react'
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 const HOURS = Array.from({ length: 13 }, (_, i) => i + 6)
@@ -40,6 +40,10 @@ export default function AdminSchedule() {
   const [cancelBooking, setCancelBooking] = useState<any | null>(null)
   const [cancelReason, setCancelReason] = useState('')
   const [cancelLoading, setCancelLoading] = useState(false)
+
+  // Live stream
+  const [activeStreams, setActiveStreams] = useState<Record<string, any>>({})
+  const [streamLoading, setStreamLoading] = useState<Record<string, boolean>>({})
 
   // Reschedule modal
   const [rescheduleBooking, setRescheduleBooking] = useState<any | null>(null)
@@ -259,6 +263,64 @@ const handleOnMyWay = (booking: any) => {
     fetchBookings(); fetchWeekBookings()
   }
 
+  const handleStartStream = async (booking: any) => {
+    const bookingId = booking.id
+    setStreamLoading(prev => ({ ...prev, [bookingId]: true }))
+    try {
+      const res = await fetch('/api/live-stream/start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          bookingId,
+          dogId: booking.dogs?.id,
+          ownerId: booking.dogs?.owner_id
+        })
+      })
+      const data = await res.json()
+      if (data.streamId) {
+        setActiveStreams(prev => ({ ...prev, [bookingId]: data }))
+      }
+    } catch (err) {
+      console.error('Failed to start stream:', err)
+    }
+    setStreamLoading(prev => ({ ...prev, [bookingId]: false }))
+  }
+
+  const handleStopStream = async (bookingId: string) => {
+    const stream = activeStreams[bookingId]
+    if (!stream) return
+    setStreamLoading(prev => ({ ...prev, [bookingId]: true }))
+    try {
+      await fetch('/api/live-stream/stop', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ streamId: stream.streamId })
+      })
+      setActiveStreams(prev => { const n = { ...prev }; delete n[bookingId]; return n })
+    } catch (err) {
+      console.error('Failed to stop stream:', err)
+    }
+    setStreamLoading(prev => ({ ...prev, [bookingId]: false }))
+  }
+
+  // Check for active streams on load
+  useEffect(() => {
+    const checkActiveStreams = async () => {
+      const { data: streams } = await supabase
+        .from('live_streams')
+        .select('*')
+        .eq('status', 'active')
+      if (streams) {
+        const map: Record<string, any> = {}
+        for (const s of streams) {
+          if (s.booking_id) map[s.booking_id] = { streamId: s.id, streamKey: s.mux_stream_key, playbackId: s.mux_playback_id }
+        }
+        setActiveStreams(map)
+      }
+    }
+    checkActiveStreams()
+  }, [])
+
   const formatHour = (h: number) => {
     const ampm = h >= 12 ? 'PM' : 'AM'
     const hour = h > 12 ? h - 12 : h === 0 ? 12 : h
@@ -416,6 +478,21 @@ const handleOnMyWay = (booking: any) => {
                             style={{ padding: '9px 16px', background: onMyWaySent[booking.id] ? '#28a745' : '#2c5a9e', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center', opacity: (!booking.dogs?.owners?.phone || !booking.dogs?.owners?.address) ? 0.5 : 1 }}>
                             {onMyWaySent[booking.id] ? <><CheckCircle size={14} /> Sent!</> : <><Car size={14} /> On My Way</>}
                           </button>
+                          {activeStreams[booking.id] ? (
+                            <button
+                              onClick={() => handleStopStream(booking.id)}
+                              disabled={!!streamLoading[booking.id]}
+                              style={{ padding: '9px 16px', background: '#dc3545', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center', animation: 'pulse-border 2s infinite' }}>
+                              {streamLoading[booking.id] ? 'Stopping...' : <><Video size={14} /> Stop Live Stream</>}
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => handleStartStream(booking)}
+                              disabled={!!streamLoading[booking.id]}
+                              style={{ padding: '9px 16px', background: '#28a745', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
+                              {streamLoading[booking.id] ? 'Starting...' : <><Video size={14} /> Start Live Stream</>}
+                            </button>
+                          )}
                           <a href={`/admin/sessions/new?dog=${booking.dogs?.id}&booking=${booking.id}&hour=${booking.slot_hour}&date=${booking.booking_date}`}
                             style={{ padding: '9px 16px', background: 'linear-gradient(135deg, #f88124, #f9a04e)', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: '700', fontSize: '13px', textDecoration: 'none', textAlign: 'center', display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center', boxShadow: '0 3px 10px rgba(255,107,53,0.25)' }}>
                             <ClipboardList size={14} /> Log Session
