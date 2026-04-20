@@ -117,7 +117,7 @@ export default function AdminSchedule() {
 
   const fetchBookings = async () => {
     setLoading(true)
-    const { data } = await supabase.from('bookings').select('*, dogs(id, name, breed, photo_url, leaderboard_settings(city), owners(name, email, phone, address, city, zip))').eq('booking_date', selectedDate).order('slot_hour')
+    const { data } = await supabase.from('bookings').select('*, dogs(id, name, breed, photo_url, owner_id, leaderboard_settings(city), owners(name, email, phone, address, city, zip, sms_consent))').eq('booking_date', selectedDate).order('slot_hour')
     setBookings(data || [])
     setSessionNotes({})
     setLoading(false)
@@ -126,7 +126,7 @@ export default function AdminSchedule() {
 
   const fetchWeekBookings = async () => {
     const dates = getWeekDates()
-    const { data } = await supabase.from('bookings').select('*, dogs(id, name, breed, photo_url, leaderboard_settings(city), owners(name, email, phone, address, city, zip))').in('booking_date', dates).order('slot_hour')
+    const { data } = await supabase.from('bookings').select('*, dogs(id, name, breed, photo_url, owner_id, leaderboard_settings(city), owners(name, email, phone, address, city, zip, sms_consent))').in('booking_date', dates).order('slot_hour')
     setWeekBookings(data || [])
   }
 

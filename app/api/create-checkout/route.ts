@@ -97,6 +97,7 @@ export async function POST(request: Request) {
       payment_method_types: ['card'],
       mode: type === 'membership' ? 'subscription' : 'payment',
       line_items: [{ price: getPriceId(), quantity: 1 }],
+      allow_promotion_codes: true,
       customer_email: ownerEmail,
       metadata: {
         owner_id: ownerId,

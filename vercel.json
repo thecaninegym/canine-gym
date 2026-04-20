@@ -23,10 +23,6 @@
     {
       "path": "/api/reengagement-emails",
       "schedule": "0 11 * * *"
-    },
-    {
-      "path": "/api/live-stream/cron",
-      "schedule": "* 6-19 * * 1-6"
     }
   ]
 }
