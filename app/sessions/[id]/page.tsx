@@ -625,9 +625,9 @@ export default function SessionDetail() {
                 { label: 'Start Temp', value: session.start_temp_f ? `${session.start_temp_f.toFixed(1)}°F` : '—' },
                 { label: 'End Temp', value: session.end_temp_f ? `${session.end_temp_f.toFixed(1)}°F` : '—' },
                 { label: 'Avg Temp', value: session.avg_temp_f ? `${session.avg_temp_f.toFixed(1)}°F` : '—' },
-                { label: 'Max Temp', value: session.max_temp_f ? `${session.max_temp_f.toFixed(1)}°F` : '—' },
-                { label: 'Avg Humidity', value: session.avg_humidity ? `${session.avg_humidity.toFixed(1)}%` : '—' },
                 { label: 'Start Humidity', value: session.start_humidity ? `${session.start_humidity.toFixed(1)}%` : '—' },
+                { label: 'End Humidity', value: session.end_humidity ? `${session.end_humidity.toFixed(1)}%` : '—' },
+                { label: 'Avg Humidity', value: session.avg_humidity ? `${session.avg_humidity.toFixed(1)}%` : '—' },
               ].map(stat => (
                 <div key={stat.label} style={{ background: '#f8f9fc', borderRadius: '10px', padding: '12px', border: '1.5px solid #eef0f5', textAlign: 'center' }}>
                   <div style={{ fontSize: '10px', color: '#aaa', fontWeight: '700', marginBottom: '4px' }}>{stat.label}</div>
@@ -637,37 +637,55 @@ export default function SessionDetail() {
             </div>
             {session.temp_log && session.temp_log.length > 1 && (() => {
               const log = session.temp_log
-              const temps = log.map((e: any) => e.temp_f)
-              const humids = log.map((e: any) => e.humidity)
-              const maxTemp = Math.max(...temps)
-              const minTemp = Math.min(...temps)
-              const tempRange = maxTemp - minTemp || 1
-              const maxHumid = Math.max(...humids)
-              const minHumid = Math.min(...humids)
-              const humidRange = maxHumid - minHumid || 1
-              const chartH = 80
+              // Fixed Y-axis bounds so small variations look flat (as they should)
+              // Temp range: 40°F to 100°F covers any realistic van condition
+              // Humidity range: 0% to 100% is the natural scale
+              const TEMP_MIN = 40
+              const TEMP_MAX = 100
+              const HUMID_MIN = 0
+              const HUMID_MAX = 100
+              const tempRange = TEMP_MAX - TEMP_MIN
+              const humidRange = HUMID_MAX - HUMID_MIN
+              const chartH = 100
               const ptW = Math.max(20, 300 / log.length)
               const totalW = Math.max(300, ptW * log.length)
+              // Show max ~8 x-axis labels regardless of log length
+              const labelStep = Math.max(1, Math.ceil(log.length / 8))
               return (
                 <div>
                   <div style={{ fontSize: '12px', fontWeight: '700', color: '#555', marginBottom: '10px' }}>Minute-by-Minute</div>
                   <div style={{ overflowX: 'auto' }}>
-                    <svg viewBox={`0 0 ${totalW} ${chartH + 40}`} width="100%" height={chartH + 40} style={{ display: 'block' }}>
+                    <svg viewBox={`0 0 ${totalW + 30} ${chartH + 40}`} width="100%" height={chartH + 40} style={{ display: 'block' }}>
+                      {/* Left Y-axis labels (temperature °F) */}
+                      <text x="0" y="10" style={{ fontSize: '9px', fill: '#f88124', fontFamily: 'inherit', fontWeight: 600 }}>{TEMP_MAX}°</text>
+                      <text x="0" y={chartH / 2 + 4} style={{ fontSize: '9px', fill: '#f88124', fontFamily: 'inherit', fontWeight: 600 }}>{(TEMP_MIN + TEMP_MAX) / 2}°</text>
+                      <text x="0" y={chartH + 4} style={{ fontSize: '9px', fill: '#f88124', fontFamily: 'inherit', fontWeight: 600 }}>{TEMP_MIN}°</text>
+                      {/* Right Y-axis labels (humidity %) */}
+                      <text x={totalW + 4} y="10" style={{ fontSize: '9px', fill: '#2c5a9e', fontFamily: 'inherit', fontWeight: 600 }}>{HUMID_MAX}%</text>
+                      <text x={totalW + 4} y={chartH / 2 + 4} style={{ fontSize: '9px', fill: '#2c5a9e', fontFamily: 'inherit', fontWeight: 600 }}>{(HUMID_MIN + HUMID_MAX) / 2}%</text>
+                      <text x={totalW + 4} y={chartH + 4} style={{ fontSize: '9px', fill: '#2c5a9e', fontFamily: 'inherit', fontWeight: 600 }}>{HUMID_MIN}%</text>
+                      {/* Subtle horizontal gridline at midpoint */}
+                      <line x1="20" y1={chartH / 2} x2={totalW} y2={chartH / 2} stroke="#f0f2f6" strokeWidth="1" strokeDasharray="2 3" />
+                      {/* Temperature line */}
                       <polyline
-                        points={log.map((e: any, i: number) => `${i * ptW + ptW/2},${chartH - ((e.temp_f - minTemp) / tempRange) * chartH}`).join(' ')}
+                        points={log.map((e: any, i: number) => `${i * ptW + ptW/2 + 20},${chartH - ((e.temp_f - TEMP_MIN) / tempRange) * chartH}`).join(' ')}
                         fill="none" stroke="#f88124" strokeWidth="2" strokeLinejoin="round"
                       />
+                      {/* Humidity line */}
                       <polyline
-                        points={log.map((e: any, i: number) => `${i * ptW + ptW/2},${chartH - ((e.humidity - minHumid) / humidRange) * chartH}`).join(' ')}
+                        points={log.map((e: any, i: number) => `${i * ptW + ptW/2 + 20},${chartH - ((e.humidity - HUMID_MIN) / humidRange) * chartH}`).join(' ')}
                         fill="none" stroke="#2c5a9e" strokeWidth="2" strokeLinejoin="round" strokeDasharray="4 2"
                       />
+                      {/* X-axis labels, thinned out */}
                       {log.map((e: any, i: number) => (
-                        <text key={i} x={i * ptW + ptW/2} y={chartH + 16} textAnchor="middle"
-                          style={{ fontSize: '9px', fill: '#aaa', fontFamily: 'inherit' }}>
-                          {e.minute}m
-                        </text>
+                        (i % labelStep === 0 || i === log.length - 1) && (
+                          <text key={i} x={i * ptW + ptW/2 + 20} y={chartH + 16} textAnchor="middle"
+                            style={{ fontSize: '9px', fill: '#aaa', fontFamily: 'inherit' }}>
+                            {e.minute}m
+                          </text>
+                        )
                       ))}
-                      <line x1="0" y1={chartH} x2={totalW} y2={chartH} stroke="#e5e8f0" strokeWidth="1" />
+                      <line x1="20" y1={chartH} x2={totalW} y2={chartH} stroke="#e5e8f0" strokeWidth="1" />
                     </svg>
                   </div>
                   <div style={{ display: 'flex', gap: '16px', marginTop: '8px' }}>
