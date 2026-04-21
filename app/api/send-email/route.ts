@@ -480,6 +480,23 @@ export async function POST(request: Request) {
     `)
   }
 
+  if (type === 'admin_bounce_alert') {
+    subject = `⚠️ Email bounced: ${data.bouncedEmail}`
+    html = emailWrapper('Email Bounce Alert', `
+      ${h1(`An email bounced`, '#dc3545')}
+      ${p(`An email failed to deliver. The recipient likely typed their address wrong during signup. You should reach out to them to get the correct email.`)}
+      ${infoBox([
+        row('Bounced Address', data.bouncedEmail),
+        row('Owner Name', data.ownerName || 'Unknown'),
+        row('Phone', data.ownerPhone || 'Not on file'),
+        row('Bounce Type', data.bounceType || 'Unknown'),
+        row('Reason', data.bounceReason || 'Not specified'),
+        row('Email That Bounced', data.emailSubject || 'Unknown'),
+      ], '#ffeaea', '#dc3545')}
+      ${data.ownerId ? btn('View Owner in Admin', `https://app.thecaninegym.com/admin/owners/${data.ownerId}`, BLUE) : ''}
+    `)
+  }
+
   try {
     await resend.emails.send({
       from: 'The Canine Gym <info@thecaninegym.com>',
