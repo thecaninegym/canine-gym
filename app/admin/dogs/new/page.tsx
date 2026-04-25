@@ -97,7 +97,7 @@ export default function AddDog() {
                 <label style={labelStyle}>City (Leaderboard)</label>
                 <select value={city} onChange={e => setCity(e.target.value)} style={{ ...inputStyle, background: 'white' }}>
                   <option value="">Select city…</option>
-                  {['Carmel', 'Zionsville', 'Whitestown', 'Fishers', 'Geist', 'Westfield', 'Noblesville', 'Pendleton', 'Indianapolis', 'Sheridan'].map(c => <option key={c} value={c}>{c}</option>)}
+                  {['Carmel', 'Zionsville', 'Whitestown', 'Fishers', 'Geist', 'McCordsville', 'Fortville', 'Westfield', 'Noblesville', 'Pendleton', 'Indianapolis', 'Sheridan'].map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
             </div>
